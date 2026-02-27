@@ -1,0 +1,22 @@
+body {
+    background-color: #222;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    font-family: sans-serif;
+}
+
+canvas {
+    border: 4px solid #fff;
+    background-color: #000;
+    /* Rendu pixel art net */
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    /* Le jeu garde son ratio mais s'agrandit */
+    height: 80vh; 
+    width: auto;
+}

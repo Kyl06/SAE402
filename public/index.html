@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Minish Cap Coop</title>
+    <title>Zelda Coop Vanilla</title>
     <style>
-        body { margin: 0; background: black; overflow: hidden; }
-        canvas { display: block; background: #222; }
+        body { margin: 0; background: #222; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { background: #333; border: 4px solid #555; }
     </style>
 </head>
-<body style="background:#000; display:flex; justify-content:center; align-items:center; height:100vh; margin:0;">
-    <canvas id="c" style="border:4px solid #333"></canvas>
+<body>
+    <canvas id="gameCanvas"></canvas>
     <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="js/game.js"></script>
 </body>
 </html>
