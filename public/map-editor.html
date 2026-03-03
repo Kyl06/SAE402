@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zelda Map Editor</title>
+    <style>
+        body { background: #222; color: white; font-family: sans-serif; display: flex; }
+        canvas { background: #333; border: 2px solid #555; cursor: crosshair; image-rendering: pixelated; }
+        .sidebar { padding: 20px; width: 300px; }
+        textarea { width: 100%; height: 300px; background: #000; color: #0f0; }
+    </style>
+</head>
+<body>
+    <canvas id="editorCanvas" width="800" height="600"></canvas>
+    <div class="sidebar">
+        <h2>Map Editor</h2>
+        <p>Clic : Placer un mur (32x32)</p>
+        <p>Clic Droit : Supprimer</p>
+        <button onclick="copyJSON()">Copier JSON</button>
+        <textarea id="jsonOutput"></textarea>
+    </div>
+
+    <script type="module">
+        const canvas = document.getElementById('editorCanvas');
+        const ctx = canvas.getContext('2d');
+        const output = document.getElementById('jsonOutput');
+        const GRID_SIZE = 32;
+        let walls = [];
+
+        // Dessiner la grille et les murs
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Grille
+            ctx.strokeStyle = "#444";
+            for(let x=0; x<canvas.width; x+=GRID_SIZE) {
+                ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,600); ctx.stroke();
+            }
+            for(let y=0; y<canvas.height; y+=GRID_SIZE) {
+                ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(800,y); ctx.stroke();
+            }
+
+            // Murs placés
+            ctx.fillStyle = "rgba(0, 255, 100, 0.5)";
+            ctx.strokeStyle = "#0f0";
+            walls.forEach(w => {
+                ctx.fillRect(w.x, w.y, w.width, w.height);
+                ctx.strokeRect(w.x, w.y, w.width, w.height);
+            });
+            
+            updateJSON();
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // Aligner sur la grille
+            const snapX = Math.floor(mouseX / GRID_SIZE) * GRID_SIZE;
+            const snapY = Math.floor(mouseY / GRID_SIZE) * GRID_SIZE;
+
+            if (e.button === 0) { // Clic gauche : Ajouter
+                if (!walls.find(w => w.x === snapX && w.y === snapY)) {
+                    walls.push({ x: snapX, y: snapY, width: GRID_SIZE, height: GRID_SIZE });
+                }
+            } else if (e.button === 2) { // Clic droit : Enlever
+                walls = walls.filter(w => !(w.x === snapX && w.y === snapY));
+            }
+            draw();
+        });
+
+        // Empêcher le menu contextuel sur clic droit
+        canvas.oncontextmenu = (e) => e.preventDefault();
+
+        function updateJSON() {
+            output.value = JSON.stringify({ walls: walls }, null, 2);
+        }
+
+        window.copyJSON = () => {
+            output.select();
+            document.execCommand('copy');
+            alert("JSON copié !");
+        };
+
+        draw();
+    </script>
+</body>
+</html>

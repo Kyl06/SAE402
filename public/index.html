@@ -1,15 +1,74 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="fr">
 <head>
+    <meta charset="UTF-8">
     <title>Zelda Coop Vanilla</title>
     <style>
-        body { margin: 0; background: #222; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        canvas { background: #333; border: 4px solid #555; }
+        body {
+            margin: 0;
+            background: #111;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        canvas {
+            background: #222;
+            border: 4px solid #444;
+            /* Indispensable pour garder un aspect pixel-art net */
+            image-rendering: pixelated; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        #game-over-ui {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 40px;
+            border: 4px solid #e74c3c; /* Rouge pour le danger */
+            text-align: center;
+            font-family: "Courier New", Courier, monospace;
+            z-index: 2000;
+        }
+
+        .respawn-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.1s;
+        }
+
+        .respawn-btn:hover {
+            background: #ddd;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+
+    <div id="game-over-ui">
+        <h2 style="font-size: 48px; margin-bottom: 20px; color: #e74c3c;">PERDU</h2>
+        <p style="margin-bottom: 30px;">Ton aventure s'arrête ici...</p>
+        <button class="respawn-btn" onclick="location.reload()">
+            RÉAPPARAÎTRE
+        </button>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="660"></canvas>
+
     <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="js/game.js"></script>
+    <script type="module" src="main.js"></script>
+
 </body>
 </html>
