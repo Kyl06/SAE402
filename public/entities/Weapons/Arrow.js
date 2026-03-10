@@ -25,17 +25,22 @@ export class Arrow extends Entity {
     }
   }
 
+  // Dans Arrow.js
   onCollision(other) {
-    // On ignore le tireur et les autres joueurs (multijoueur)
     if (other === this.owner || other.hasTag("PLAYER")) return;
 
-    // Si on touche un ennemi, on inflige des dégâts et on disparaît
-    if (other.hasTag("ENEMY") && other.takeDamage) {
-      other.takeDamage(this.facing);
-      this.kill();
+    if (other.hasTag("ENEMY")) {
+      // Dégâts locaux
+      if (other.takeDamage) other.takeDamage(this.facing);
+
+      // SIGNAL RÉSEAU
+      if (window.game.network && other.netId) {
+        window.game.network.sendHit(other.netId, 1);
+      }
+
+      this.kill(); // La flèche disparaît après l'impact
     }
 
-    // Si on touche un mur ou un obstacle solide
     if (other.hasTag("WALL") || other.hasTag("SOLID")) {
       this.kill();
     }

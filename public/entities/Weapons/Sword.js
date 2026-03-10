@@ -35,10 +35,21 @@ export class Sword extends Entity {
         this.frame = (baseFrame[this.facing] || 0) + swingStep;
     }
 
-    // Inflige des dégâts aux ennemis touchés
+    /**
+     * Gestion de la collision
+     */
     onCollision(other) {
         if (other.hasTag('ENEMY')) {
-            other.takeDamage?.(this.facing);
+            // 1. Feedback visuel immédiat pour celui qui frappe (clignotement/recul local)
+            if (other.takeDamage) {
+                other.takeDamage(this.facing);
+            }
+
+            // 2. SIGNAL RÉSEAU : On prévient le Host pour valider les dégâts réels
+            // On envoie l'ID du monstre, la valeur (1) et la direction (this.facing)
+            if (window.game.network && other.netId) {
+                window.game.network.sendHit(other.netId, 1, this.facing);
+            }
         }
     }
 

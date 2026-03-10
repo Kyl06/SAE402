@@ -4,26 +4,37 @@ import { SpriteSheet } from '../../engine/SpriteSheet.js';
 export class NetworkMoblin extends Entity {
     constructor(x, y) {
         super(x, y, 32, 32);
+        // On s'aligne sur le Moblin original : 4 colonnes, 4 lignes
         this.spriteSheet = new SpriteSheet('MOBLIN', 4, 4, 16, 16);
         this.facing = 'DOWN';
-        this.collider = false; // On désactive les collisions locales pour les entités réseau
+        this.collider = false;
     }
 
-    // Met à jour la position et l'orientation depuis le serveur
-    onNetworkUpdate(data) {
-        const [x, y, facing] = data.split('|');
-        this.x = parseFloat(x);
-        this.y = parseFloat(y);
+    // Dans NetworkMoblin.js
+    updateFromNetwork(targetX, targetY, facing) {
+        // On ne change pas x et y brutalement, on stocke la destination
+        this.targetX = parseFloat(targetX);
+        this.targetY = parseFloat(targetY);
         this.facing = facing;
     }
 
+    update(delta) {
+        // Si on a une destination, on s'en rapproche doucement (Lerp)
+        if (this.targetX !== undefined) {
+            // 0.2 est la vitesse de lissage (entre 0 et 1)
+            this.x += (this.targetX - this.x) * 0.2;
+            this.y += (this.targetY - this.y) * 0.2;
+        }
+        super.update(delta);
+    }
+
     draw(ctx) {
-        // Détermine la ligne de sprites selon la direction
+        // Sauts de 4 selon ton Moblin.js
         const row = { DOWN: 0, UP: 4, LEFT: 8, RIGHT: 12 }[this.facing] || 0;
-        
-        // Animation simple basée sur le temps pour les Moblins distants
+
+        // Animation de marche (frames 0 et 1 de la ligne)
         const walkCycle = (Math.floor(Date.now() / 150) % 2);
-        
+
         this.spriteSheet.drawFrame(ctx, row + walkCycle, this.x, this.y, 2);
     }
 }

@@ -45,39 +45,41 @@ window.respawn = function () {
 function spawnEnemyGroup(count) {
     for (let i = 0; i < count; i++) {
         // Spawn aléatoire dans une zone sécurisée
-        const x = 200 + Math.random() * 400; 
+        const x = 200 + Math.random() * 400;
         const y = 200 + Math.random() * 300;
-        engine.add(new Moblin(x, y, 120)); 
+        engine.add(new Moblin(x, y, 120));
     }
 }
 
 // --- Chargement des Ressources et Démarrage ---
 Assets.load({
-    LINK: "./assets/link.png",
+    LINK: "./assets/link1.png",
+    LINK2: "./assets/link2.png",
     MOBLIN: "./assets/moblin.png",
     HEARTS: "./assets/hearts.png",
     EXPLOSION: "./assets/explosion.png",
     SWORD: "./assets/sword.png",
     ARROW: "./assets/arrow.png",
 }).then(() => {
-    // 1. Initialisation du Monde
     const worldMap = new Map(engine);
     worldMap.load(level1);
-
-    // 2. Initialisation du Joueur
     const hero = new Player(100, 100, "LINK");
     window.game.player = hero;
     engine.add(hero);
 
-    // 3. Peuplement de la zone
-    spawnEnemyGroup(4);
+    // 2. Initialisation Réseau
+    const network = new NetworkUpdater(hero, engine);
 
-    // 4. Interface et Synchronisation Réseau
+    // 3. LOGIQUE CRUCIALE : Seul le Host crée les monstres
+    // On laisse 300ms au socket pour recevoir l'événement 'init_player'
+    // --- Remplace ton bloc setTimeout par celui-ci ---
+
+    window.addEventListener('network_ready', () => {
+        if (network.isHost) {spawnEnemyGroup(4);}
+    });
+
+    // 4. UI et Start
     engine.add(new BottomBar());
-    
-    const network = new NetworkUpdater(hero);
-    setInterval(() => network.sendUpdate(), 50); // 20 updates par seconde (standard)
-
-    // 5. Lancement du moteur
+    setInterval(() => network.sendUpdate(), 30);
     engine.start();
 });

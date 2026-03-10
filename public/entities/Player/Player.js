@@ -22,9 +22,9 @@ export class Player extends Entity {
 
     // Initialisation des animateurs de marche pour chaque direction
     this.animations = {
-      [DOWN]:  new Animator([0, 1], 150),
-      [UP]:    new Animator([5, 6], 150),
-      [LEFT]:  new Animator([10, 11], 150),
+      [DOWN]: new Animator([0, 1], 150),
+      [UP]: new Animator([5, 6], 150),
+      [LEFT]: new Animator([10, 11], 150),
       [RIGHT]: new Animator([15, 16], 150),
     };
 
@@ -58,12 +58,19 @@ export class Player extends Entity {
 
     // Knockback basé sur la direction actuelle
     const knock = 45;
-    if (this.facing === UP)    this.y += knock;
-    if (this.facing === DOWN)  this.y -= knock;
-    if (this.facing === LEFT)  this.x += knock;
+    if (this.facing === UP) this.y += knock;
+    if (this.facing === DOWN) this.y -= knock;
+    if (this.facing === LEFT) this.x += knock;
     if (this.facing === RIGHT) this.x -= knock;
 
     setTimeout(() => this.isPainFlashing = false, 400);
+  }
+
+  setSkin(skinId) {
+    this.skinId = skinId;
+    // On recrée la SpriteSheet avec le nouvel ID (ex: "LINK2")
+    this.spriteSheet = new SpriteSheet(this.skinId, 5, 4, 16, 16);
+    console.log("Mon skin local a été mis à jour :", skinId);
   }
 
   die() {
@@ -81,7 +88,7 @@ export class Player extends Entity {
     // Si une action (attaque) est en cours, elle prend la priorité
     if (this.actionAnimation) {
       this.actionAnimation.work?.(delta);
-      return; 
+      return;
     }
 
     this.handleMovement();
@@ -102,11 +109,11 @@ export class Player extends Entity {
     this.velY = 0;
 
     // Lecture des touches de direction
-    if (inputs.isHeld("ArrowLeft"))  { this.velX = -this.speed; this.facing = LEFT; }
-    else if (inputs.isHeld("ArrowRight")) { this.velX = this.speed;  this.facing = RIGHT; }
+    if (inputs.isHeld("ArrowLeft")) { this.velX = -this.speed; this.facing = LEFT; }
+    else if (inputs.isHeld("ArrowRight")) { this.velX = this.speed; this.facing = RIGHT; }
 
-    if (inputs.isHeld("ArrowUp"))    { this.velY = -this.speed; this.facing = UP; }
-    else if (inputs.isHeld("ArrowDown"))  { this.velY = this.speed;  this.facing = DOWN; }
+    if (inputs.isHeld("ArrowUp")) { this.velY = -this.speed; this.facing = UP; }
+    else if (inputs.isHeld("ArrowDown")) { this.velY = this.speed; this.facing = DOWN; }
 
     // Normalisation pour éviter d'aller plus vite en diagonale (160 * 0.707)
     if (this.velX !== 0 && this.velY !== 0) {

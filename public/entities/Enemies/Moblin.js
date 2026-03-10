@@ -6,6 +6,7 @@ import { Heart } from "../Items/Heart.js";
 export class Moblin extends Entity {
   constructor(x, y, roamRadius = 120) {
     super(x, y, 32, 32);
+    this.netId = 'mob_' + Math.random().toString(36).slice(2, 11);
     this.hp = 3;
     this.speed = 40;
     this.chaseSpeed = 70;
@@ -91,8 +92,8 @@ export class Moblin extends Entity {
     const distToAnchorY = this.anchor.y - this.y;
 
     if (Math.abs(distToAnchorX) > this.roamRadius || Math.abs(distToAnchorY) > this.roamRadius) {
-      this.facing = Math.abs(distToAnchorX) > Math.abs(distToAnchorY) 
-        ? (distToAnchorX > 0 ? "RIGHT" : "LEFT") 
+      this.facing = Math.abs(distToAnchorX) > Math.abs(distToAnchorY)
+        ? (distToAnchorX > 0 ? "RIGHT" : "LEFT")
         : (distToAnchorY > 0 ? "DOWN" : "UP");
     } else {
       this.facing = ["UP", "DOWN", "LEFT", "RIGHT"][Math.floor(Math.random() * 4)];
@@ -123,7 +124,7 @@ export class Moblin extends Entity {
 
   onCollision(other) {
     if (other.hasTag("PLAYER")) other.takeDamage?.(1);
-    
+
     // Évite le chevauchement entre ennemis
     if (other instanceof Moblin) {
       this.x += this.x < other.x ? -1.5 : 1.5;
@@ -144,9 +145,33 @@ export class Moblin extends Entity {
     const row = { DOWN: 0, UP: 4, LEFT: 8, RIGHT: 12 }[this.facing];
     const isMoving = Math.abs(this.velX) > 0.1 || Math.abs(this.velY) > 0.1;
     const walkCycle = isMoving ? (Math.floor(Date.now() / 150) % 2) : 0;
-    
+
     // Frame de douleur (index 2-3 de la ligne) ou frame de marche
     const frame = this.painState ? (row + 2 + (Math.floor(Date.now() / 50) % 2)) : (row + walkCycle);
     this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, 2);
+  }
+
+  // Dans Moblin.js (méthode d'IA/Update)
+  findTarget() {
+    const players = [window.game.player]; // Le P1 local
+
+    // On ajoute tous les joueurs qui sont arrivés par le réseau
+    const remotePlayers = Object.values(window.game.network.remotePlayers);
+    const allPlayers = players.concat(remotePlayers);
+
+    // Trouver le plus proche
+    let closest = null;
+    let minDist = 300; // Distance de détection
+
+    allPlayers.forEach(p => {
+      if (!p || p.isDead) return;
+      const d = Math.hypot(p.x - this.x, p.y - this.y);
+      if (d < minDist) {
+        minDist = d;
+        closest = p;
+      }
+    });
+
+    this.target = closest;
   }
 }
