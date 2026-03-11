@@ -3,34 +3,50 @@
 <head>
     <title>Zelda Map Editor</title>
     <style>
-        body { background: #222; color: white; font-family: sans-serif; display: flex; }
+        /* Style minimaliste pour l'éditeur */
+        body { background: #222; color: white; font-family: sans-serif; display: flex; margin: 0; }
         canvas { background: #333; border: 2px solid #555; cursor: crosshair; image-rendering: pixelated; }
-        .sidebar { padding: 20px; width: 300px; }
-        textarea { width: 100%; height: 300px; background: #000; color: #0f0; }
+        .sidebar { padding: 20px; width: 300px; background: #1a1a1a; }
+        textarea { width: 100%; height: 300px; background: #000; color: #0f0; font-family: monospace; font-size: 11px; }
+        button { padding: 10px; cursor: pointer; background: #444; color: #fff; border: 1px solid #666; width: 100%; }
+        button:hover { background: #555; }
     </style>
 </head>
 <body>
+    <!-- Zone de dessin des murs -->
     <canvas id="editorCanvas" width="800" height="600"></canvas>
+
+    <!-- Barre latérale d'outils et d'export -->
     <div class="sidebar">
-        <h2>Map Editor</h2>
-        <p>Clic : Placer un mur (32x32)</p>
-        <p>Clic Droit : Supprimer</p>
-        <button onclick="copyJSON()">Copier JSON</button>
-        <textarea id="jsonOutput"></textarea>
+        <h2>Éditeur de Map</h2>
+        <p style="font-size: 13px; color: #aaa;">
+            Clic Gauche : Placer mur (32x32)<br>
+            Clic Droit : Supprimer mur
+        </p>
+        <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+        <button onclick="copyJSON()">Copier le JSON</button>
+        <p style="font-size: 11px; color: #888; margin-top: 15px;">Output JSON (Copiez dans level1.js) :</p>
+        <textarea id="jsonOutput" readonly></textarea>
     </div>
 
     <script type="module">
+        /**
+         * @file map-editor.html
+         * @description Outil visuel simple pour créer les zones de collision du jeu.
+         * Permet de dessiner des rectangles de 32x32 pixels sur une grille.
+         */
         const canvas = document.getElementById('editorCanvas');
         const ctx = canvas.getContext('2d');
         const output = document.getElementById('jsonOutput');
-        const GRID_SIZE = 32;
-        let walls = [];
+        
+        const GRID_SIZE = 32; // Taille d'une tuile standard (Link = 16px * Scale 2)
+        let walls = [];       // Liste des rectangles de collision {x, y, width, height}
 
-        // Dessiner la grille et les murs
+        /** Dessine la grille et les murs sur le canvas. */
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Grille
+            // ── DESSIN DE LA GRILLE ──
             ctx.strokeStyle = "#444";
             for(let x=0; x<canvas.width; x+=GRID_SIZE) {
                 ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,600); ctx.stroke();
@@ -39,8 +55,8 @@
                 ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(800,y); ctx.stroke();
             }
 
-            // Murs placés
-            ctx.fillStyle = "rgba(0, 255, 100, 0.5)";
+            // ── DESSIN DES MURS PLACÉS ──
+            ctx.fillStyle = "rgba(0, 255, 100, 0.4)"; // Vert translucide
             ctx.strokeStyle = "#0f0";
             walls.forEach(w => {
                 ctx.fillRect(w.x, w.y, w.width, w.height);
@@ -50,38 +66,42 @@
             updateJSON();
         }
 
+        /** Gestion des clics souris. */
         canvas.addEventListener('mousedown', (e) => {
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
             
-            // Aligner sur la grille
+            // Aligne la position sur la grille la plus proche (Snapping)
             const snapX = Math.floor(mouseX / GRID_SIZE) * GRID_SIZE;
             const snapY = Math.floor(mouseY / GRID_SIZE) * GRID_SIZE;
 
-            if (e.button === 0) { // Clic gauche : Ajouter
+            if (e.button === 0) { // Clic gauche : Ajouter un obstacle
                 if (!walls.find(w => w.x === snapX && w.y === snapY)) {
                     walls.push({ x: snapX, y: snapY, width: GRID_SIZE, height: GRID_SIZE });
                 }
-            } else if (e.button === 2) { // Clic droit : Enlever
+            } else if (e.button === 2) { // Clic droit : Supprimer l'obstacle sous la souris
                 walls = walls.filter(w => !(w.x === snapX && w.y === snapY));
             }
             draw();
         });
 
-        // Empêcher le menu contextuel sur clic droit
+        // Empêche l'affichage du menu système lors du clic droit sur le canvas
         canvas.oncontextmenu = (e) => e.preventDefault();
 
+        /** Génère le texte JSON pour l'export. */
         function updateJSON() {
             output.value = JSON.stringify({ walls: walls }, null, 2);
         }
 
+        /** Fonction utilitaire pour copier le résultat dans le presse-papier. */
         window.copyJSON = () => {
             output.select();
             document.execCommand('copy');
-            alert("JSON copié !");
+            alert("JSON copié ! Collez-le dans un fichier de map (ex: level1.js).");
         };
 
+        // Premier rendu
         draw();
     </script>
 </body>

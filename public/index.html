@@ -4,27 +4,125 @@
     <meta charset="UTF-8">
     <title>Zelda Coop Vanilla</title>
     <style>
+        /* Importation de la police pixel-art pour le style rétro */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        /* Réinitialisation de base pour que les dimensions incluent les bordures */
+        * { box-sizing: border-box; }
+
         body {
             margin: 0;
-            background: #111;
-            overflow: hidden;
+            background: #0d0d1a; /* Fond bleu très foncé pour une ambiance nocturne */
+            overflow: hidden;    /* Empêche le défilement de la page */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             position: relative;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
         }
 
+        /* Le Canvas est la zone de rendu du jeu */
         canvas {
             background: #222;
             border: 4px solid #444;
-            /* Indispensable pour garder un aspect pixel-art net */
-            image-rendering: pixelated; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            /* Indispensable pour garder un aspect pixel-art net (pas de flou lors du zoom) */
+            image-rendering: pixelated;
+            box-shadow: 0 0 40px rgba(0,0,0,0.7);
+            display: none; /* Le jeu reste caché tant qu'un rôle n'est pas choisi */
         }
 
+        /* ── MENU DE DÉMARRAGE ───────────────────────────────────
+           Il couvre tout l'écran au lancement.
+        */
+        #start-menu {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at center, #1a1a3e 0%, #0d0d1a 100%);
+            z-index: 3000;
+        }
+
+        #start-menu h1 {
+            font-size: 28px;
+            color: #f5c542; /* Jaune doré type Zelda */
+            text-shadow: 0 0 20px #f5c54280, 2px 2px 0 #7a5c00;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        #start-menu .subtitle {
+            font-size: 10px;
+            color: #88aacc;
+            margin-bottom: 60px;
+            letter-spacing: 1px;
+        }
+
+        /* Conteneur des cartes de sélection (Hôte vs Client) */
+        .player-cards {
+            display: flex;
+            gap: 40px;
+        }
+
+        /* Design des cartes Joueur 1 / Joueur 2 */
+        .player-card {
+            width: 200px;
+            padding: 28px 20px;
+            border: 3px solid #334;
+            background: rgba(255,255,255,0.04);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        /* Effet de survol sur les cartes */
+        .player-card:hover {
+            border-color: #f5c542;
+            background: rgba(245,197,66,0.08);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(245,197,66,0.25);
+        }
+
+        .player-card .role-badge {
+            font-size: 9px;
+            color: #88aacc;
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+        }
+
+        .player-card .player-icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 16px;
+            image-rendering: pixelated;
+        }
+
+        /* Couleurs distinctes pour P1 (vert) et P2 (bleu) */
+        #player1-card .player-name { color: #4ade80; }
+        #player2-card .player-name { color: #60a5fa; }
+
+        .player-card .player-desc {
+            font-size: 7px;
+            color: #667788;
+            line-height: 1.8;
+        }
+
+        /* Animation de texte clignotant pour le guide */
+        .waiting-msg {
+            font-size: 8px;
+            color: #667788;
+            margin-top: 48px;
+            animation: blink 1.2s infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        /* ── INTERFACE GAME OVER ──────────────────────────────── */
         #game-over-ui {
-            display: none;
+            display: none; /* Apparaît via JS quand hp <= 0 */
             position: absolute;
             top: 50%;
             left: 50%;
@@ -32,9 +130,8 @@
             background: rgba(0, 0, 0, 0.9);
             color: white;
             padding: 40px;
-            border: 4px solid #e74c3c; /* Rouge pour le danger */
+            border: 4px solid #e74c3c;
             text-align: center;
-            font-family: "Courier New", Courier, monospace;
             z-index: 2000;
         }
 
@@ -45,29 +142,155 @@
             padding: 15px 30px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 14px;
+            font-family: 'Press Start 2P', monospace;
             transition: transform 0.1s;
+            margin-top: 10px;
         }
-
-        .respawn-btn:hover {
-            background: #ddd;
-            transform: scale(1.05);
-        }
+        .respawn-btn:hover { background: #ddd; transform: scale(1.05); }
     </style>
 </head>
 <body>
 
-    <div id="game-over-ui">
-        <h2 style="font-size: 48px; margin-bottom: 20px; color: #e74c3c;">PERDU</h2>
-        <p style="margin-bottom: 30px;">Ton aventure s'arrête ici...</p>
-        <button class="respawn-btn" onclick="location.reload()">
-            RÉAPPARAÎTRE
-        </button>
+    <!-- Structure du Menu de Sélection -->
+    <div id="start-menu">
+        <h1>⚔ ZELDA COOP</h1>
+        <div class="subtitle">choisissez votre rôle</div>
+
+        <div class="player-cards">
+            <!-- Carte pour le Joueur 1 (Hôte) -->
+            <div class="player-card" id="player1-card" onclick="selectPlayer(1)">
+                <div class="role-badge">HÔTE · MOB MASTER</div>
+                <span class="player-icon">🟢</span>
+                <div class="player-name">JOUEUR 1</div>
+                <div class="player-desc">Lance la partie.<br>Crée les monstres.<br>Clavier : ← → ↑ ↓ + Z/X</div>
+            </div>
+            <!-- Carte pour le Joueur 2 (Client) -->
+            <div class="player-card" id="player2-card" onclick="selectPlayer(2)">
+                <div class="role-badge">CLIENT · INVITÉ</div>
+                <span class="player-icon">🔵</span>
+                <div class="player-name">JOUEUR 2</div>
+                <div class="player-desc">Rejoint la partie.<br>Les monstres viennent<br>du Joueur 1.</div>
+            </div>
+        </div>
+
+        <div class="waiting-msg">▶ APPUYEZ SUR UNE CARTE POUR COMMENCER</div>
     </div>
 
+    <!-- UI affichée lors de la défaite -->
+    <div id="game-over-ui">
+        <h2 style="font-size: 32px; margin-bottom: 20px; color: #e74c3c;">PERDU</h2>
+        <p style="font-size: 9px; margin-bottom: 30px;">Ton aventure s'arrête ici...</p>
+        <button class="respawn-btn" onclick="location.reload()">RÉAPPARAÎTRE</button>
+    </div>
+
+    <!-- Zone de rendu unique du jeu -->
     <canvas id="gameCanvas" width="800" height="660"></canvas>
 
+    <!-- Dépendances Client -->
     <script src="/socket.io/socket.io.js"></script>
+    <script>
+        /**
+         * LOGIQUE DU MENU DE DÉMARRAGE
+         * Gère la réservation des rôles via le serveur pour éviter les doublons.
+         */
+        window.selectedPlayerRole = null;
+
+        // Connexion socket.io immédiate pour synchroniser l'état du menu
+        const menuSocket = io();
+
+        /** 
+         * Mise à jour visuelle des rôles pris.
+         * Reçu dès qu'un autre joueur choisit une carte.
+         */
+        menuSocket.on('roles_update', ({ player1Taken, player2Taken }) => {
+            setCardState('player1-card', player1Taken);
+            setCardState('player2-card', player2Taken);
+        });
+
+        /** 
+         * Confirmation que le rôle nous a été attribué.
+         * Le jeu peut alors charger les ressources et démarrer.
+         */
+        menuSocket.on('role_confirmed', ({ role, skin, isHost }) => {
+            window.selectedPlayerRole = isHost ? 1 : 2;
+            window.menuSocket = menuSocket; // On garde le socket actif pour le passer au jeu
+        });
+
+        /** 
+         * Refus si deux joueurs cliquent sur la même carte au même millième de seconde.
+         */
+        menuSocket.on('role_denied', () => {
+            const subtitle = document.querySelector('#start-menu .subtitle');
+            subtitle.textContent = 'Rôle déjà pris, choisissez l\'autre !';
+            // On réactive les cartes pour permettre un autre choix
+            ['player1-card','player2-card'].forEach(id => {
+                const c = document.getElementById(id);
+                c.style.pointerEvents = '';
+            });
+        });
+
+        /**
+         * Modifie l'apparence d'une carte selon qu'elle est occupée ou non.
+         */
+        function setCardState(cardId, taken) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            if (taken) {
+                card.style.opacity = '0.35';
+                card.style.pointerEvents = 'none';
+                card.style.filter = 'grayscale(80%)';
+                // Ajout d'un badge rouge "X PRIS"
+                let badge = card.querySelector('.taken-badge');
+                if (!badge) {
+                    badge = document.createElement('div');
+                    badge.className = 'taken-badge';
+                    badge.textContent = '✕ PRIS';
+                    badge.style.cssText = 'position:absolute;top:8px;right:8px;font-size:8px;color:#e74c3c;';
+                    card.appendChild(badge);
+                }
+            } else {
+                // On remet la carte en état normal
+                card.style.opacity = '';
+                card.style.pointerEvents = '';
+                card.style.filter = '';
+                const badge = card.querySelector('.taken-badge');
+                if (badge) badge.remove();
+            }
+        }
+
+        /**
+         * Déclenché lors du clic sur une carte. Envoie la demande au serveur.
+         */
+        function selectPlayer(num) {
+            const role = num === 1 ? 'player1' : 'player2';
+            menuSocket.emit('select_role', role);
+
+            // Feedback immédiat pendant l'attente serveur
+            const card = document.getElementById(`player${num}-card`);
+            card.style.opacity = '0.5';
+            card.style.pointerEvents = 'none';
+
+            const subtitle = document.querySelector('#start-menu .subtitle');
+            subtitle.textContent = 'Connexion au serveur…';
+            document.getElementById('start-menu').style.transition = 'opacity 0.4s';
+        }
+
+        /**
+         * Fait disparaître le menu une fois que le jeu est prêt à être affiché.
+         * Appelé par main.js.
+         */
+        window.hideMenu = function() {
+            const menu = document.getElementById('start-menu');
+            menu.style.opacity = '0';
+            setTimeout(() => { 
+                menu.style.display = 'none'; 
+                document.getElementById('gameCanvas').style.display = 'block';
+            }, 400);
+        };
+    </script>
+
+    <!-- Point d'entrée du script de jeu (Module JS) -->
     <script type="module" src="main.js"></script>
 
 </body>

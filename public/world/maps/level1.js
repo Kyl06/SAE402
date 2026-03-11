@@ -1,4 +1,10 @@
+/**
+ * @file level1.js
+ * @description Définition de la carte principale extérieure.
+ * Contient les rectangles de collision (walls) en pixels.
+ */
 export const level1 = {
+
   "walls": [
     {
       "x": 0,

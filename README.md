@@ -1,48 +1,56 @@
-SAE402  Zelda Coop Prototype
-Bienvenue sur le prototype de notre jeu d'aventure multijoueur. Ce projet utilise Node.js avec Socket.io pour la partie réseau et l'API Canvas pour le rendu graphique.
+# ⚔ SAE402 - Zelda Coop Prototype
 
-Installation Rapide
+Bienvenue sur le prototype de notre jeu d'aventure multijoueur. Ce projet utilise **Node.js** avec **Socket.io** pour la synchronisation en temps réel et l'**API Canvas** pour un rendu graphique pixel-art fluide.
 
-1. Cloner le projet
-bash
-git clone https://github.com/Kyl06/SAE402.git
-cd SAE402
+## 🚀 Installation Rapide
 
-2. Installer les dépendances
-bash
-npm install
+1. **Cloner le projet**
+   ```bash
+   git clone https://github.com/Kyl06/SAE402.git
+   cd SAE402
+   ```
 
-3. Lancer le serveur
-bash
-npm start
- ou
-node server/server.js
+2. **Installer les dépendances**
+   ```bash
+   npm install
+   ```
 
-4. Rejoindre la partie
-Ouvre ton navigateur sur : http://localhost:3000
+3. **Lancer le serveur**
+   ```bash
+   npm start
+   ```
 
-Gameplay & Commandes
+4. **Rejoindre la partie**
+   Ouvre ton navigateur sur : [http://localhost:3000](http://localhost:3000)
 
- Mouvements : Touches Z, S, Q, D.
- Attaque : Touche Espace (consomme de la stamina).
- Multijoueur : Jusqu'à 4 joueurs simultanés (P1 à P4). Si le serveur est plein, l'accès est refusé.
+## 🎮 Gameplay & Commandes
 
-Structure du Projet
+- **Menu de démarrage** : Choisissez votre rôle (Joueur 1 = Hôte, Joueur 2 = Client).
+- **Mouvements** : Touches fléchées (← → ↑ ↓).
+- **Attaque Épée** : Touche **Z**.
+- **Tir à l'arc** : Touche **X**.
+- **Multijoueur** : Le Joueur 1 (Hôte) gère l'IA des ennemis. Le Joueur 2 (Client) voit les ennemis synchronisés par le réseau.
 
-text
+## 📁 Structure du Projet
+
+```text
 SAE402/
-├── public/               Fichiers clients (HTML, CSS, JS)
-│   ├── assets/           Images (link.png, etc.)
-│   └── src/              Logique du jeu (Engine, Entities, etc.)
-├── server/               Code backend (Node.js + Socket.io)
-└── README.md
+├── public/               
+│   ├── assets/           # Sprites et sons
+│   ├── engine/           # Moteur maison (Physique, Rendu, Réseau)
+│   ├── entities/         # Joueurs, Ennemis, Armes, Items
+│   ├── ui/               # HUD (Barre de vie)
+│   └── world/            # Cartes et collisions
+├── server.js             # Serveur Node.js + Relais Socket.io
+└── map-converter.js      # Outil de génération de maps
+```
 
-À savoir pour le dev
+## 🛠 À savoir pour le développement
 
- Système de collisions : Géré dans MapManager.js via une grille.
- Animations : Les états (walk, attack) sont synchronisés via le serveur pour que chaque joueur voie les actions des autres.
- Stamina : La barre verte se recharge automatiquement, l'attaque est bloquée si elle est vide.
+- **Documentation** : Le code source est intégralement commenté pour expliquer chaque module (Physique AABB, lissage réseau, IA de patrouille).
+- **Système de collisions** : Géré dans `Floor.js` via une séparation sur l'axe de moindre pénétration.
+- **Animations** : Les séquences d'actions sont synchronisées via `NetworkUpdater.js`.
+- **Éditeur de Map** : Un outil visuel est disponible sur [/map-editor.html](http://localhost:3000/map-editor.html) pour créer de nouvelles zones.
 
-
-
-C'est tout bon ! Une fois ce fichier ajouté, n'oublie pas de faire ton git add README.md, git commit et git push pour qu'ils puissent le voir.
+---
+*Projet réalisé dans le cadre de la SAE 402.*
