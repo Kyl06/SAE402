@@ -81,6 +81,7 @@ Assets.load({
     EXPLOSION: "./assets/explosion.png", // Animation de mort
     SWORD: "./assets/sword.png",      // FX Épée
     ARROW: "./assets/arrow.png",      // Projectile Arc
+    TILESET: "./assets/map.png",  // Map
 }).then(async () => {
     // ① Étape 1 : Attendre que l'utilisateur clique sur une carte dans le menu
     const role = await waitForPlayerSelection();
