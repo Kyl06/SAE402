@@ -9,8 +9,7 @@ import { Assets } from "./engine/Assets.js";
 import { InputHandler } from "./engine/InputHandler.js";
 import { Player } from "./entities/Player/Player.js";
 import { Moblin } from "./entities/Enemies/Moblin.js";
-import { Octorok } from "./entities/Enemies/Octorok.js";                    // ← AJOUTÉ
-import { NetworkOctorok } from "./entities/Enemies/NetworkOctorok.js";     // ← AJOUTÉ
+import { Octorok } from "./entities/Enemies/Octorok.js";
 import { BottomBar } from "./ui/BottomBar.js";
 import { NetworkUpdater } from "./engine/NetworkUpdater.js";
 import { Map } from "./world/Map.js";
@@ -20,8 +19,16 @@ import { level1 } from "./world/maps/level1.js";
 const engine = new GameEngine("gameCanvas");
 const inputs = new InputHandler();
 
-// Création d'un objet global 'game' pour un accès facile depuis n'importe quelle entité
-window.game = { engine, inputs, player: null };
+/**
+ * Création d'un objet global 'game' pour un accès facile depuis n'importe quelle entité.
+ * On y stocke l'engine pour que Moblin.js puisse faire window.game.engine.add() sans erreur.
+ */
+window.game = { 
+    engine: engine, 
+    inputs: inputs, 
+    player: null,
+    network: null 
+};
 
 /**
  * Fonction de réapparition (Respawn).
@@ -45,10 +52,8 @@ window.respawn = function () {
 /**
  * Génère des ennemis aléatoirement sur la carte.
  * Uniquement appelé par l'Hôte.
- * @param {number} moblinCount - Nombre de Moblins
- * @param {number} octorokCount - Nombre d'Octoroks
  */
-function spawnEnemyGroup(moblinCount = 3, octorokCount = 2) {  // ← MODIFIÉ : 2 paramètres
+function spawnEnemyGroup(moblinCount = 3, octorokCount = 2) {
     // Spawn des Moblins
     for (let i = 0; i < moblinCount; i++) {
         const x = 200 + Math.random() * 400;
@@ -56,11 +61,11 @@ function spawnEnemyGroup(moblinCount = 3, octorokCount = 2) {  // ← MODIFIÉ :
         engine.add(new Moblin(x, y, 120));
     }
     
-    // ← NOUVEAU : Spawn des Octoroks
+    // Spawn des Octoroks
     for (let i = 0; i < octorokCount; i++) {
-        const x = 300 + Math.random() * 300;  // Zone légèrement différente pour varier
+        const x = 300 + Math.random() * 300;
         const y = 300 + Math.random() * 250;
-        engine.add(new Octorok(x, y, 100));   // Rayon de patrouille 100px
+        engine.add(new Octorok(x, y, 100));
     }
 }
 
@@ -81,16 +86,16 @@ function waitForPlayerSelection() {
 // --- CHARGEMENT DES RESSOURCES ET LANCEMENT ---
 
 Assets.load({
-    LINK: "./assets/link1.png",       // Sprite Link vert (Joueur 1)
-    LINK2: "./assets/link2.png",      // Sprite Link bleu (Joueur 2)
-    MOBLIN: "./assets/moblin.png",    // Sprite des ennemis
+    LINK: "./assets/link1.png",       
+    LINK2: "./assets/link2.png",      
+    MOBLIN: "./assets/moblin.png",    
     OCTOROK: "./assets/octorok.png",
-    HEARTS: "./assets/hearts.png",    // HUD Coeurs
-    EMERALD: "./assets/emeraude.png", // Émeraude
-    EXPLOSION: "./assets/explosion.png", // Animation de mort
-    SWORD: "./assets/sword.png",      // FX Épée
-    ARROW: "./assets/arrow.png",      // Projectile Arc
-    TILESET: "./assets/map.png",  // Map
+    HEARTS: "./assets/hearts.png",    
+    EMERALD: "./assets/emeraude.png", 
+    EXPLOSION: "./assets/explosion.png", 
+    SWORD: "./assets/sword.png",      
+    ARROW: "./assets/arrow.png",      
+    TILESET: "./assets/map.png",  
 }).then(async () => {
     // ① Attendre le choix du rôle
     const role = await waitForPlayerSelection();
@@ -109,15 +114,12 @@ Assets.load({
     const network = new NetworkUpdater(hero, engine, forceHost);
     window.game.network = network;
     
-    // ❌ SUPPRIMÉ : registerEntityType n'existe plus, la détection est automatique via enemyType
-
     // ⑤ Logique spécifique au rôle
     if (forceHost) {
-        // L'Hôte spawn les ennemis : 3 Moblins + 2 Octoroks
         spawnEnemyGroup(3, 2);
-        console.log("[Main] Master Mode: Je gère les monstres (Moblins + Octoroks).");
+        console.log("[Main] Master Mode: Je gère les monstres et le loot.");
     } else {
-        console.log("[Main] Client Mode: J'attends les données de l'Hôte.");
+        console.log("[Main] Client Mode: Synchronisation avec l'Hôte.");
     }
 
     // ⑥ Interface HUD
@@ -126,21 +128,11 @@ Assets.load({
     // ⑦ Boucle de synchronisation réseau (~33 FPS)
     setInterval(() => network.sendUpdate(), 30);
 
-    // ← NOUVEAU : Gestion des projectiles Octorok reçus du réseau (côté client uniquement)
-    if (!forceHost && window.game.network?.socket) {
-        window.game.network.socket.on('projectile', (data) => {
-            // Import dynamique pour éviter les cycles de dépendance
-            import('./entities/Enemies/OctorokProjectile.js').then(({ OctorokProjectile }) => {
-                const proj = new OctorokProjectile(data.x, data.y, data.vx, data.vy, data.ownerId);
-                proj.netId = data.id;
-                engine.add(proj);
-            });
-        });
-    }
-
     // ⑧ Démarrage de la boucle de jeu
     engine.start();
 
     // ⑨ Cacher le menu
-    window.hideMenu?.();
+    if (typeof window.hideMenu === 'function') {
+        window.hideMenu();
+    }
 });

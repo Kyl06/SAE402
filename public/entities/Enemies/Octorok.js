@@ -1,12 +1,6 @@
-/**
- * @file Octorok.js
- * @description Ennemi Octorok - Tire des projectiles à distance
- */
-
 import { Entity } from "../../engine/Entity.js";
 import { SpriteSheet } from "../../engine/SpriteSheet.js";
 import { Explosion } from "../Effects/Explosion.js";
-import { Heart } from "../Items/Heart.js";
 import { OctorokProjectile } from "./OctorokProjectile.js";
 
 export class Octorok extends Entity {
@@ -14,6 +8,7 @@ export class Octorok extends Entity {
         super(x, y, 28, 28);
         
         this.netId = 'octo_' + Math.random().toString(36).slice(2, 11);
+        this.enemyType = 'OCTOROK'; 
         this.hp = 2;
         this.speed = 35;
         this.chaseSpeed = 60;
@@ -21,20 +16,17 @@ export class Octorok extends Entity {
 
         this.anchor = { x, y };
         this.roamRadius = roamRadius;
-
         this.state = "IDLE";
         this.stateTimer = 1500;
         this.facing = "DOWN";
         this.target = null;
         this.painState = null;
 
-        // Tir
         this.shootRange = 140;
         this.shootCooldown = 2500;
         this.lastShot = 0;
         this.aimTime = 0;
 
-        // SpriteSheet 4x4 (comme Moblin)
         this.spriteSheet = new SpriteSheet("OCTOROK", 4, 4, 16, 16);
     }
 
@@ -119,10 +111,8 @@ export class Octorok extends Entity {
             this.facing = directions[Math.floor(Math.random() * 4)];
         }
 
-        this.velX = this.facing === "LEFT" ? -this.speed : 
-                   (this.facing === "RIGHT" ? this.speed : 0);
-        this.velY = this.facing === "UP" ? -this.speed : 
-                   (this.facing === "DOWN" ? this.speed : 0);
+        this.velX = this.facing === "LEFT" ? -this.speed : (this.facing === "RIGHT" ? this.speed : 0);
+        this.velY = this.facing === "UP" ? -this.speed : (this.facing === "DOWN" ? this.speed : 0);
     }
 
     shootLogic(delta) {
@@ -132,16 +122,11 @@ export class Octorok extends Entity {
             if (dist <= this.shootRange && Date.now() - this.lastShot >= this.shootCooldown) {
                 this.state = "AIM";
                 this.aimTime += delta;
-                this.velX = 0;
-                this.velY = 0;
+                this.velX = 0; this.velY = 0;
                 
                 const dx = this.target.x - this.x;
                 const dy = this.target.y - this.y;
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    this.facing = dx > 0 ? "RIGHT" : "LEFT";
-                } else {
-                    this.facing = dy > 0 ? "DOWN" : "UP";
-                }
+                this.facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "RIGHT" : "LEFT") : (dy > 0 ? "DOWN" : "UP");
                 
                 if (this.aimTime >= 600) {
                     this.fireProjectile();
@@ -152,7 +137,6 @@ export class Octorok extends Entity {
                 return;
             }
         }
-        
         if (this.state === "AIM") {
             this.state = "IDLE";
             this.aimTime = 0;
@@ -163,49 +147,30 @@ export class Octorok extends Entity {
         const dx = this.target.x - this.x;
         const dy = this.target.y - this.y;
         const dist = Math.hypot(dx, dy) || 1;
+        const vx = (dx / dist) * 100;
+        const vy = (dy / dist) * 100;
         
-        const speed = 100;
-        const vx = (dx / dist) * speed;
-        const vy = (dy / dist) * speed;
-        
-        const projectile = new OctorokProjectile(
-            this.x + (dx / dist) * 20,
-            this.y + (dy / dist) * 20,
-            vx,
-            vy,
-            this.netId
-        );
-        
+        const projectile = new OctorokProjectile(this.x + (dx/dist)*20, this.y + (dy/dist)*20, vx, vy, this.netId);
         window.game.engine.add(projectile);
         
-        // Sync réseau
-        if (window.game.network && window.game.network.socket) {
+        if (window.game.network?.socket) {
             window.game.network.socket.emit('projectile', {
-                x: projectile.x,
-                y: projectile.y,
-                vx: vx,
-                vy: vy,
-                id: projectile.netId,
-                ownerId: this.netId
+                x: projectile.x, y: projectile.y, vx, vy, id: projectile.netId, ownerId: this.netId
             });
         }
     }
 
     takeDamage(direction) {
         if (this.painState || this.toRemove) return;
-        
         this.hp--;
         if (this.hp <= 0) return this.die();
 
         const force = 200;
-        const kx = direction === "LEFT" ? -force : 
-                  (direction === "RIGHT" ? force : 0);
-        const ky = direction === "UP" ? -force : 
-                  (direction === "DOWN" ? force : 0);
-        
-        this.painState = { msLeft: 120, velX: kx, velY: ky };
-        this.state = "IDLE";
-        this.aimTime = 0;
+        this.painState = { 
+            msLeft: 120, 
+            velX: direction === "LEFT" ? -force : (direction === "RIGHT" ? force : 0),
+            velY: direction === "UP" ? -force : (direction === "DOWN" ? force : 0)
+        };
     }
 
     handlePain(delta) {
@@ -216,44 +181,68 @@ export class Octorok extends Entity {
     }
 
     onCollision(other) {
-        if (other.hasTag("PLAYER")) {
-            other.takeDamage?.(1);
+        if (other.hasTag("PLAYER")) other.takeDamage?.(1);
+    }
+
+    /**
+     * Mort de l'Octorok : Drop de 2 émeraudes.
+     */
+    die() {
+        if (this.toRemove) return;
+        this.toRemove = true;
+        
+        window.game.engine.add(new Explosion(this.x, this.y));
+        
+        if (window.game.network?.isHost) {
+            window.game.network.socket.emit('explosion', { x: this.x, y: this.y });
+
+            // On fait spawner 2 émeraudes systématiquement ou avec une grande chance
+            // On ajoute un petit offset de 10 pixels pour qu'elles ne se superposent pas
+            this.dropItemWithNetwork("EMERALD", -10, 0);
+            this.dropItemWithNetwork("EMERALD", 10, 0);
+
+            // Chance bonus pour un coeur
+            if (window.game.player?.hp < 4 && Math.random() < 0.3) {
+                this.dropItemWithNetwork("HEART", 0, 10);
+            }
         }
     }
 
-    die() {
-        window.game.engine.add(new Explosion(this.x, this.y));
+    /**
+     * Utilitaire pour créer un item localement et envoyer l'ordre au réseau
+     */
+    dropItemWithNetwork(type, offsetX = 0, offsetY = 0) {
+        const itemId = 'it_' + Math.random().toString(36).slice(2, 7);
+        const spawnPosX = this.x + offsetX;
+        const spawnPosY = this.y + offsetY;
+
+        // 1. Envoyer au serveur pour les autres clients
+        window.game.network.socket.emit('item_spawn', { 
+            id: itemId, 
+            x: spawnPosX, 
+            y: spawnPosY, 
+            type: type 
+        });
+
+        // 2. Créer localement pour l'hôte
+        this.spawnLoot(type, itemId, spawnPosX, spawnPosY);
+    }
+
+    async spawnLoot(type, id, x, y) {
+        const path = type === "HEART" ? "../Items/Heart.js" : "../Items/Emerald.js";
+        const mod = await import(path);
+        const ItemClass = type === "HEART" ? mod.Heart : mod.Emerald;
         
-        if (window.game.network && window.game.network.socket) {
-            window.game.network.socket.emit('explosion', {
-                x: this.x,
-                y: this.y
-            });
-        }
-        
-        if (window.game.player?.hp < 6 && Math.random() < 0.25) {
-            window.game.engine.add(new Heart(this.x, this.y));
-        }
-        
-        this.kill();
+        const item = new ItemClass(x, y);
+        item.netId = id;
+        window.game.engine.add(item);
     }
 
     draw(ctx) {
-        if (this.toRemove) return;
-        
         const row = { DOWN: 0, UP: 4, LEFT: 8, RIGHT: 12 }[this.facing] || 0;
         const isMoving = Math.abs(this.velX) > 0.1 || Math.abs(this.velY) > 0.1;
         const walkCycle = isMoving ? (Math.floor(Date.now() / 150) % 2) : 0;
-        
-        let frame;
-        if (this.state === "AIM") {
-            frame = row + 2;
-        } else if (this.painState) {
-            frame = row + (Math.floor(Date.now() / 50) % 2);
-        } else {
-            frame = row + walkCycle;
-        }
-        
+        const frame = (this.state === "AIM") ? row + 2 : (this.painState ? row + (Math.floor(Date.now() / 50) % 2) : row + walkCycle);
         this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, 2);
     }
 }

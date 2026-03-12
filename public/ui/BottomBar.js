@@ -1,7 +1,5 @@
 /**
  * @file BottomBar.js
- * @description Gère l'affichage du HUD (Heads-Up Display) en bas de l'écran.
- * Affiche la barre noire contenant les cœurs de vie de Link.
  */
 
 import { Entity } from '../engine/Entity.js';
@@ -10,64 +8,55 @@ import { Assets } from '../engine/Assets.js';
 
 export class BottomBar extends Entity {
     constructor() {
-        // Positionnée en bas du canvas (y=600) sur toute la largeur
         super(0, 600, 800, 60); 
-        this.collider = false; // L'UI ne collisionne pas avec le monde
-        this.z = 999;          // S'assure d'être au-dessus de TOUT le reste
-        
-        // Composant interne gérant le rendu des cœurs individuels
+        this.collider = false;
+        this.z = 999;
         this.heartsUI = new Hearts();
-
-        // Variable pour ne pas spammer la console si l'émeraude n'est pas chargée
         this._emeraldMissingLogged = false;
     }
 
-    /** Rendu du HUD. */
     draw(ctx) {
         // 1. Fond noir opaque
         ctx.fillStyle = "#000";
         ctx.fillRect(this.x, this.y, this.width, this.height);
         
-        // 2. Bordure blanche rétro (2 pixels d'épaisseur)
+        // 2. Bordure blanche rétro
         ctx.strokeStyle = "#fff";
         ctx.lineWidth = 4;
         ctx.strokeRect(this.x, this.y, this.width, this.height);
 
-        // 3. Dessin des informations dynamiques du joueur
+        // 3. Récupération sécurisée du joueur
         const player = window.game.player;
 
         if (player) {
-            /** 
-             * Appel du module Hearts pour dessiner les HP.
-             * player.hp est en demi-coeurs (max 6).
-             * @param {number} hp - Points de vie actuels
-             * @param {number} x - Offset horizontal (20px du bord)
-             * @param {number} y - Offset vertical (centré dans la barre)
-             */
+            // Dessin des cœurs
             this.heartsUI.draw(ctx, player.hp, 20, this.y + 18);
 
-            // ----------------
-            // Affichage des émeraudes collectées
-            // ----------------
-            const emeraldCount = window.game.emeralds || 0;
-            const iconX = 20 + 3 * (24 + 10); // Après les cœurs
-            const iconY = this.y + 18;        // Centré verticalement
+            // ---------------------------------------------------------
+            // Affichage des émeraudes (Correction de la source de données)
+            // ---------------------------------------------------------
+            // On récupère la valeur sur l'instance du joueur local
+            const emeraldCount = player.emeralds || 0; 
+            
+            // Calcul de la position après les 3 cœurs (24px de large + 10px espacement)
+            const iconX = 140; 
+            const iconY = this.y + 30; // Centré verticalement dans la barre de 60px
 
             const emeraldImg = Assets.get("EMERALD");
 
             if (emeraldImg) {
-                // Dessine l'icône d'émeraude
-                ctx.drawImage(emeraldImg, iconX, iconY - 12, 24, 24); // Taille 24x24 px
+                // Dessine l'icône
+                ctx.drawImage(emeraldImg, iconX, iconY - 12, 24, 24);
             } else if (!this._emeraldMissingLogged) {
-                console.warn("[BottomBar] L'asset EMERALD n'est pas chargé : vérifie le nom/clés dans main.js.");
+                console.warn("[BottomBar] Asset EMERALD introuvable.");
                 this._emeraldMissingLogged = true;
             }
 
-            // Texte du compteur à côté de l'icône
-            ctx.fillStyle = "#0ff";
-            ctx.font = "18px sans-serif";
+            // Dessin du texte du compteur
+            ctx.fillStyle = "#fff"; // Blanc pour une meilleure lisibilité
+            ctx.font = "bold 20px monospace"; // Police type arcade
             ctx.textBaseline = "middle";
-            ctx.fillText(`x ${emeraldCount}`, iconX + 30, iconY);
+            ctx.fillText(`x${emeraldCount}`, iconX + 32, iconY);
         }
     }
 }

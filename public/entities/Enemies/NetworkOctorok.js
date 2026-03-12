@@ -1,8 +1,6 @@
 /**
  * @file NetworkOctorok.js
- * @description Version réseau de l'Octorok (client Joueur 2)
  */
-
 import { Entity } from '../../engine/Entity.js';
 import { SpriteSheet } from '../../engine/SpriteSheet.js';
 
@@ -12,31 +10,43 @@ export class NetworkOctorok extends Entity {
         
         this.spriteSheet = new SpriteSheet('OCTOROK', 4, 4, 16, 16);
         this.facing = 'DOWN';
-        this.collider = true;
         this.addTag('ENEMY');
         this.isAiming = false;
+        this.isHurt = false; // Nouvel état
+        this.netId = null; 
     }
 
-    updateFromNetwork(data) {
-        this.targetX = parseFloat(data.x);
-        this.targetY = parseFloat(data.y);
-        this.facing = data.facing;
-        this.isAiming = data.isAiming || false;
+    updateFromNetwork(x, y, facing, isAiming = false, isHurt = false) {
+        this.targetX = parseFloat(x);
+        this.targetY = parseFloat(y);
+        this.facing = facing;
+        this.isAiming = isAiming;
+        this.isHurt = isHurt;
     }
 
     update(delta) {
         if (this.targetX !== undefined) {
-            this.x += (this.targetX - this.x) * 0.2;
-            this.y += (this.targetY - this.y) * 0.2;
+            this.x += (this.targetX - this.x) * 0.3;
+            this.y += (this.targetY - this.y) * 0.3;
         }
         super.update(delta);
     }
 
     draw(ctx) {
         const row = { DOWN: 0, UP: 4, LEFT: 8, RIGHT: 12 }[this.facing] || 0;
-        const walkCycle = (Math.floor(Date.now() / 150) % 2);
-        const frame = this.isAiming ? (row + 2) : (row + walkCycle);
+        
+        let frame;
+        if (this.isHurt) {
+            // Frame de douleur (souvent frame 0 ou 1 clignotante rapidement)
+            frame = row + (Math.floor(Date.now() / 50) % 2);
+            ctx.filter = "brightness(2)"; // Effet visuel de flash
+        } else if (this.isAiming) {
+            frame = row + 2; // Bouche ouverte
+        } else {
+            frame = row + (Math.floor(Date.now() / 150) % 2); // Marche
+        }
         
         this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, 2);
+        ctx.filter = "none";
     }
 }
