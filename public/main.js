@@ -81,14 +81,14 @@ function waitForPlayerSelection() {
 // --- CHARGEMENT DES RESSOURCES ET LANCEMENT ---
 
 Assets.load({
-    LINK: "./assets/link1.png",
-    LINK2: "./assets/link2.png",
-    MOBLIN: "./assets/moblin.png",
-    OCTOROK: "./assets/octorok.png",              // ← AJOUTÉ : Sprite Octorok
-    HEARTS: "./assets/hearts.png",
-    EXPLOSION: "./assets/explosion.png",
-    SWORD: "./assets/sword.png",
-    ARROW: "./assets/arrow.png",
+    LINK: "./assets/link1.png",       // Sprite Link vert (Joueur 1)
+    LINK2: "./assets/link2.png",      // Sprite Link bleu (Joueur 2)
+    MOBLIN: "./assets/moblin.png",    // Sprite des ennemis
+    HEARTS: "./assets/hearts.png",    // HUD Coeurs
+    EXPLOSION: "./assets/explosion.png", // Animation de mort
+    SWORD: "./assets/sword.png",      // FX Épée
+    ARROW: "./assets/arrow.png",      // Projectile Arc
+    TILESET: "./assets/map.png",  // Map
 }).then(async () => {
     // ① Attendre le choix du rôle
     const role = await waitForPlayerSelection();
