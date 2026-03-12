@@ -5,7 +5,7 @@
  */
 
 import { Entity } from "../../engine/Entity.js";
-import { SpriteSheet } from "../../engine/SpriteSheet.js";
+import { Assets } from "../../engine/Assets.js";
 
 export class Heart extends Entity {
     /**
@@ -13,12 +13,10 @@ export class Heart extends Entity {
      */
     constructor(x, y) {
         super(x, y, 24, 24); // Hitbox légèrement agrandie pour faciliter la ramasse
-        
+
         this.addTag("ITEM"); // Identifié comme un objet collectable
-        
-        // Utilise la spritesheet des cœurs (8x8 pixels à l'origine)
-        this.spriteSheet = new SpriteSheet("HEARTS", 3, 1, 8, 8);
-        this.z = 5;         // Dessiné au sol (sous Link)
+        this.sprite = Assets.get("HEARTS"); // Image chargée
+        this.z = 5;         
         this.collider = true; 
     }
 
@@ -30,7 +28,7 @@ export class Heart extends Entity {
         if (other.hasTag("PLAYER") && other.hp < 6) {
             // Soin de 1 cœur plein (équivaut à 2 points de vie)
             other.hp = Math.min(6, other.hp + 2);
-            
+
             // L'item disparaît une fois consommé
             this.kill();
         }
@@ -38,11 +36,19 @@ export class Heart extends Entity {
 
     /** Rendu graphique. */
     draw(ctx) {
-        // Animation de flottement (effet "levitation") via une fonction sinus
+        if (!this.sprite) return;
+
         const bounce = Math.sin(Date.now() / 200) * 3;
-        
-        // On dessine l'index 2 (le cœur rouge plein)
-        // Zoomé 3 fois pour être bien visible sur la carte
-        this.spriteSheet.drawFrame(ctx, 2, this.x, this.y + bounce, 3);
+        // On dessine l'index 2 (le cœur rouge plein) et on zoom x3
+        const sx = 2 * 8; // index 2 sur spritesheet 8px
+        const sy = 0;
+        const sw = 8;
+        const sh = 8;
+
+        ctx.drawImage(
+            this.sprite,
+            sx, sy, sw, sh,
+            this.x, this.y + bounce, 24, 24
+        );
     }
 }

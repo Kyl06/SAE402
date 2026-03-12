@@ -6,6 +6,7 @@
 
 import { Entity } from '../engine/Entity.js';
 import { Hearts } from './Hearts.js';
+import { Assets } from '../engine/Assets.js';
 
 export class BottomBar extends Entity {
     constructor() {
@@ -16,6 +17,9 @@ export class BottomBar extends Entity {
         
         // Composant interne gérant le rendu des cœurs individuels
         this.heartsUI = new Hearts();
+
+        // Variable pour ne pas spammer la console si l'émeraude n'est pas chargée
+        this._emeraldMissingLogged = false;
     }
 
     /** Rendu du HUD. */
@@ -41,6 +45,29 @@ export class BottomBar extends Entity {
              * @param {number} y - Offset vertical (centré dans la barre)
              */
             this.heartsUI.draw(ctx, player.hp, 20, this.y + 18);
+
+            // ----------------
+            // Affichage des émeraudes collectées
+            // ----------------
+            const emeraldCount = window.game.emeralds || 0;
+            const iconX = 20 + 3 * (24 + 10); // Après les cœurs
+            const iconY = this.y + 18;        // Centré verticalement
+
+            const emeraldImg = Assets.get("EMERALD");
+
+            if (emeraldImg) {
+                // Dessine l'icône d'émeraude
+                ctx.drawImage(emeraldImg, iconX, iconY - 12, 24, 24); // Taille 24x24 px
+            } else if (!this._emeraldMissingLogged) {
+                console.warn("[BottomBar] L'asset EMERALD n'est pas chargé : vérifie le nom/clés dans main.js.");
+                this._emeraldMissingLogged = true;
+            }
+
+            // Texte du compteur à côté de l'icône
+            ctx.fillStyle = "#0ff";
+            ctx.font = "18px sans-serif";
+            ctx.textBaseline = "middle";
+            ctx.fillText(`x ${emeraldCount}`, iconX + 30, iconY);
         }
     }
 }

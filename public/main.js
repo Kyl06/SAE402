@@ -78,6 +78,7 @@ Assets.load({
     LINK2: "./assets/link2.png",      // Sprite Link bleu (Joueur 2)
     MOBLIN: "./assets/moblin.png",    // Sprite des ennemis
     HEARTS: "./assets/hearts.png",    // HUD Coeurs
+    EMERALD: "./assets/emeraude.png", // Émeraude
     EXPLOSION: "./assets/explosion.png", // Animation de mort
     SWORD: "./assets/sword.png",      // FX Épée
     ARROW: "./assets/arrow.png",      // Projectile Arc

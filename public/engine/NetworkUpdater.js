@@ -158,7 +158,14 @@ export class NetworkUpdater {
             
             // Import d'Explosion à la volée pour éviter les dépendances circulaires
             const { Explosion } = await import('../entities/Effects/Explosion.js');
-            this.engine.add(new Explosion(x, y));
+            const { Emerald } = await import('../entities/Items/Emerald.js');
+
+            // L'émeraude doit apparaître APRÈS que l'explosion soit terminée
+            const onComplete = () => {
+                this.engine.add(new Emerald(x, y));
+            };
+
+            this.engine.add(new Explosion(x, y, onComplete));
         });
     }
 

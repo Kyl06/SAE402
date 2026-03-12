@@ -9,6 +9,7 @@ import { Entity } from "../../engine/Entity.js";
 import { SpriteSheet } from "../../engine/SpriteSheet.js";
 import { Explosion } from "../Effects/Explosion.js";
 import { Heart } from "../Items/Heart.js";
+import { Emerald } from "../Items/Emerald.js";
 
 export class Moblin extends Entity {
     /**
@@ -173,8 +174,12 @@ export class Moblin extends Entity {
 
     /** Mort du Moblin : explosion, drop d'item et signalement réseau. */
     die() {
-        // Effet visuel immédiat pour l'hôte
-        window.game.engine.add(new Explosion(this.x, this.y));
+        // Effet visuel immédiat pour l'hôte + code d'apparition d'émeraude à la fin de l'explosion
+        const spawnEmerald = () => {
+            window.game.engine.add(new Emerald(this.x, this.y));
+        };
+
+        window.game.engine.add(new Explosion(this.x, this.y, spawnEmerald));
         
         // SIGNAL RÉSEAU : Prévient les clients pour qu'ils affichent l'explosion aussi
         window.game.network?.sendExplosion(this.x, this.y);
@@ -183,7 +188,8 @@ export class Moblin extends Entity {
         if (window.game.player?.hp < 6 && Math.random() < 0.4) {
             window.game.engine.add(new Heart(this.x, this.y));
         }
-        
+
+        // L'émeraude apparaîtra après l'explosion (voir callback spawnEmerald)
         this.kill(); // Supprime l'entité du moteur (Hôte)
     }
 

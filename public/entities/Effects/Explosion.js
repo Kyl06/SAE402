@@ -10,8 +10,9 @@ import { SpriteSheet } from '../../engine/SpriteSheet.js';
 export class Explosion extends Entity {
     /**
      * @param {number} x, y - Position de l'explosion
+     * @param {() => void} [onComplete] - Callback appelé quand l'animation est terminée
      */
-    constructor(x, y) {
+    constructor(x, y, onComplete) {
         super(x, y, 32, 32);
         
         // Spritesheet linéaire (7 colonnes, 1 ligne)
@@ -23,7 +24,10 @@ export class Explosion extends Entity {
         this.z = 20;      // Affiché par-dessus les acteurs
         
         // Une explosion est purement visuelle, elle ne bloque pas les mouvements
-        this.collider = false; 
+        this.collider = false;
+
+        // Callback appelé quand l'animation se termine
+        this.onComplete = onComplete;
     }
 
     /** Mise à jour de l'animation. */
@@ -36,6 +40,7 @@ export class Explosion extends Entity {
             // Une fois la dernière frame affichée (index 6), on retire l'objet
             if (this.frame >= 7) {
                 this.kill(); 
+                this.onComplete?.();
             }
         }
     }
