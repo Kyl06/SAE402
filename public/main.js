@@ -13,7 +13,7 @@ import { Octorok } from "./entities/Enemies/Octorok.js";
 import { BottomBar } from "./ui/BottomBar.js";
 import { NetworkUpdater } from "./engine/NetworkUpdater.js";
 import { Map } from "./world/Map.js";
-import { level1 } from "./world/maps/level1.js";
+import { level1 } from "./world/maps/level2.js";
 
 // --- INITIALISATION DU MOTEUR ---
 const engine = new GameEngine("gameCanvas");

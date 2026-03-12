@@ -4,6 +4,10 @@
 <head>
     <title>Zelda Map Editor - 16x16 Walls</title>
     <style>
+        html {
+            margin: 40px;
+        }
+        
         body {
             background: #222;
             color: white;
@@ -25,7 +29,6 @@
             background: #1a1a1a;
             overflow-y: auto;
             height: 50vh;
-            /* Gardé à 50vh comme demandé */
             box-sizing: border-box;
         }
 
@@ -55,7 +58,7 @@
             height: 32px;
             margin: 0 auto 5px;
             background-image: url('assets/map.png');
-            background-size: 160px 64px;
+            background-size: 192px 64px;
             image-rendering: pixelated;
         }
 
@@ -88,7 +91,7 @@
 </head>
 
 <body>
-    <canvas id="editorCanvas" width="800" height="600"></canvas>
+    <canvas id="editorCanvas" width="800" height="608"></canvas>
     <div class="sidebar">
         <h2>Map Editor</h2>
         <div id="imageError" class="error-msg">⚠️ Image "assets/map.png" non trouvée !</div>

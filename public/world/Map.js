@@ -3,7 +3,7 @@ import { Floor } from './Floor.js';
 
 export class Map extends Entity {
     constructor(engine) {
-        super(0, 0, 800, 600);
+        super(0, 0, 800, 608);
         this.engine = engine;
         this.z = -10;
     }

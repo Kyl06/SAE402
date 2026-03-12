@@ -87,5 +87,5 @@ io.on('connection', (socket) => {
 // --- LANCEMENT DU SERVEUR ---
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`\x1b[32m%s\x1b[0m`, `--- SERVEUR ZELDA LANCÉ SUR http://localhost:${PORT} ---`);
+    console.log(`--- SERVEUR ZELDA LANCÉ SUR http://localhost:${PORT} ---`);
 });
