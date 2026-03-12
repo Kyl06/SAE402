@@ -33,8 +33,8 @@ export class Floor extends Entity {
             'WATER':      { sx: 48,  sy: 0,  sw: 16, sh: 16 },
             'BUSH':       { sx: 48,  sy: 16, sw: 16, sh: 16 },
             'WALL_DOWN':  { sx: 64,  sy: 0,  sw: 16, sh: 16 },
-            'WALL_UP':    { sx: 80,  sy: 0,  sw: 16, sh: 16 }, // Correction sx
-            'WALL_RIGHT': { sx: 64, sy: 16,  sw: 16, sh: 16 }, // Correction sx
+            'WALL_UP':    { sx: 80,  sy: 0,  sw: 16, sh: 16 },
+            'WALL_RIGHT': { sx: 64, sy: 16,  sw: 16, sh: 16 },
             'WALL_LEFT':  { sx: 80,  sy: 16, sw: 16, sh: 16 }
         };
 
