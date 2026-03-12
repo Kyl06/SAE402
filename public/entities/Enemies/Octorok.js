@@ -7,6 +7,7 @@ import { Entity } from "../../engine/Entity.js";
 import { SpriteSheet } from "../../engine/SpriteSheet.js";
 import { Explosion } from "../Effects/Explosion.js";
 import { Heart } from "../Items/Heart.js";
+import { Emerald } from "../Items/Emerald.js";
 import { OctorokProjectile } from "./OctorokProjectile.js";
 
 export class Octorok extends Entity {
@@ -222,7 +223,14 @@ export class Octorok extends Entity {
     }
 
     die() {
-        window.game.engine.add(new Explosion(this.x, this.y));
+        // Spawn visuel : explosion + deux émeraudes à la fin de l'animation
+        const spawnEmeralds = () => {
+            // Deux émeraudes légèrement décalées pour être ramassées facilement
+            window.game.engine.add(new Emerald(this.x - 6, this.y));
+            window.game.engine.add(new Emerald(this.x + 6, this.y));
+        };
+
+        window.game.engine.add(new Explosion(this.x, this.y, spawnEmeralds));
         
         if (window.game.network && window.game.network.socket) {
             window.game.network.socket.emit('explosion', {
