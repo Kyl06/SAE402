@@ -1,78 +1,65 @@
-/**
- * @file Floor.js
- * @description Représente un bloc de collision solide (mur, arbre, rocher).
- * Gère la séparation physique des entités pour les empêcher de traverser le décor.
- */
-
 import { Entity } from '../engine/Entity.js';
+import { Assets } from '../engine/Assets.js';
+import { SCALE } from '../constants.js';
 
 export class Floor extends Entity {
-    /**
-     * @param {number} x, y - Position du bloc
-     * @param {number} width, height - Dimensions du bloc
-     */
-    constructor(x, y, width, height) {
-        super(x, y, width, height);
-        this.addTag('WALL');  // Identifié comme mur pour les flèches
-        this.addTag('SOLID'); // Identifié comme solide pour le mouvement
-        this.collider = true;
-        this.z = 0;           // Niveau du sol
+    constructor(x, y, type = 'GRASS') {
+        // Définition de la taille source
+        const srcSize = (type === 'TREE') ? 32 : 16;
+        
+        // TAILLE RÉELLE DANS LE JEU (ex: 16 * 4 = 64px)
+        const realSize = srcSize * SCALE;
+
+        super(x, y, realSize, realSize);
+        
+        this.type = type;
+        this.z = (type === 'TREE') ? 10 : 0;
+        
+        // Seuls l'herbe et le sable n'ont pas de collisions
+        this.collider = !['GRASS', 'SAND'].includes(this.type);
+        if (this.collider) {
+            this.addTag('SOLID');
+        }
     }
 
-    /** 
-     * Rendu graphique.
-     * Note: Dans la version finale, ces rectangles sont invisibles car 
-     * l'image de fond (la map) contient déjà le dessin.
-     */
     draw(ctx) {
-        // Version Debug : Dessine une zone rouge semi-transparente
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.3)'; 
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        const img = Assets.get("TILESET");
+        if (!img) return;
+
+        const mapping = {
+            'TREE':       { sx: 0,   sy: 0,  sw: 32, sh: 32 },
+            'GRASS':      { sx: 32,  sy: 0,  sw: 16, sh: 16 },
+            'SAND':       { sx: 32,  sy: 16, sw: 16, sh: 16 },
+            'WATER':      { sx: 48,  sy: 0,  sw: 16, sh: 16 },
+            'BUSH':       { sx: 48,  sy: 16, sw: 16, sh: 16 },
+            'WALL_DOWN':  { sx: 64,  sy: 0,  sw: 16, sh: 16 },
+            'WALL_UP':    { sx: 80,  sy: 0,  sw: 16, sh: 16 }, // Correction sx
+            'WALL_RIGHT': { sx: 64, sy: 16,  sw: 16, sh: 16 }, // Correction sx
+            'WALL_LEFT':  { sx: 80,  sy: 16, sw: 16, sh: 16 }
+        };
+
+        const t = mapping[this.type];
+        if (t) {
+            // On dessine à la taille calculée dans le constructeur
+            ctx.drawImage(img, t.sx, t.sy, t.sw, t.sh, this.x, this.y, this.width, this.height);
+        }
     }
 
-
-    /**
-     * Algorithme de résolution de collision (Repoussement).
-     * @param {Entity} other - L'entité (Joueur/Ennemi) qui tente de pénétrer dans le mur.
-     */
+    // Système de collision AABB simple
     onCollision(other) {
-        // Seules les entités mobiles et solides sont concernées
-        if (!other.collider || other.hasTag('ITEM')) return;
+        if (!this.collider || !other.collider || other.hasTag('ITEM')) return;
+        
+        const dx = (this.x + this.width/2) - (other.x + other.width/2);
+        const dy = (this.y + this.height/2) - (other.y + other.height/2);
+        
+        const overlapX = (this.width + other.width)/2 - Math.abs(dx);
+        const overlapY = (this.height + other.height)/2 - Math.abs(dy);
 
-        if (other.hasTag('PLAYER') || other.hasTag('ENEMY')) {
-            // 1. Calcul des centres des deux objets
-            const midThisX = this.x + this.width / 2;
-            const midOtherX = other.x + other.width / 2;
-            const midThisY = this.y + this.height / 2;
-            const midOtherY = other.y + other.height / 2;
-
-            // 2. Calcul des demi-dimensions combinées
-            const combinedHalfWidths = (this.width + other.width) / 2;
-            const combinedHalfHeights = (this.height + other.height) / 2;
-
-            // 3. Calcul du chevauchement (overlap) sur chaque axe
-            const dx = midThisX - midOtherX;
-            const dy = midThisY - midOtherY;
-            const overlapX = combinedHalfWidths - Math.abs(dx);
-            const overlapY = combinedHalfHeights - Math.abs(dy);
-
-            /**
-             * 4. Résolution par l'Axe de Moindre Pénétration :
-             * On repousse l'entité sur l'axe où le chevauchement est le plus petit
-             * pour éviter des "sauts" brusques.
-             */
+        if (overlapX > 0 && overlapY > 0) {
             if (overlapX < overlapY) {
-                if (dx > 0) {
-                    other.x = this.x - other.width; // Collision à gauche de l'obstacle
-                } else {
-                    other.x = this.x + this.width;  // Collision à droite
-                }
+                other.x += dx > 0 ? -overlapX : overlapX;
             } else {
-                if (dy > 0) {
-                    other.y = this.y - other.height; // Collision en haut
-                } else {
-                    other.y = this.y + this.height;  // Collision en bas
-                }
+                other.y += dy > 0 ? -overlapY : overlapY;
             }
         }
     }
