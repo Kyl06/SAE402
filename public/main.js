@@ -84,6 +84,7 @@ Assets.load({
     LINK: "./assets/link1.png",       // Sprite Link vert (Joueur 1)
     LINK2: "./assets/link2.png",      // Sprite Link bleu (Joueur 2)
     MOBLIN: "./assets/moblin.png",    // Sprite des ennemis
+    OCTOROK: "./assets/octorok.png",
     HEARTS: "./assets/hearts.png",    // HUD Coeurs
     EXPLOSION: "./assets/explosion.png", // Animation de mort
     SWORD: "./assets/sword.png",      // FX Épée
