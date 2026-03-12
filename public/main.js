@@ -9,21 +9,22 @@ import { Assets } from "./engine/Assets.js";
 import { InputHandler } from "./engine/InputHandler.js";
 import { Player } from "./entities/Player/Player.js";
 import { Moblin } from "./entities/Enemies/Moblin.js";
+import { Octorok } from "./entities/Enemies/Octorok.js";                    // ← AJOUTÉ
+import { NetworkOctorok } from "./entities/Enemies/NetworkOctorok.js";     // ← AJOUTÉ
 import { BottomBar } from "./ui/BottomBar.js";
 import { NetworkUpdater } from "./engine/NetworkUpdater.js";
 import { Map } from "./world/Map.js";
 import { level1 } from "./world/maps/level1.js";
 
 // --- INITIALISATION DU MOTEUR ---
-const engine = new GameEngine("gameCanvas"); // Crée le moteur lié au canvas HTML
-const inputs = new InputHandler();             // Initialise l'écoute du clavier
+const engine = new GameEngine("gameCanvas");
+const inputs = new InputHandler();
 
 // Création d'un objet global 'game' pour un accès facile depuis n'importe quelle entité
 window.game = { engine, inputs, player: null };
 
 /**
  * Fonction de réapparition (Respawn).
- * Réinitialise l'état du joueur local sans recharger la page.
  */
 window.respawn = function () {
     const player = window.game.player;
@@ -44,24 +45,31 @@ window.respawn = function () {
 /**
  * Génère des ennemis aléatoirement sur la carte.
  * Uniquement appelé par l'Hôte.
- * @param {number} count - Nombre d'ennemis à créer.
+ * @param {number} moblinCount - Nombre de Moblins
+ * @param {number} octorokCount - Nombre d'Octoroks
  */
-function spawnEnemyGroup(count) {
-    for (let i = 0; i < count; i++) {
-        const x = 200 + Math.random() * 400; // Position X entre 200 et 600
-        const y = 200 + Math.random() * 300; // Position Y entre 200 et 500
-        engine.add(new Moblin(x, y, 120));    // Ajoute un Moblin avec un rayon de patrouille de 120px
+function spawnEnemyGroup(moblinCount = 3, octorokCount = 2) {  // ← MODIFIÉ : 2 paramètres
+    // Spawn des Moblins
+    for (let i = 0; i < moblinCount; i++) {
+        const x = 200 + Math.random() * 400;
+        const y = 200 + Math.random() * 300;
+        engine.add(new Moblin(x, y, 120));
+    }
+    
+    // ← NOUVEAU : Spawn des Octoroks
+    for (let i = 0; i < octorokCount; i++) {
+        const x = 300 + Math.random() * 300;  // Zone légèrement différente pour varier
+        const y = 300 + Math.random() * 250;
+        engine.add(new Octorok(x, y, 100));   // Rayon de patrouille 100px
     }
 }
 
 /**
  * Attente asynchrone du choix du joueur dans le menu HTML.
- * @returns {Promise<number>} - Promesse résolue avec le rôle (1 pour Hôte, 2 pour Client).
  */
 function waitForPlayerSelection() {
     return new Promise((resolve) => {
         const check = setInterval(() => {
-            // window.selectedPlayerRole est modifié par le script dans index.html
             if (window.selectedPlayerRole !== null) {
                 clearInterval(check);
                 resolve(window.selectedPlayerRole);
@@ -72,7 +80,6 @@ function waitForPlayerSelection() {
 
 // --- CHARGEMENT DES RESSOURCES ET LANCEMENT ---
 
-// Le chargeur d'Assets s'assure que toutes les images sont prêtes AVANT de démarrer
 Assets.load({
     LINK: "./assets/link1.png",       // Sprite Link vert (Joueur 1)
     LINK2: "./assets/link2.png",      // Sprite Link bleu (Joueur 2)
@@ -83,41 +90,55 @@ Assets.load({
     ARROW: "./assets/arrow.png",      // Projectile Arc
     TILESET: "./assets/map.png",  // Map
 }).then(async () => {
-    // ① Étape 1 : Attendre que l'utilisateur clique sur une carte dans le menu
+    // ① Attendre le choix du rôle
     const role = await waitForPlayerSelection();
-    const forceHost = (role === 1); // Joueur 1 devient l'Hôte (Master)
+    const forceHost = (role === 1);
 
-    // ② Étape 2 : Charger la carte (murs et collisions)
+    // ② Charger la carte
     const worldMap = new Map(engine);
     worldMap.load(level1);
 
-    // ③ Étape 3 : Créer le héros local avec le bon skin
+    // ③ Créer le héros local
     const hero = new Player(100, 100, forceHost ? "LINK" : "LINK2");
     window.game.player = hero;
     engine.add(hero);
 
-    // ④ Étape 4 : Initialisation du réseau
-    // On passe 'forceHost' pour que le client sache immédiatement s'il doit gérer les mobs
+    // ④ Initialisation du réseau
     const network = new NetworkUpdater(hero, engine, forceHost);
+    window.game.network = network;
+    
+    // ❌ SUPPRIMÉ : registerEntityType n'existe plus, la détection est automatique via enemyType
 
-    // ⑤ Étape 5 : Logique spécifique au rôle
+    // ⑤ Logique spécifique au rôle
     if (forceHost) {
-        // L'Hôte décide du spawn des monstres
-        spawnEnemyGroup(4);
-        console.log("[Main] Master Mode: Je gère les monstres.");
+        // L'Hôte spawn les ennemis : 3 Moblins + 2 Octoroks
+        spawnEnemyGroup(3, 2);
+        console.log("[Main] Master Mode: Je gère les monstres (Moblins + Octoroks).");
     } else {
         console.log("[Main] Client Mode: J'attends les données de l'Hôte.");
     }
 
-    // ⑥ Étape 6 : Ajout de l'interface (HUD)
+    // ⑥ Interface HUD
     engine.add(new BottomBar());
 
-    // ⑦ Étape 7 : Boucle de synchronisation réseau (33 FPS environ)
+    // ⑦ Boucle de synchronisation réseau (~33 FPS)
     setInterval(() => network.sendUpdate(), 30);
 
-    // ⑧ Étape 8 : Démarrage de la boucle de rendu et de mise à jour (RequestAnimationFrame)
+    // ← NOUVEAU : Gestion des projectiles Octorok reçus du réseau (côté client uniquement)
+    if (!forceHost && window.game.network?.socket) {
+        window.game.network.socket.on('projectile', (data) => {
+            // Import dynamique pour éviter les cycles de dépendance
+            import('./entities/Enemies/OctorokProjectile.js').then(({ OctorokProjectile }) => {
+                const proj = new OctorokProjectile(data.x, data.y, data.vx, data.vy, data.ownerId);
+                proj.netId = data.id;
+                engine.add(proj);
+            });
+        });
+    }
+
+    // ⑧ Démarrage de la boucle de jeu
     engine.start();
 
-    // ⑨ Étape 9 : On cache le menu de sélection pour révéler le canvas
+    // ⑨ Cacher le menu
     window.hideMenu?.();
 });
