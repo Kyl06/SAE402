@@ -12,10 +12,7 @@ import { OctorokProjectile } from "./OctorokProjectile.js";
 export class Octorok extends Entity {
     constructor(x, y, roamRadius = 100) {
         super(x, y, 28, 28);
-
-        // entities/Enemies/Octorok.js (et Emerald.js)
-        this.netId = 'obj_' + Math.random().toString(36).substr(2, 9);
-
+        
         this.netId = 'octo_' + Math.random().toString(36).slice(2, 11);
         this.hp = 2;
         this.speed = 35;
@@ -53,10 +50,10 @@ export class Octorok extends Entity {
     }
 
     think() {
-        const players = window.game.engine.entities.filter((e) =>
+        const players = window.game.engine.entities.filter((e) => 
             e.hasTag("PLAYER") && !e.isDead
         );
-
+        
         let closest = null;
         let minDist = this.shootRange;
 
@@ -122,22 +119,22 @@ export class Octorok extends Entity {
             this.facing = directions[Math.floor(Math.random() * 4)];
         }
 
-        this.velX = this.facing === "LEFT" ? -this.speed :
-            (this.facing === "RIGHT" ? this.speed : 0);
-        this.velY = this.facing === "UP" ? -this.speed :
-            (this.facing === "DOWN" ? this.speed : 0);
+        this.velX = this.facing === "LEFT" ? -this.speed : 
+                   (this.facing === "RIGHT" ? this.speed : 0);
+        this.velY = this.facing === "UP" ? -this.speed : 
+                   (this.facing === "DOWN" ? this.speed : 0);
     }
 
     shootLogic(delta) {
         if (this.target && !this.painState) {
             const dist = Math.hypot(this.target.x - this.x, this.target.y - this.y);
-
+            
             if (dist <= this.shootRange && Date.now() - this.lastShot >= this.shootCooldown) {
                 this.state = "AIM";
                 this.aimTime += delta;
                 this.velX = 0;
                 this.velY = 0;
-
+                
                 const dx = this.target.x - this.x;
                 const dy = this.target.y - this.y;
                 if (Math.abs(dx) > Math.abs(dy)) {
@@ -145,7 +142,7 @@ export class Octorok extends Entity {
                 } else {
                     this.facing = dy > 0 ? "DOWN" : "UP";
                 }
-
+                
                 if (this.aimTime >= 600) {
                     this.fireProjectile();
                     this.lastShot = Date.now();
@@ -155,7 +152,7 @@ export class Octorok extends Entity {
                 return;
             }
         }
-
+        
         if (this.state === "AIM") {
             this.state = "IDLE";
             this.aimTime = 0;
@@ -166,11 +163,11 @@ export class Octorok extends Entity {
         const dx = this.target.x - this.x;
         const dy = this.target.y - this.y;
         const dist = Math.hypot(dx, dy) || 1;
-
+        
         const speed = 100;
         const vx = (dx / dist) * speed;
         const vy = (dy / dist) * speed;
-
+        
         const projectile = new OctorokProjectile(
             this.x + (dx / dist) * 20,
             this.y + (dy / dist) * 20,
@@ -178,9 +175,9 @@ export class Octorok extends Entity {
             vy,
             this.netId
         );
-
+        
         window.game.engine.add(projectile);
-
+        
         // Sync réseau
         if (window.game.network && window.game.network.socket) {
             window.game.network.socket.emit('projectile', {
@@ -196,16 +193,16 @@ export class Octorok extends Entity {
 
     takeDamage(direction) {
         if (this.painState || this.toRemove) return;
-
+        
         this.hp--;
         if (this.hp <= 0) return this.die();
 
         const force = 200;
-        const kx = direction === "LEFT" ? -force :
-            (direction === "RIGHT" ? force : 0);
-        const ky = direction === "UP" ? -force :
-            (direction === "DOWN" ? force : 0);
-
+        const kx = direction === "LEFT" ? -force : 
+                  (direction === "RIGHT" ? force : 0);
+        const ky = direction === "UP" ? -force : 
+                  (direction === "DOWN" ? force : 0);
+        
         this.painState = { msLeft: 120, velX: kx, velY: ky };
         this.state = "IDLE";
         this.aimTime = 0;
@@ -226,28 +223,28 @@ export class Octorok extends Entity {
 
     die() {
         window.game.engine.add(new Explosion(this.x, this.y));
-
+        
         if (window.game.network && window.game.network.socket) {
             window.game.network.socket.emit('explosion', {
                 x: this.x,
                 y: this.y
             });
         }
-
+        
         if (window.game.player?.hp < 6 && Math.random() < 0.25) {
             window.game.engine.add(new Heart(this.x, this.y));
         }
-
+        
         this.kill();
     }
 
     draw(ctx) {
         if (this.toRemove) return;
-
+        
         const row = { DOWN: 0, UP: 4, LEFT: 8, RIGHT: 12 }[this.facing] || 0;
         const isMoving = Math.abs(this.velX) > 0.1 || Math.abs(this.velY) > 0.1;
         const walkCycle = isMoving ? (Math.floor(Date.now() / 150) % 2) : 0;
-
+        
         let frame;
         if (this.state === "AIM") {
             frame = row + 2;
@@ -256,7 +253,7 @@ export class Octorok extends Entity {
         } else {
             frame = row + walkCycle;
         }
-
+        
         this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, 2);
     }
 }

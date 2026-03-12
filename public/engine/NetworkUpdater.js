@@ -14,13 +14,13 @@ export class NetworkUpdater {
      * @param {boolean} forceHost - Indique si ce client est l'Hôte (maître des ennemis)
      */
     constructor(localPlayer, engine, forceHost = false) {
-        this.localPlayer  = localPlayer;
-        this.engine       = engine;
-        
+        this.localPlayer = localPlayer;
+        this.engine = engine;
+
         // Dictionnaires pour stocker les entités distantes par leur ID réseau
         this.remotePlayers = {}; // { socketId: NetworkPlayer }
         this.remoteEnemies = {}; // { netId: NetworkMoblin }
-        
+
         // État du rôle (Hôte gère les mobs réels, Client affiche des clones réseau)
         this.isHost = forceHost;
 
@@ -48,7 +48,7 @@ export class NetworkUpdater {
             // mais on garde ceci pour la cohérence serveur.
             this.localPlayer?.setSkin?.(skin);
             console.log(`[Net] Init reçu : Skin=${skin}, Host=${this.isHost}`);
-            
+
             // Dispatch d'un événement vanilla pour prévenir d'autres modules si besoin
             window.dispatchEvent(new CustomEvent('network_ready'));
         });
@@ -62,8 +62,8 @@ export class NetworkUpdater {
 
             const parts = data.split('|');
             // Format du message string : action|x|y|vx|vy|skinId|facing
-            const x    = parseInt(parts[1]);
-            const y    = parseInt(parts[2]);
+            const x = parseInt(parts[1]);
+            const y = parseInt(parts[2]);
             const skin = parts[5];
 
             // Si c'est un nouveau joueur qu'on ne connaît pas encore
@@ -91,29 +91,37 @@ export class NetworkUpdater {
         });
 
         /**
-         * ── 4. SYNCHRONISATION DES ENNEMIS ───────────────────────────────────
-         * Uniquement pour les clients (non-hôtes).
-         * Reçoit la position de tous les monstres calculée par l'Hôte.
-         */
-        this.socket.on('network_enemies', (enemiesData) => {
-            if (this.isHost) return; // L'hôte ignore ces messages car c'est lui qui les envoie
+ * ── 4. SYNCHRONISATION DES ENNEMIS (GÉNÉRIQUE) ──────────────────────────────
+ */
+        this.socket.on('network_enemies', async (enemiesData) => {
+            if (this.isHost) return;
+
+            // Imports dynamiques pour les versions "Network"
+            const { NetworkMoblin } = await import('../entities/Enemies/NetworkMoblin.js');
+            const { NetworkOctorok } = await import('../entities/Enemies/NetworkOctorok.js');
 
             enemiesData.forEach(data => {
-                const [netId, x, y, facing] = data.split('|');
+                // Format étendu : netId|x|y|facing|type
+                const [netId, x, y, facing, type] = data.split('|');
 
-                // Si le monstre n'existe pas encore localement
                 if (!this.remoteEnemies[netId]) {
-                    const mob = new NetworkMoblin(parseFloat(x), parseFloat(y));
+                    let mob;
+                    // On choisit la classe en fonction du type envoyé par l'hôte
+                    if (type === 'OCTOROK') {
+                        mob = new NetworkOctorok(parseFloat(x), parseFloat(y));
+                    } else {
+                        mob = new NetworkMoblin(parseFloat(x), parseFloat(y));
+                    }
+
                     mob.netId = netId;
                     this.remoteEnemies[netId] = mob;
                     this.engine.add(mob);
                 } else {
-                    // Sinon on déplace le clone vers sa position réelle
                     this.remoteEnemies[netId].updateFromNetwork(x, y, facing);
                 }
             });
 
-            // Nettoyage : Si un monstre n'est plus dans le message, il est mort
+            // Nettoyage des morts
             const currentIds = enemiesData.map(d => d.split('|')[0]);
             for (const id in this.remoteEnemies) {
                 if (!currentIds.includes(id)) {
@@ -155,7 +163,7 @@ export class NetworkUpdater {
          */
         this.socket.on('network_explosion', async ({ x, y }) => {
             if (this.isHost) return; // L'hôte a déjà créé l'explosion localement
-            
+
             // Import d'Explosion à la volée pour éviter les dépendances circulaires
             const { Explosion } = await import('../entities/Effects/Explosion.js');
             const { Emerald } = await import('../entities/Items/Emerald.js');
@@ -193,16 +201,16 @@ export class NetworkUpdater {
     sendUpdate() {
         if (!this.socket || !this.localPlayer) return;
 
-        const p      = this.localPlayer;
+        const p = this.localPlayer;
         const action = p.actionAnimation?.type || 'IDLE';
-        
+
         // Construction du message compact : action|x|y|vx|vy|skin|facing
         const msg = `${action}|${Math.round(p.x)}|${Math.round(p.y)}|${Math.round(p.velX ?? 0)}|${Math.round(p.velY ?? 0)}|${p.skinId}|${p.facing}`;
         this.socket.emit('player_update', msg);
 
         // L'HÔTE SEUL diffuse l'état du monde (les ennemis)
         if (this.isHost) {
-            const enemies    = this.engine.entities.filter(e => e.hasTag('ENEMY') && !e.toRemove);
+            const enemies = this.engine.entities.filter(e => e.hasTag('ENEMY') && !e.toRemove);
             const enemiesData = enemies.map(e => {
                 // Assigne un ID réseau unique si manquant
                 if (!e.netId) e.netId = 'mob_' + Math.random().toString(36).slice(2, 7);
