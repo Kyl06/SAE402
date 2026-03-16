@@ -58,7 +58,7 @@
             height: 32px;
             margin: 0 auto 5px;
             background-image: url('assets/map.png');
-            background-size: 192px 64px;
+            background-size: 512px 256px; /* 256x128 scaled x2 */
             image-rendering: pixelated;
         }
 
@@ -111,21 +111,60 @@
         let isDrawing = false;
 
         const TILE_TYPES = {
-            'GRASS': { sx: 32, sy: 0, sw: 16, sh: 16, label: 'Herbe' },
-            'SAND': { sx: 32, sy: 16, sw: 16, sh: 16, label: 'Sable' },
-            'TREE': { sx: 0, sy: 0, sw: 32, sh: 32, label: 'Arbre' },
-            'WATER': { sx: 48, sy: 0, sw: 16, sh: 16, label: 'Eau' },
-            'BUSH': { sx: 48, sy: 16, sw: 16, sh: 16, label: 'Buisson' },
-            // Correction des coordonnées (on avance de 16px ou 32px selon ton fichier)
-            'WALL_DOWN': { sx: 64, sy: 0, sw: 16, sh: 16, label: 'Mur BAS' },
-            'WALL_UP': { sx: 80, sy: 0, sw: 16, sh: 16, label: 'Mur HAUT' },
-            'WALL_RIGHT': { sx: 64, sy: 16, sw: 16, sh: 16, label: 'Mur DROITE' },
-            'WALL_LEFT': { sx: 80, sy: 16, sw: 16, sh: 16, label: 'Mur GAUCHE' },
-            
-            "BRIDGE_H_RIGHT": { sx: 96, sy: 0, sw: 16, sh: 16, label: 'Pont H Droite' },
-            "BRIDGE_H_LEFT": { sx: 112, sy: 0, sw: 16, sh: 16, label: 'Pont H Gauche' },
-            "BRIDGE_V_LEFT": { sx: 96, sy: 16, sw: 16, sh: 16, label: 'Pont V Gauche' },
-            "BRIDGE_V_RIGHT": { sx: 112, sy: 16, sw: 16, sh: 16, label: 'Pont V Droite' }
+            // Row 0
+            'TREE':           { sx: 0,   sy: 0,  sw: 32, sh: 32, label: 'Arbre' },
+            'GRASS':          { sx: 32,  sy: 0,  sw: 16, sh: 16, label: 'Herbe' },
+            'WATER':          { sx: 48,  sy: 0,  sw: 16, sh: 16, label: 'Eau' },
+            'WALL_DOWN':      { sx: 64,  sy: 0,  sw: 16, sh: 16, label: 'Mur BAS' },
+            'WALL_UP':        { sx: 80,  sy: 0,  sw: 16, sh: 16, label: 'Mur HAUT' },
+            'BRIDGE_H_RIGHT': { sx: 96,  sy: 0,  sw: 16, sh: 16, label: 'Pont H D' },
+            'BRIDGE_H_LEFT':  { sx: 112, sy: 0,  sw: 16, sh: 16, label: 'Pont H G' },
+            'ORANGE_BLOCK':   { sx: 128, sy: 0,  sw: 16, sh: 16, label: 'Bloc Orange' },
+            'ORANGE_PATH':    { sx: 144, sy: 0,  sw: 16, sh: 16, label: 'Chemin Or.' },
+            'YELLOW_BLOCK':   { sx: 160, sy: 0,  sw: 16, sh: 16, label: 'Bloc Jaune' },
+            'DESERT_BUSH':    { sx: 176, sy: 0,  sw: 16, sh: 16, label: 'Pante Désert' },
+            'WATER_WAVES':    { sx: 192, sy: 0,  sw: 16, sh: 16, label: 'Eau Vagues' },
+            'FENCE_1':        { sx: 208, sy: 0,  sw: 16, sh: 16, label: 'Barrière 1' },
+            'FENCE_2':        { sx: 224, sy: 0,  sw: 16, sh: 16, label: 'Barrière 2' },
+            'FENCE_3':        { sx: 240, sy: 0,  sw: 16, sh: 16, label: 'Barrière 3' },
+
+            // Row 1
+            'SAND':           { sx: 32,  sy: 16, sw: 16, sh: 16, label: 'Sable' },
+            'BUSH':           { sx: 48,  sy: 16, sw: 16, sh: 16, label: 'Herbe Haute' },
+            'WALL_RIGHT':     { sx: 64,  sy: 16, sw: 16, sh: 16, label: 'Mur D' },
+            'WALL_LEFT':      { sx: 80,  sy: 16, sw: 16, sh: 16, label: 'Mur G' },
+            'CAVE_ENTRANCE':  { sx: 96,  sy: 16, sw: 16, sh: 16, label: 'Grotte' },
+            'OWL':            { sx: 112, sy: 16, sw: 16, sh: 16, label: 'Hibou' },
+            'STATUE':         { sx: 128, sy: 16, sw: 16, sh: 16, label: 'Statue' },
+            'BARREL':         { sx: 144, sy: 16, sw: 16, sh: 16, label: 'Tonneau' },
+            'BUSH_GREEN':     { sx: 160, sy: 16, sw: 16, sh: 16, label: 'Buisson V' },
+            'TALL_GRASS':     { sx: 176, sy: 16, sw: 16, sh: 16, label: 'Herbe V' },
+            'ROCK_GREY':      { sx: 192, sy: 16, sw: 16, sh: 16, label: 'Rocher G' },
+
+            // Row 2
+            'PALM':           { sx: 0,   sy: 32, sw: 32, sh: 32, label: 'Palmier' },
+            'DUNGEON_WALL_1': { sx: 32,  sy: 32, sw: 16, sh: 16, label: 'Dungeon 1' },
+            'DUNGEON_WALL_2': { sx: 48,  sy: 32, sw: 16, sh: 16, label: 'Dungeon 2' },
+            'DUNGEON_WALL_3': { sx: 64,  sy: 32, sw: 16, sh: 16, label: 'Dungeon 3' },
+            'DUNGEON_WALL_4': { sx: 80,  sy: 32, sw: 16, sh: 16, label: 'Dungeon 4' },
+            'BIG_BUSH':       { sx: 96,  sy: 32, sw: 32, sh: 32, label: 'Gros Buisson' },
+            'WATERFALL':      { sx: 128, sy: 32, sw: 16, sh: 16, label: 'Cascade' },
+            'ROCK_WATER':     { sx: 144, sy: 32, sw: 16, sh: 16, label: 'Rocher Eau' },
+            'FLOWERS':        { sx: 160, sy: 32, sw: 16, sh: 16, label: 'Fleurs' },
+            'STREAM':         { sx: 176, sy: 32, sw: 16, sh: 16, label: 'Ruisseau' },
+            'OWL_STATUE':     { sx: 192, sy: 32, sw: 16, sh: 16, label: 'Hibou Statue' },
+            'CRYSTAL':        { sx: 208, sy: 32, sw: 16, sh: 16, label: 'Cristal' },
+
+            // Row 3
+            'CHEST':          { sx: 128, sy: 48, sw: 16, sh: 16, label: 'Coffre' },
+            'STREAM_ALT':     { sx: 144, sy: 48, sw: 16, sh: 16, label: 'Ruiss. Alt' },
+            'LEAVES':         { sx: 160, sy: 48, sw: 16, sh: 16, label: 'Feuilles' },
+            'ROCK':           { sx: 176, sy: 48, sw: 16, sh: 16, label: 'Rocher' },
+            'LANTERN':        { sx: 192, sy: 48, sw: 16, sh: 16, label: 'Lanterne' },
+            'CAULDRON':       { sx: 208, sy: 48, sw: 16, sh: 16, label: 'Chaudron' },
+
+            // Row 4
+            'SHOP':           { sx: 0,   sy: 64, sw: 48, sh: 48, label: 'SHOP (48x48)' }
         };
 
         
@@ -184,9 +223,11 @@
             walls.forEach(w => {
                 const t = TILE_TYPES[w.type];
                 if (tileset.complete) {
-                    // Les murs (16px) sont dessinés en 32px (GRID)
-                    // L'arbre (32px) est dessiné en 64px (GRID * 2) pour garder le ratio
-                    const displaySize = (w.type === 'TREE') ? GRID * 2 : GRID;
+                    // Calcul de la taille d'affichage en fonction de la taille source
+                    let displaySize = GRID;
+                    if (['TREE', 'PALM', 'BIG_BUSH'].includes(w.type)) displaySize = GRID * 2;
+                    if (w.type === 'SHOP') displaySize = GRID * 3;
+                    
                     ctx.drawImage(tileset, t.sx, t.sy, t.sw, t.sh, w.x, w.y, displaySize, displaySize);
                 }
             });
