@@ -187,9 +187,9 @@ export class Moblin extends Entity {
         let loot = null;
         let type = '';
 
-        if (rand < 0.4) {
+        if (rand < 0.2) {
             return; // Pas de chance !
-        } else if (rand < 0.7) {
+        } else if (rand < 0.8) {
             loot = new Emerald(this.x, this.y);
             type = 'EMERALD';
         } else {
