@@ -53,23 +53,25 @@ export class NetworkPlayer extends Entity {
      * Met à jour l'état interne à partir d'un message réseau.
      * @param {string} data - Format : action|x|y|vx|vy|skinId|facing
      */
-    onNetworkUpdate(data) {
-        const [action, x, y, vx, vy, skin, facing] = data.split('|');
+   onNetworkUpdate(data) {
+    const [action, x, y, vx, vy, skin, facing, arrows] = data.split('|');
 
-        this.currentAction = action;
-        this.x = parseInt(x);
-        this.y = parseInt(y);
-        this.facing = facing || DOWN;
-        // On considère qu'il marche si sa vélocité sur le serveur est non-nulle
-        this.isWalking = (parseFloat(vx) !== 0 || parseFloat(vy) !== 0);
-
-        // Si le joueur distant change de personnage, on met à jour localement
-        if (skin && this.skinId !== skin) {
-            this.skinId = skin;
-            this._buildSheets();
-        }
+    this.currentAction = action;
+    this.x = parseInt(x);
+    this.y = parseInt(y);
+    this.facing = facing || DOWN;
+    this.isWalking = (parseFloat(vx) !== 0 || parseFloat(vy) !== 0);
+    
+    // Synchronise le nombre de flèches
+    if (arrows !== undefined) {
+        this.arrows = parseInt(arrows);
     }
 
+    if (skin && this.skinId !== skin) {
+        this.skinId = skin;
+        this._buildSheets();
+    }
+}
     /** 
      * Reproduit visuellement une attaque déclenchée par le joueur distant.
      * @param {string} actionType - 'SWORD' ou 'ARROW'

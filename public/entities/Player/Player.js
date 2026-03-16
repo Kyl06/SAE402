@@ -16,14 +16,15 @@ export class Player extends Entity {
      * @param {string} skinId - "LINK" (vert) ou "LINK2" (bleu)
      */
     constructor(x, y, skinId) {
-        super(x, y, 16, 16); // Hitbox de 16x16
-        
-        this.hp = 6;                // Points de vie (3 coeurs complets)
-        this.addTag(TAG_PLAYER);    // Identifié comme un joueur par les monstres
-        this.skinId = skinId;       // Stocke le nom de l'asset utilisé
-        this.facing = DOWN;         // Direction actuelle (utilisée par draw et actions)
-        this.speed = 160;           // Vitesse de marche (pixels/seconde)
-        this.z = 10;                // Profondeur (dessiné par-dessus les monstres)
+    super(x, y, 16, 16);
+    
+    this.hp = 6;                // Points de vie (3 coeurs complets)
+    this.arrows = 5;            // Nombre de flèches disponibles
+    this.addTag(TAG_PLAYER);    // Identifié comme un joueur par les monstres
+    this.skinId = skinId;       // Stocke le nom de l'asset utilisé
+    this.facing = DOWN;         // Direction actuelle (utilisée par draw et actions)
+    this.speed = 160;           // Vitesse de marche (pixels/seconde)
+    this.z = 10;                // Profondeur (dessiné par-dessus les monstres)
         
         this.visible = true;        // Utilisé pour l'effet de clignotement lors d'un dégât
         this.isDead = false;        // État de mort

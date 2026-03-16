@@ -52,26 +52,38 @@ export class PlayerActions {
     /**
      * Déclenche un tir à l'arc.
      */
-    actionShootArrow() {
-        const p = this.player;
-        if (p.actionAnimation) return;
-
-        // Frame fixe de Link pendant le tir (Frame d'attaque 2)
-        p.actionAnimation = { frameIdx: 2 };
-
-        // Création du projectile
-        const arrow = new Arrow(p.x, p.y, p.facing, p);
-        window.game.engine.add(arrow);
-
-        // DIFFUSION RÉSEAU : On informe les autres qu'on tire une flèche
-        window.game.network?.sendPlayerAction('ARROW', p.facing);
-
-        /**
-         * Délai de récupération (Cooldown). 
-         * bloque les contrôles de Link pendant 500ms après le tir.
-         */
-        setTimeout(() => p.actionAnimation = null, 500);
+    /**
+ * Déclenche un tir à l'arc.
+ */
+actionShootArrow() {
+    const p = this.player;
+    if (p.actionAnimation) return;
+    
+    // Vérifie s'il reste des flèches
+    if (p.arrows <= 0) {
+        // Optionnel : jouer un son d'erreur ou afficher un message
+        return;
     }
+
+    // Frame fixe de Link pendant le tir (Frame d'attaque 2)
+    p.actionAnimation = { frameIdx: 2 };
+
+    // Création du projectile
+    const arrow = new Arrow(p.x, p.y, p.facing, p);
+    window.game.engine.add(arrow);
+
+    // Décrémente le compteur de flèches
+    p.arrows--;
+
+    // DIFFUSION RÉSEAU : On informe les autres qu'on tire une flèche
+    window.game.network?.sendPlayerAction('ARROW', p.facing);
+
+    /**
+     * Délai de récupération (Cooldown). 
+     * bloque les contrôles de Link pendant 500ms après le tir.
+     */
+    setTimeout(() => p.actionAnimation = null, 500);
+}
 
     /**
      * Effet visuel de clignotement lors d'un dégât.

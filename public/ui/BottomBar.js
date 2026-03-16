@@ -15,7 +15,7 @@ export class BottomBar extends Entity {
         this._emeraldMissingLogged = false;
     }
 
-    draw(ctx) {
+          draw(ctx) {
         // 1. Fond noir opaque
         ctx.fillStyle = "#000";
         ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -33,30 +33,48 @@ export class BottomBar extends Entity {
             this.heartsUI.draw(ctx, player.hp, 20, this.y + 18);
 
             // ---------------------------------------------------------
-            // Affichage des émeraudes (Correction de la source de données)
+            // Affichage des émeraudes
             // ---------------------------------------------------------
-            // On récupère la valeur sur l'instance du joueur local
             const emeraldCount = player.emeralds || 0; 
-            
-            // Calcul de la position après les 3 cœurs (24px de large + 10px espacement)
-            const iconX = 140; 
-            const iconY = this.y + 30; // Centré verticalement dans la barre de 60px
+            const emeraldIconX = 140; 
+            const iconY = this.y + 30;
 
             const emeraldImg = Assets.get("EMERALD");
 
             if (emeraldImg) {
-                // Dessine l'icône
-                ctx.drawImage(emeraldImg, iconX, iconY - 12, 24, 24);
-            } else if (!this._emeraldMissingLogged) {
-                console.warn("[BottomBar] Asset EMERALD introuvable.");
-                this._emeraldMissingLogged = true;
+                ctx.drawImage(emeraldImg, emeraldIconX, iconY - 12, 24, 24);
             }
 
-            // Dessin du texte du compteur
-            ctx.fillStyle = "#fff"; // Blanc pour une meilleure lisibilité
-            ctx.font = "bold 20px monospace"; // Police type arcade
+            ctx.fillStyle = "#fff";
+            ctx.font = "bold 20px monospace";
             ctx.textBaseline = "middle";
-            ctx.fillText(`x${emeraldCount}`, iconX + 32, iconY);
+            ctx.fillText(`x${emeraldCount}`, emeraldIconX + 32, iconY);
+
+            // ---------------------------------------------------------
+            // Affichage des flèches (Utilisation de ton image arrow.png)
+            // ---------------------------------------------------------
+            const arrowCount = player.arrows || 0;
+            const arrowIconX = 280; 
+            
+            // On cherche l'image avec la clé "ARROW" (correspondant à arrow.png)
+            const arrowImg = Assets.get("ARROW");
+            
+            if (arrowImg) {
+                // Si l'image est trouvée, on l'affiche proprement
+                ctx.drawImage(arrowImg, arrowIconX, iconY - 12, 24, 24);
+            } else {
+                // Fallback uniquement si l'image n'est pas trouvée (debug)
+                ctx.fillStyle = "#FFD700";
+                ctx.fillRect(arrowIconX, iconY - 8, 20, 16);
+                console.warn("Image 'ARROW' non trouvée dans les assets. Vérifie le nom de la clé.");
+            }
+
+            // Affiche le nombre de flèches
+            ctx.fillStyle = arrowCount > 0 ? "#fff" : "#666"; // Gris si 0 flèche
+            ctx.font = "bold 20px monospace";
+            ctx.textBaseline = "middle";
+            ctx.fillText(`x${arrowCount}`, arrowIconX + 32, iconY);
         }
     }
 }
+
