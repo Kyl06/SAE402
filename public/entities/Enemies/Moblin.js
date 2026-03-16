@@ -160,43 +160,66 @@ export class Moblin extends Entity {
      * Mort du Moblin
      */
     die() {
-        // 1. Créer l'explosion visuelle (Hôte + envoi au P2)
+        const engine = this.engine || window.game.engine;
+
+        // 1. Créer l'explosion visuelle localement (pour l'Hôte)
+        if (engine) {
+            engine.add(new Explosion(this.x, this.y));
+        }
+
+        // 2. Envoyer au réseau (pour le P2)
         if (window.game.network) {
             window.game.network.sendExplosion(this.x, this.y);
         }
 
-        // 2. Générer le loot (Emeraude)
+        // 3. Générer le loot aléatoire
         this.spawnLoot();
 
         this.toRemove = true;
     }
 
     spawnLoot() {
-        // 1. On récupère l'engine de manière sécurisée
         const engine = this.engine || window.game.engine;
+        if (!engine) return;
 
-        if (!engine) {
-            console.error("Moteur de jeu introuvable pour spawn le loot !");
-            return;
+        // Probabilités : 40% Rien, 30% Emeraude, 30% Coeur
+        const rand = Math.random();
+        let loot = null;
+        let type = '';
+
+        if (rand < 0.4) {
+            return; // Pas de chance !
+        } else if (rand < 0.7) {
+            loot = new Emerald(this.x, this.y);
+            type = 'EMERALD';
+        } else {
+            // Un coeur doit tomber, mais on vérifie si quelqu'un en a besoin
+            const players = engine.entities.filter(e => e.hasTag("PLAYER"));
+            const anyoneInjured = players.some(p => p.hp < 6);
+
+            if (anyoneInjured) {
+                loot = new Heart(this.x, this.y);
+                type = 'HEART';
+            } else {
+                // Si tout le monde est full vie, on donne une émeraude à la place
+                loot = new Emerald(this.x, this.y);
+                type = 'EMERALD';
+            }
         }
 
-        // 2. Création de l'émeraude
-        const emerald = new Emerald(this.x, this.y);
+        if (loot) {
+            loot.netId = 'item_' + Math.random().toString(36).slice(2, 9);
+            engine.add(loot);
 
-        // 3. Attribution d'un ID réseau (crucial pour le P2)
-        emerald.netId = 'item_' + Math.random().toString(36).slice(2, 9);
-
-        // 4. Ajout au moteur de jeu (Pour que le P1 la voie)
-        engine.add(emerald);
-
-        // 5. Envoi au serveur pour que le P2 la voie aussi
-        if (window.game.network && window.game.network.isHost) {
-            window.game.network.socket.emit('item_spawn', {
-                id: emerald.netId,
-                x: emerald.x,
-                y: emerald.y,
-                type: 'EMERALD'
-            });
+            // Envoi au serveur pour que le P2 la voie aussi
+            if (window.game.network && window.game.network.isHost) {
+                window.game.network.socket.emit('item_spawn', {
+                    id: loot.netId,
+                    x: loot.x,
+                    y: loot.y,
+                    type: type
+                });
+            }
         }
     }
 
