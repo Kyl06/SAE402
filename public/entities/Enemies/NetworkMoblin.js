@@ -18,6 +18,8 @@ export class NetworkMoblin extends Entity {
         // Spritesheet identique au Moblin original
         this.spriteSheet = new SpriteSheet('MOBLIN', 4, 4, 16, 16);
         this.facing = 'DOWN';
+        this.isAiming = false;
+        this.isHurt = false;
         
         // Le collider doit être actif pour que l'épée du Joueur 2 puisse "toucher" ce clone
         this.collider = true;  
@@ -26,15 +28,13 @@ export class NetworkMoblin extends Entity {
 
     /**
      * Reçoit les nouvelles coordonnées de la part de l'Hôte.
-     * @param {number|string} targetX, targetY - Coordonnées réelles du monstre sur le serveur
-     * @param {string} facing - Direction du monstre
      */
-    updateFromNetwork(targetX, targetY, facing) {
-        // Au lieu de téléporter brutalement l'entité, on stocke la cible
-        // pour faire une interpolation (mouvement fluide).
+    updateFromNetwork(targetX, targetY, facing, isAiming = false, isHurt = false) {
         this.targetX = parseFloat(targetX);
         this.targetY = parseFloat(targetY);
         this.facing = facing;
+        this.isAiming = isAiming;
+        this.isHurt = isHurt;
     }
 
     /**
@@ -42,22 +42,26 @@ export class NetworkMoblin extends Entity {
      */
     update(delta) {
         if (this.targetX !== undefined) {
-            // Lissage (Interpolation Linéaire / Lerp) :
-            // On comble 20% de la distance à chaque frame pour un rendu fluide.
             this.x += (this.targetX - this.x) * 0.2;
             this.y += (this.targetY - this.y) * 0.2;
         }
         super.update(delta);
     }
 
-    /** Rendu graphique (Similaire au Moblin.js mais simplifié). */
+    /** Rendu graphique */
     draw(ctx) {
-        // Décalage de 4 frames par direction (DOWN=0, UP=4, LEFT=8, RIGHT=12)
         const row = { DOWN: 0, UP: 4, LEFT: 8, RIGHT: 12 }[this.facing] || 0;
+        
+        let frame;
+        if (this.isHurt) {
+            frame = row + 2 + (Math.floor(Date.now() / 50) % 2);
+            ctx.filter = "brightness(2.5)"; // Flash blanc prononcé
+        } else {
+            const walkCycle = (Math.floor(Date.now() / 150) % 2);
+            frame = row + walkCycle;
+        }
 
-        // Animation de marche alternant toutes les 150ms
-        const walkCycle = (Math.floor(Date.now() / 150) % 2);
-
-        this.spriteSheet.drawFrame(ctx, row + walkCycle, this.x, this.y, 2);
+        this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, 2);
+        ctx.filter = "none";
     }
 }

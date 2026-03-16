@@ -32,6 +32,14 @@ export class SpriteSequence {
             return;
         }
 
+        // Déclenchement du premier callback au tout début
+        if (this.elapsed === 0 && this.currentIndex === 0) {
+            const firstStep = this.frames[0];
+            if (firstStep.callback && this.actorObject) {
+                firstStep.callback(this.actorObject);
+            }
+        }
+
         this.elapsed += delta;
         const currentStep = this.frames[this.currentIndex];
 

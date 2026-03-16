@@ -136,6 +136,8 @@ export class NetworkUpdater {
                 const { OctorokProjectile } = await import('../entities/Enemies/OctorokProjectile.js');
                 const proj = new OctorokProjectile(data.x, data.y, data.vx, data.vy, data.ownerId);
                 proj.netId = data.id;
+                // Désactiver le collider pour le P2 car seul l'Hôte gère les dégâts réels
+                proj.collider = false; 
                 this.engine.add(proj);
             } catch (e) {
                 console.error("Erreur projectile réseau:", e);
@@ -188,7 +190,7 @@ export class NetworkUpdater {
         const action = p.actionAnimation?.type || 'IDLE';
 
         // Envoi joueur local
-        const msg = `${action}|${Math.round(p.x)}|${Math.round(p.y)}|${Math.round(p.velX ?? 0)}|${Math.round(p.velY ?? 0)}|${p.skinId}|${p.facing}|${p.arrows || 0}`;
+        const msg = `${action}|${Math.round(p.x)}|${Math.round(p.y)}|${Math.round(p.velX ?? 0)}|${Math.round(p.velY ?? 0)}|${p.skinId}|${p.facing}|${p.arrows || 0}|${p.isPainFlashing ? 'true' : 'false'}`;
         this.socket.emit('player_update', msg);
 
         // Si Hôte : diffusion état global des ennemis

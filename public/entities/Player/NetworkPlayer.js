@@ -10,6 +10,7 @@ import { SpriteSheet } from '../../engine/SpriteSheet.js';
 import { Sword } from '../Weapons/Sword.js';
 import { Arrow } from '../Weapons/Arrow.js';
 import { Animator } from '../../engine/Animator.js';
+import { SpriteSequence } from '../../engine/SpriteSequence.js';
 import { UP, DOWN, LEFT, RIGHT, SCALE } from '../../constants.js';
 
 export class NetworkPlayer extends Entity {
@@ -22,15 +23,16 @@ export class NetworkPlayer extends Entity {
         this.skinId = skinId || 'LINK';
         this.addTag("PLAYER");
         this.facing   = DOWN;
-        this.currentAction = 'IDLE'; // Action réseau en cours (SWORD/ARROW)
-        this.isWalking = false;      // Contrôle l'activation de l'Animator
-        this.collider  = false;      // Les clones n'ont pas de physique locale (évite les bugs de décalage)
+        this.currentAction = 'IDLE'; 
+        this.isWalking = false;      
+        this.collider  = false;      
         this.z = 10;
+        this.actionAnimation = null;
 
         // Prépare les ressources graphiques
         this._buildSheets();
 
-        // Animateurs de marche (identiques à Player.js)
+        // Animateurs de marche
         this.animations = {
             [DOWN]:  new Animator([0,  1],  150),
             [UP]:    new Animator([5,  6],  150),
@@ -43,28 +45,33 @@ export class NetworkPlayer extends Entity {
      * Initialise ou met à jour les spritesheets selon le skinId.
      */
     _buildSheets() {
-        // Spritesheet du joueur (5 colonnes × 4 lignes)
         this.spriteSheet = new SpriteSheet(this.skinId, 5, 4, 16, 16);
-        // On pré-charge aussi l'épée
-        this.swordSheet  = new SpriteSheet('SWORD', 3, 4, 32, 32);
+        this.swordSheet  = new SpriteSheet('SWORD', 3, 4, 16, 16);
     }
 
     /** 
      * Met à jour l'état interne à partir d'un message réseau.
-     * @param {string} data - Format : action|x|y|vx|vy|skinId|facing
+     * @param {string} data - Format : action|x|y|vx|vy|skinId|facing|arrows|isPainFlashing
      */
    onNetworkUpdate(data) {
-    const [action, x, y, vx, vy, skin, facing, arrows] = data.split('|');
+    const [action, x, y, vx, vy, skin, facing, arrows, isPainFlashing] = data.split('|');
 
-    this.currentAction = action;
+    // On ne change pas l'action si on a déjà une animation locale lancée par triggerAction
+    if (!this.actionAnimation) {
+        this.currentAction = action;
+    }
+    
     this.x = parseInt(x);
     this.y = parseInt(y);
     this.facing = facing || DOWN;
     this.isWalking = (parseFloat(vx) !== 0 || parseFloat(vy) !== 0);
     
-    // Synchronise le nombre de flèches (8ème paramètre)
     if (arrows !== undefined) {
         this.arrows = parseInt(arrows);
+    }
+
+    if (isPainFlashing !== undefined) {
+        this.isPainFlashing = (isPainFlashing === 'true');
     }
 
     if (skin && this.skinId !== skin) {
@@ -72,31 +79,35 @@ export class NetworkPlayer extends Entity {
         this._buildSheets();
     }
 }
+
     /** 
      * Reproduit visuellement une attaque déclenchée par le joueur distant.
-     * @param {string} actionType - 'SWORD' ou 'ARROW'
-     * @param {string} facing - Direction de l'attaque
      */
     triggerAction(actionType, facing) {
         this.facing = facing;
 
         if (actionType === 'SWORD') {
-            // Création d'une épée PUREMENT VISUELLE (ne doit pas infliger de dégâts sur cet écran)
             const sword = new Sword(this.x, this.y, facing);
             sword.collider = false;
             sword.owner    = this;
             window.game.engine.add(sword);
 
             this.currentAction = 'SWORD';
-            // On désactive l'état d'attaque après 150ms (fin de l'animation)
-            setTimeout(() => {
+            
+            // On utilise la même logique de séquence que PlayerActions.js
+            this.actionAnimation = new SpriteSequence('SWORD_ACTION', [
+                { frame: 2, duration: 60, callback: () => { sword.updateFollow(this.x, this.y); sword.useFrame(0); } },
+                { frame: 3, duration: 60, callback: () => { sword.updateFollow(this.x, this.y); sword.useFrame(1); } },
+                { frame: 3, duration: 60, callback: () => { sword.updateFollow(this.x, this.y); sword.useFrame(2); } }
+            ], () => {
+                this.actionAnimation = null;
                 this.currentAction = 'IDLE';
                 sword.kill();
-            }, 150);
+            });
+            this.actionAnimation.actorObject = sword;
         }
 
         if (actionType === 'ARROW') {
-            // Création d'une flèche PUREMENT VISUELLE (ne doit pas toucher les monstres ici)
             const arrow = new Arrow(this.x, this.y, facing, this);
             arrow.collider = false;
             window.game.engine.add(arrow);
@@ -106,8 +117,12 @@ export class NetworkPlayer extends Entity {
         }
     }
 
-    /** Mise à jour de l'animation de marche. */
+    /** Mise à jour de l'animation. */
     update(delta) {
+        if (this.actionAnimation) {
+            this.actionAnimation.work(delta);
+        }
+
         if (this.isWalking) {
             this.animations[this.facing]?.update(delta);
         } else {
@@ -117,12 +132,19 @@ export class NetworkPlayer extends Entity {
 
     /** Rendu graphique du clone distant. */
     draw(ctx) {
+        // Clignotement de douleur
+        if (this.isPainFlashing && Math.floor(Date.now() / 80) % 2 === 0) {
+            return;
+        }
+
         // Choix de la ligne de spritesheet selon la direction
         const rowStart = { [DOWN]: 0, [UP]: 5, [LEFT]: 10, [RIGHT]: 15 }[this.facing] ?? 0;
         let frame;
 
-        // On affiche la frame d'attaque (2) si une action est en cours
-        if (this.currentAction === 'SWORD' || this.currentAction === 'ARROW') {
+        // On affiche la frame de l'animation en cours (SWORD/ARROW)
+        if (this.actionAnimation) {
+            frame = rowStart + this.actionAnimation.frameIdx;
+        } else if (this.currentAction === 'SWORD' || this.currentAction === 'ARROW') {
             frame = rowStart + 2;
         } else if (this.isWalking) {
             frame = this.animations[this.facing]?.frame ?? rowStart;
