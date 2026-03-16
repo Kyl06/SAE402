@@ -72,11 +72,6 @@ export class Player extends Entity {
             }
 
             this.takeDamage(1, direction);
-
-            // Recul immédiat (Knockback) pour sortir de la collision
-            const push = 20;
-            this.x += this.x < other.x ? -push : push;
-            this.y += this.y < other.y ? -push : push;
         }
     }
 
@@ -85,23 +80,26 @@ export class Player extends Entity {
      * @param {number} amount - Nombre de demi-coeurs à retirer
      * @param {string} direction - Direction du recul (UP, DOWN, LEFT, RIGHT)
      */
-    takeDamage(amount) {
-    if (this.hp <= 0 || this.isPainFlashing) return;
+    takeDamage(amount, direction) {
+        if (this.hp <= 0 || this.isPainFlashing) return;
 
-    this.hp -= amount;
-    window.game.engine.shake(6, 150);
+        this.hp -= amount;
+        window.game.engine.shake(6, 150);
 
-    if (this.hp <= 0) return this.die();
+        if (this.hp <= 0) return this.die();
 
-    this.isPainFlashing = true;
+        this.isPainFlashing = true;
 
-    const knock = 45;
-    const dirX = this.facing === LEFT ? 1 : this.facing === RIGHT ? -1 : 0;
-    const dirY = this.facing === UP   ? 1 : this.facing === DOWN  ? -1 : 0;
+        // Si direction n'est pas fournie, on utilise l'opposé du regard (recul par défaut)
+        const hitDir = direction || (this.facing === UP ? DOWN : this.facing === DOWN ? UP : this.facing === LEFT ? RIGHT : LEFT);
 
-    let elapsed = 0;
-    const duration = 150; // ms
-    const originalUpdate = this.update.bind(this);
+        const knock = 45;
+        const dirX = hitDir === LEFT ? -1 : hitDir === RIGHT ? 1 : 0;
+        const dirY = hitDir === UP   ? -1 : hitDir === DOWN  ? 1 : 0;
+
+        let elapsed = 0;
+        const duration = 150; // ms
+        const originalUpdate = this.update.bind(this);
 
     // On surcharge temporairement update() pour animer le recul
     this.update = (delta) => {
