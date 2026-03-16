@@ -14,65 +14,81 @@ export class Sword extends Entity {
      * @param {string} facing - Direction dans laquelle Link regarde
      */
     constructor(x, y, facing) {
-        super(x, y, 32, 32); // Zone de collision large pour l'épée
+        // x, y est la position du joueur (32x32)
+        super(x, y, 32, 32); 
+        this.playerX = x;
+        this.playerY = y;
         this.facing = facing;
         this.collider = true;
-        this.z = 20; // Dessiné par-dessus Link
+        this.z = 20; 
         
-        // Spritesheet de l'épée (3 étapes d'animation par direction)
-        this.spriteSheet = new SpriteSheet('SWORD', 3, 4, 32, 32);
+        // Spritesheet : 3 colonnes, 4 lignes 
+        // 0=BAS (Arc Gauche->Bas), 1=HAUT (Arc Droite->Haut), 
+        // 2=GAUCHE (Arc Haut->Gauche), 3=DROITE (Arc Haut->Droite)
+        this.spriteSheet = new SpriteSheet('SWORD', 3, 4, 16, 16);
         
-        // Aligne précisément l'épée sur la main du sprite de Link
-        this.applyNudges();
+        this.useFrame(0);
     }
 
     /**
-     * Ajuste les coordonnées relatives pour que l'épée "sorte" du bouclier/main.
-     */
-    applyNudges() {
-        const offsets = {
-            [DOWN]:  { dx: -5, dy: 9,  f: 0 },
-            [UP]:    { dx: 5,  dy: -9, f: 3 },
-            [LEFT]:  { dx: -8, dy: -7, f: 6 },
-            [RIGHT]: { dx: 8,  dy: -7, f: 9 }
-        };
-
-        const config = offsets[this.facing];
-        // SCALE (2) est appliqué pour correspondre au zoom du jeu
-        this.x += config.dx * SCALE;
-        this.y += config.dy * SCALE;
-        this.frame = config.f; // Frame initiale (bras levé)
-    }
-
-    /**
-     * Change la frame au cours de l'animation de swing.
-     * Appelé par PlayerActions via SpriteSequence.
-     * @param {number} swingStep - 0, 1 ou 2
+     * Définit l'étape de l'animation (0, 1 ou 2) avec les arcs précis demandés.
      */
     useFrame(swingStep) {
-        const baseFrame = { [DOWN]: 0, [UP]: 3, [LEFT]: 6, [RIGHT]: 9 };
-        this.frame = (baseFrame[this.facing] || 0) + swingStep;
+        // Mapping des lignes selon l'ordre : BAS, HAUT, GAUCHE, DROITE
+        const rowMapping = { [DOWN]: 0, [UP]: 1, [LEFT]: 2, [RIGHT]: 3 };
+        const row = rowMapping[this.facing];
+        this.frame = row * 3 + swingStep;
+
+        // Offsets calibrés pour chaque arc spécifique (pixels par rapport au centre de Link)
+        const offsetTable = {
+            [DOWN]: [
+                { dx: -28, dy: 6   }, // Frame 0: Sur la gauche (départ)
+                { dx: -18, dy: 22  }, // Frame 1: Bas-Gauche (swing)
+                { dx: 4,   dy: 28  }  // Frame 2: Bas (fin)
+            ],
+            [UP]: [
+                { dx: 28,  dy: -6  }, // Frame 0: Sur la droite
+                { dx: 18,  dy: -22 }, // Frame 1: Haut-Droite
+                { dx: -4,  dy: -28 }  // Frame 2: Haut
+            ],
+            [LEFT]: [
+                { dx: 4,   dy: -28 }, // Frame 0: En haut
+                { dx: -22, dy: -20 }, // Frame 1: Haut-Gauche
+                { dx: -28, dy: 4   }  // Frame 2: Gauche
+            ],
+            [RIGHT]: [
+                { dx: -4,  dy: -28 }, // Frame 0: En haut
+                { dx: 22,  dy: -20 }, // Frame 1: Haut-Droite
+                { dx: 28,  dy: 4   }  // Frame 2: Droite
+            ]
+        };
+
+        const config = offsetTable[this.facing][swingStep] || { dx: 0, dy: 0 };
+        this.x = this.playerX + config.dx;
+        this.y = this.playerY + config.dy;
     }
 
-    /** 
-     * Détection des coups portés aux ennemis.
-     */
+    /** Suit le joueur */
+    updateFollow(x, y) {
+        this.playerX = x;
+        this.playerY = y;
+    }
+
+    getCollisionBox() {
+        return { x: this.x, y: this.y, w: 32, h: 32 };
+    }
+
     onCollision(other) {
         if (other.hasTag('ENEMY')) {
-            // 1. Feedback immédiat (L'Hôte ou le Client voit le monstre reculer localement)
             if (other.takeDamage) {
                 other.takeDamage(this.facing);
             }
-
-            // 2. SIGNAL RÉSEAU : On envoie la collision au serveur.
-            // Si on est Joueur 2, le serveur relaiera à l'Hôte pour valider les PV du monstre.
             if (window.game.network && other.netId) {
                 window.game.network.sendHit(other.netId, 1, this.facing);
             }
         }
     }
 
-    /** Rendu de l'épée. */
     draw(ctx) {
         this.spriteSheet.drawFrame(ctx, this.frame, this.x, this.y, 2);
     }

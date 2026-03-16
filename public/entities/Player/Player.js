@@ -46,7 +46,7 @@ export class Player extends Entity {
 
         // Inventaire initial
         this.emeralds = 0;
-        this.arrows = 30; // On commence avec quelques flèches pour le test
+        this.arrows = 5; // On commence avec quelques flèches pour le test
 
         // Stocke l'action en cours (si différent de null, bloque le mouvement libre)
         this.actionAnimation = null;
@@ -95,30 +95,30 @@ export class Player extends Entity {
 
         const knock = 45;
         const dirX = hitDir === LEFT ? -1 : hitDir === RIGHT ? 1 : 0;
-        const dirY = hitDir === UP   ? -1 : hitDir === DOWN  ? 1 : 0;
+        const dirY = hitDir === UP ? -1 : hitDir === DOWN ? 1 : 0;
 
         let elapsed = 0;
         const duration = 150; // ms
         const originalUpdate = this.update.bind(this);
 
-    // On surcharge temporairement update() pour animer le recul
-    this.update = (delta) => {
-        elapsed += delta;
-        if (elapsed >= duration) {
-            this.update = originalUpdate; // Restaure le comportement normal
-            return;
-        }
-        // Déplacement petit à petit → les collisions auront le temps de réagir
-        this.velX = (dirX * knock) / (duration / 1000);
-        this.velY = (dirY * knock) / (duration / 1000);
-        super.update(delta); // appelle Entity.update() pour bouger + déclencher les collisions
-    };
+        // On surcharge temporairement update() pour animer le recul
+        this.update = (delta) => {
+            elapsed += delta;
+            if (elapsed >= duration) {
+                this.update = originalUpdate; // Restaure le comportement normal
+                return;
+            }
+            // Déplacement petit à petit → les collisions auront le temps de réagir
+            this.velX = (dirX * knock) / (duration / 1000);
+            this.velY = (dirY * knock) / (duration / 1000);
+            super.update(delta); // appelle Entity.update() pour bouger + déclencher les collisions
+        };
 
-    setTimeout(() => {
-        this.isPainFlashing = false;
-        if (this.update !== originalUpdate) this.update = originalUpdate;
-    }, 400);
-}
+        setTimeout(() => {
+            this.isPainFlashing = false;
+            if (this.update !== originalUpdate) this.update = originalUpdate;
+        }, 400);
+    }
 
     /** Permet de changer de personnage dynamiquement (ex: passage à Link2). */
     setSkin(skinId) {

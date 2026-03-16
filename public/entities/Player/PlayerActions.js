@@ -7,6 +7,7 @@
 import { Sword } from '../Weapons/Sword.js';
 import { Arrow } from '../Weapons/Arrow.js';
 import { SpriteSequence } from '../../engine/SpriteSequence.js';
+import { UP, DOWN, LEFT, RIGHT } from '../../constants.js';
 
 export class PlayerActions {
     /**
@@ -22,28 +23,23 @@ export class PlayerActions {
      */
     actionSwingSword() {
         const p = this.player;
-        // On ne peut pas attaquer si une action est déjà en cours
         if (p.actionAnimation) return;
 
-        // Création de l'entité Épée aux coordonnées de Link
         const sword = new Sword(p.x, p.y, p.facing);
         window.game.engine.add(sword);
 
-        // DIFFUSION RÉSEAU : On informe les autres qu'on attaque à l'épée
         window.game.network?.sendPlayerAction('SWORD', p.facing);
 
         /**
-         * SpriteSequence permet de changer dynamiquement la frame de Link
-         * au fil du temps (en ms) et d'exécuter des callbacks.
+         * Séquence d'attaque en 3 temps (Start, Swing, End)
          */
         p.actionAnimation = new SpriteSequence('SWORD_ACTION', [
-            { frame: 2, duration: 50,  callback: () => sword.useFrame(1) },
-            { frame: 3, duration: 50,  callback: () => sword.useFrame(2) },
-            { frame: 3, duration: 50,  callback: null }
+            { frame: 2, duration: 60, callback: () => { sword.updateFollow(p.x, p.y); sword.useFrame(0); } },
+            { frame: 3, duration: 60, callback: () => { sword.updateFollow(p.x, p.y); sword.useFrame(1); } },
+            { frame: 3, duration: 60, callback: () => { sword.updateFollow(p.x, p.y); sword.useFrame(2); } }
         ], () => {
-            // Callback final une fois l'animation terminée
-            p.actionAnimation = null; // Link redevient libre de bouger
-            sword.kill();            // L'épée disparaît
+            p.actionAnimation = null;
+            sword.kill();
         });
 
         p.actionAnimation.actorObject = sword;
