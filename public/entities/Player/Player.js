@@ -86,25 +86,41 @@ export class Player extends Entity {
      * @param {string} direction - Direction du recul (UP, DOWN, LEFT, RIGHT)
      */
     takeDamage(amount) {
-        if (this.hp <= 0 || this.isPainFlashing) return;
+    if (this.hp <= 0 || this.isPainFlashing) return;
 
-        this.hp -= amount;
-        window.game.engine.shake(6, 150);
+    this.hp -= amount;
+    window.game.engine.shake(6, 150);
 
-        if (this.hp <= 0) return this.die();
+    if (this.hp <= 0) return this.die();
 
-        this.isPainFlashing = true;
+    this.isPainFlashing = true;
 
-        // Effet de recul basé sur la direction actuelle
-        const knock = 45;
-        if (this.facing === UP) this.y += knock;
-        if (this.facing === DOWN) this.y -= knock;
-        if (this.facing === LEFT) this.x += knock;
-        if (this.facing === RIGHT) this.x -= knock;
+    const knock = 45;
+    const dirX = this.facing === LEFT ? 1 : this.facing === RIGHT ? -1 : 0;
+    const dirY = this.facing === UP   ? 1 : this.facing === DOWN  ? -1 : 0;
 
-        // Fin de l'invincibilité après 400ms
-        setTimeout(() => this.isPainFlashing = false, 400);
-    }
+    let elapsed = 0;
+    const duration = 150; // ms
+    const originalUpdate = this.update.bind(this);
+
+    // On surcharge temporairement update() pour animer le recul
+    this.update = (delta) => {
+        elapsed += delta;
+        if (elapsed >= duration) {
+            this.update = originalUpdate; // Restaure le comportement normal
+            return;
+        }
+        // Déplacement petit à petit → les collisions auront le temps de réagir
+        this.velX = (dirX * knock) / (duration / 1000);
+        this.velY = (dirY * knock) / (duration / 1000);
+        super.update(delta); // appelle Entity.update() pour bouger + déclencher les collisions
+    };
+
+    setTimeout(() => {
+        this.isPainFlashing = false;
+        if (this.update !== originalUpdate) this.update = originalUpdate;
+    }, 400);
+}
 
     /** Permet de changer de personnage dynamiquement (ex: passage à Link2). */
     setSkin(skinId) {
