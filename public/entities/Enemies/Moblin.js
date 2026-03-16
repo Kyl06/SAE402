@@ -193,8 +193,18 @@ export class Moblin extends Entity {
             loot = new Emerald(this.x, this.y);
             type = 'EMERALD';
         } else {
-            loot = new Heart(this.x, this.y);
-            type = 'HEART';
+            // Un coeur doit tomber, mais on vérifie si quelqu'un en a besoin
+            const players = engine.entities.filter(e => e.hasTag("PLAYER"));
+            const anyoneInjured = players.some(p => p.hp < 6);
+
+            if (anyoneInjured) {
+                loot = new Heart(this.x, this.y);
+                type = 'HEART';
+            } else {
+                // Si tout le monde est full vie, on donne une émeraude à la place
+                loot = new Emerald(this.x, this.y);
+                type = 'EMERALD';
+            }
         }
 
         if (loot) {
