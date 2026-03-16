@@ -16,15 +16,14 @@ export class Player extends Entity {
      * @param {string} skinId - "LINK" (vert) ou "LINK2" (bleu)
      */
     constructor(x, y, skinId) {
-    super(x, y, 16, 16);
-    
-    this.hp = 6;                // Points de vie (3 coeurs complets)
-    this.arrows = 5;            // Nombre de flèches disponibles
-    this.addTag(TAG_PLAYER);    // Identifié comme un joueur par les monstres
-    this.skinId = skinId;       // Stocke le nom de l'asset utilisé
-    this.facing = DOWN;         // Direction actuelle (utilisée par draw et actions)
-    this.speed = 160;           // Vitesse de marche (pixels/seconde)
-    this.z = 10;                // Profondeur (dessiné par-dessus les monstres)
+        super(x, y, 16, 16); // Hitbox de 16x16
+        
+        this.hp = 6;                // Points de vie (3 coeurs complets)
+        this.addTag(TAG_PLAYER);    // Identifié comme un joueur par les monstres
+        this.skinId = skinId;       // Stocke le nom de l'asset utilisé
+        this.facing = DOWN;         // Direction actuelle (utilisée par draw et actions)
+        this.speed = 160;           // Vitesse de marche (pixels/seconde)
+        this.z = 10;                // Profondeur (dessiné par-dessus les monstres)
         
         this.visible = true;        // Utilisé pour l'effet de clignotement lors d'un dégât
         this.isDead = false;        // État de mort
@@ -82,31 +81,22 @@ export class Player extends Entity {
      * @param {number} amount - Nombre de demi-coeurs à retirer
      * @param {string} direction - Direction du recul (UP, DOWN, LEFT, RIGHT)
      */
-    takeDamage(amount, direction = null) {
+    takeDamage(amount) {
         if (this.hp <= 0 || this.isPainFlashing) return;
 
-        this.hp -= amount;
-        window.game.engine.shake(6, 150); // L'écran tremble lors de l'impact
+    this.hp -= amount;
+    window.game.engine.shake(6, 150);
 
-        if (this.hp <= 0) return this.die();
+    if (this.hp <= 0) return this.die();
 
-        // Activation de l'état d'invincibilité temporaire (flash)
-        this.isPainFlashing = true;
+    this.isPainFlashing = true;
 
-        // Effet de recul basé sur la direction de l'attaque
+        // Effet de recul basé sur la direction actuelle
         const knock = 45;
-        if (direction) {
-            if (direction === UP)    this.y -= knock;
-            if (direction === DOWN)  this.y += knock;
-            if (direction === LEFT)  this.x -= knock;
-            if (direction === RIGHT) this.x += knock;
-        } else {
-            // Fallback: recul basé sur la direction actuelle (ancien comportement)
-            if (this.facing === UP)    this.y += knock;
-            if (this.facing === DOWN)  this.y -= knock;
-            if (this.facing === LEFT)  this.x += knock;
-            if (this.facing === RIGHT) this.x -= knock;
-        }
+        if (this.facing === UP)    this.y += knock;
+        if (this.facing === DOWN)  this.y -= knock;
+        if (this.facing === LEFT)  this.x += knock;
+        if (this.facing === RIGHT) this.x -= knock;
 
         // Fin de l'invincibilité après 400ms
         setTimeout(() => this.isPainFlashing = false, 400);
