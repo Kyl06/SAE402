@@ -8,6 +8,7 @@ import { Entity } from "../../engine/Entity.js";
 import { SpriteSheet } from "../../engine/SpriteSheet.js";
 import { Explosion } from "../Effects/Explosion.js";
 import { Heart } from "../Items/Heart.js";
+import { UP, DOWN, LEFT, RIGHT } from "../../constants.js";
 import { Emerald } from "../Items/Emerald.js";
 
 export class Moblin extends Entity {
@@ -137,7 +138,18 @@ export class Moblin extends Entity {
     }
 
     onCollision(other) {
-        if (other.hasTag("PLAYER")) other.takeDamage?.(1);
+        if (other.hasTag("PLAYER")) {
+            // Calcul de la direction de l'attaque (du moblin vers le joueur)
+            const dx = other.x - this.x;
+            const dy = other.y - this.y;
+            let direction;
+            if (Math.abs(dx) > Math.abs(dy)) {
+                direction = dx > 0 ? RIGHT : LEFT;
+            } else {
+                direction = dy > 0 ? DOWN : UP;
+            }
+            other.takeDamage?.(1, direction);
+        }
         if (other instanceof Moblin) {
             this.x += this.x < other.x ? -1.5 : 1.5;
             this.y += this.y < other.y ? -1.5 : 1.5;

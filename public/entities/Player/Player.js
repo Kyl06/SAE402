@@ -57,7 +57,17 @@ export class Player extends Entity {
 
         // Si on touche un ennemi, on prend des dégâts
         if (other.hasTag("ENEMY")) {
-            this.takeDamage(1);
+            // Calcul de la direction de l'attaque (du ennemi vers le joueur)
+            const dx = this.x - other.x;
+            const dy = this.y - other.y;
+            let direction;
+            if (Math.abs(dx) > Math.abs(dy)) {
+                direction = dx > 0 ? RIGHT : LEFT;
+            } else {
+                direction = dy > 0 ? DOWN : UP;
+            }
+            
+            this.takeDamage(1, direction);
             
             // Recul immédiat (Knockback) pour sortir de la collision
             const push = 20;
@@ -69,8 +79,9 @@ export class Player extends Entity {
     /**
      * Applique des dégâts et gère le feedback visuel.
      * @param {number} amount - Nombre de demi-coeurs à retirer
+     * @param {string} direction - Direction du recul (UP, DOWN, LEFT, RIGHT)
      */
-    takeDamage(amount) {
+    takeDamage(amount, direction = null) {
         if (this.hp <= 0 || this.isPainFlashing) return;
 
         this.hp -= amount;
@@ -81,12 +92,20 @@ export class Player extends Entity {
         // Activation de l'état d'invincibilité temporaire (flash)
         this.isPainFlashing = true;
 
-        // Effet de recul basé sur la direction actuelle
+        // Effet de recul basé sur la direction de l'attaque
         const knock = 45;
-        if (this.facing === UP)    this.y += knock;
-        if (this.facing === DOWN)  this.y -= knock;
-        if (this.facing === LEFT)  this.x += knock;
-        if (this.facing === RIGHT) this.x -= knock;
+        if (direction) {
+            if (direction === UP)    this.y -= knock;
+            if (direction === DOWN)  this.y += knock;
+            if (direction === LEFT)  this.x -= knock;
+            if (direction === RIGHT) this.x += knock;
+        } else {
+            // Fallback: recul basé sur la direction actuelle (ancien comportement)
+            if (this.facing === UP)    this.y += knock;
+            if (this.facing === DOWN)  this.y -= knock;
+            if (this.facing === LEFT)  this.x += knock;
+            if (this.facing === RIGHT) this.x -= knock;
+        }
 
         // Fin de l'invincibilité après 400ms
         setTimeout(() => this.isPainFlashing = false, 400);

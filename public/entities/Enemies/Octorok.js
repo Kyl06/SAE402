@@ -2,6 +2,7 @@ import { Entity } from "../../engine/Entity.js";
 import { SpriteSheet } from "../../engine/SpriteSheet.js";
 import { Explosion } from "../Effects/Explosion.js";
 import { OctorokProjectile } from "./OctorokProjectile.js";
+import { UP, DOWN, LEFT, RIGHT } from "../../constants.js";
 
 export class Octorok extends Entity {
     constructor(x, y, roamRadius = 100) {
@@ -181,7 +182,18 @@ export class Octorok extends Entity {
     }
 
     onCollision(other) {
-        if (other.hasTag("PLAYER")) other.takeDamage?.(1);
+        if (other.hasTag("PLAYER")) {
+            // Calcul de la direction de l'attaque (de l'octorok vers le joueur)
+            const dx = other.x - this.x;
+            const dy = other.y - this.y;
+            let direction;
+            if (Math.abs(dx) > Math.abs(dy)) {
+                direction = dx > 0 ? RIGHT : LEFT;
+            } else {
+                direction = dy > 0 ? DOWN : UP;
+            }
+            other.takeDamage?.(1, direction);
+        }
     }
 
     /**

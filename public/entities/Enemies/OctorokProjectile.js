@@ -4,6 +4,7 @@
  */
 
 import { Entity } from "../../engine/Entity.js";
+import { UP, DOWN, LEFT, RIGHT } from "../../constants.js";
 
 export class OctorokProjectile extends Entity {
     constructor(x, y, vx, vy, ownerNetId = null) {
@@ -37,7 +38,14 @@ export class OctorokProjectile extends Entity {
         // Collision joueur
         const player = window.game.player;
         if (player && !player.isDead && this.checkCollision(player)) {
-            player.takeDamage?.(this.damage);
+            // Calcul de la direction de l'attaque (d'où vient le projectile)
+            let direction;
+            if (Math.abs(this.velX) > Math.abs(this.velY)) {
+                direction = this.velX > 0 ? LEFT : RIGHT;
+            } else {
+                direction = this.velY > 0 ? UP : DOWN;
+            }
+            player.takeDamage?.(this.damage, direction);
             this.deactivate();
             return;
         }
