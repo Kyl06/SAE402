@@ -62,7 +62,7 @@ export class NetworkPlayer extends Entity {
     this.facing = facing || DOWN;
     this.isWalking = (parseFloat(vx) !== 0 || parseFloat(vy) !== 0);
     
-    // Synchronise le nombre de flèches
+    // Synchronise le nombre de flèches (8ème paramètre)
     if (arrows !== undefined) {
         this.arrows = parseInt(arrows);
     }

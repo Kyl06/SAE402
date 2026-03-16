@@ -3,6 +3,8 @@ import { SpriteSheet } from "../../engine/SpriteSheet.js";
 import { Explosion } from "../Effects/Explosion.js";
 import { OctorokProjectile } from "./OctorokProjectile.js";
 import { UP, DOWN, LEFT, RIGHT } from "../../constants.js";
+import { Heart } from "../Items/Heart.js";
+import { Emerald } from "../Items/Emerald.js";
 
 export class Octorok extends Entity {
     constructor(x, y, roamRadius = 100) {
@@ -197,57 +199,71 @@ export class Octorok extends Entity {
     }
 
     /**
-     * Mort de l'Octorok : Drop de 2 émeraudes.
+     * Mort de l'Octorok
      */
     die() {
+        const engine = this.engine || window.game.engine;
         if (this.toRemove) return;
+
+        // 1. Créer l'explosion visuelle localement (pour l'Hôte)
+        if (engine) {
+            engine.add(new Explosion(this.x, this.y));
+        }
+
+        // 2. Envoyer au réseau (pour le P2)
+        if (window.game.network) {
+            window.game.network.sendExplosion(this.x, this.y);
+        }
+
+        // 3. Générer le loot aléatoire
+        this.spawnLoot();
+
         this.toRemove = true;
-        
-        window.game.engine.add(new Explosion(this.x, this.y));
-        
-        if (window.game.network?.isHost) {
-            window.game.network.socket.emit('explosion', { x: this.x, y: this.y });
+    }
 
-            // On fait spawner 2 émeraudes systématiquement ou avec une grande chance
-            // On ajoute un petit offset de 10 pixels pour qu'elles ne se superposent pas
-            this.dropItemWithNetwork("EMERALD", -10, 0);
-            this.dropItemWithNetwork("EMERALD", 10, 0);
+    spawnLoot() {
+        const engine = this.engine || window.game.engine;
+        if (!engine) return;
 
-            // Chance bonus pour un coeur
-            if (window.game.player?.hp < 4 && Math.random() < 0.3) {
-                this.dropItemWithNetwork("HEART", 0, 10);
+        // Probabilités : 10% Rien, 40% Emeraude, 50% Coeur
+        const rand = Math.random();
+        let loot = null;
+        let type = '';
+
+        if (rand < 0.1) {
+            return; // Pas de chance !
+        } else if (rand < 0.5) {
+            loot = new Emerald(this.x, this.y);
+            type = 'EMERALD';
+        } else {
+            // Un coeur doit tomber, mais on vérifie si quelqu'un en a besoin
+            const players = engine.entities.filter(e => e.hasTag("PLAYER"));
+            const anyoneInjured = players.some(p => p.hp < 6);
+
+            if (anyoneInjured) {
+                loot = new Heart(this.x, this.y);
+                type = 'HEART';
+            } else {
+                // Si tout le monde est full vie, on donne une émeraude à la place
+                loot = new Emerald(this.x, this.y);
+                type = 'EMERALD';
             }
         }
-    }
 
-    /**
-     * Utilitaire pour créer un item localement et envoyer l'ordre au réseau
-     */
-    dropItemWithNetwork(type, offsetX = 0, offsetY = 0) {
-        const itemId = 'it_' + Math.random().toString(36).slice(2, 7);
-        const spawnPosX = this.x + offsetX;
-        const spawnPosY = this.y + offsetY;
+        if (loot) {
+            loot.netId = 'item_' + Math.random().toString(36).slice(2, 9);
+            engine.add(loot);
 
-        // 1. Envoyer au serveur pour les autres clients
-        window.game.network.socket.emit('item_spawn', { 
-            id: itemId, 
-            x: spawnPosX, 
-            y: spawnPosY, 
-            type: type 
-        });
-
-        // 2. Créer localement pour l'hôte
-        this.spawnLoot(type, itemId, spawnPosX, spawnPosY);
-    }
-
-    async spawnLoot(type, id, x, y) {
-        const path = type === "HEART" ? "../Items/Heart.js" : "../Items/Emerald.js";
-        const mod = await import(path);
-        const ItemClass = type === "HEART" ? mod.Heart : mod.Emerald;
-        
-        const item = new ItemClass(x, y);
-        item.netId = id;
-        window.game.engine.add(item);
+            // Envoi au serveur pour que le P2 la voie aussi
+            if (window.game.network && window.game.network.isHost) {
+                window.game.network.socket.emit('item_spawn', {
+                    id: loot.netId,
+                    x: loot.x,
+                    y: loot.y,
+                    type: type
+                });
+            }
+        }
     }
 
     draw(ctx) {

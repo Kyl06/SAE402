@@ -182,7 +182,7 @@ export class Moblin extends Entity {
         const engine = this.engine || window.game.engine;
         if (!engine) return;
 
-        // Probabilités : 40% Rien, 30% Emeraude, 30% Coeur
+        // Probabilités : 20% Rien, 60% Emeraude, 20% Coeur
         const rand = Math.random();
         let loot = null;
         let type = '';

@@ -4,11 +4,12 @@
  */
 
 import { Entity } from "../../engine/Entity.js";
-import { UP, DOWN, LEFT, RIGHT } from "../../constants.js";
+import { SpriteSheet } from "../../engine/SpriteSheet.js";
+import { UP, DOWN, LEFT, RIGHT, SCALE } from "../../constants.js";
 
 export class OctorokProjectile extends Entity {
     constructor(x, y, vx, vy, ownerNetId = null) {
-        super(x, y, 10, 10);
+        super(x, y, 16, 16); // Hitbox augmentée à 16x16
         
         this.netId = 'octo_proj_' + Math.random().toString(36).slice(2, 11);
         this.ownerNetId = ownerNetId;
@@ -20,7 +21,9 @@ export class OctorokProjectile extends Entity {
         this.age = 0;
         this.active = true;
         this.damage = 1;
-        this.color = '#C44536';
+
+        // Spritesheet de l'Octorok (4 colonnes, la 4ème à y=0 est le projectile)
+        this.spriteSheet = new SpriteSheet("OCTOROK", 4, 4, 16, 16);
     }
 
     update(delta) {
@@ -32,69 +35,47 @@ export class OctorokProjectile extends Entity {
             return;
         }
         
-        this.x += this.velX * (delta / 1000);
-        this.y += this.velY * (delta / 1000);
-        
+        // Physique héritée (super.update gère déjà x += velX * delta)
+        super.update(delta);
+
+        // Pas besoin de recalculer la collision ici si GameEngine le fait,
+        // MAIS le GameEngine le fait via checkCollisions() qui appelle onCollision().
+        // Donc on déplace la logique de collision dans onCollision().
+    }
+
+    onCollision(other) {
+        if (!this.active) return;
+
         // Collision joueur
-        const player = window.game.player;
-        if (player && !player.isDead && this.checkCollision(player)) {
+        if (other.hasTag("PLAYER") && !other.isDead) {
             // Calcul de la direction de l'attaque (d'où vient le projectile)
             let direction;
             if (Math.abs(this.velX) > Math.abs(this.velY)) {
-                direction = this.velX > 0 ? LEFT : RIGHT;
+                direction = this.velX > 0 ? RIGHT : LEFT;
             } else {
-                direction = this.velY > 0 ? UP : DOWN;
+                direction = this.velY > 0 ? DOWN : UP;
             }
-            player.takeDamage?.(this.damage, direction);
+            
+            other.takeDamage?.(this.damage, direction);
             this.deactivate();
-            return;
         }
         
-        // Collision murs
-        if (window.game.map?.isSolid) {
-            const tileX = Math.floor(this.x / 16);
-            const tileY = Math.floor(this.y / 16);
-            if (window.game.map.isSolid(tileX, tileY)) {
-                this.deactivate();
-            }
+        // Collision murs (Floor.js avec collider=true)
+        if (other.hasTag("WALL") || other.hasTag("SOLID")) {
+            this.deactivate();
         }
-        
-        super.update(delta);
-    }
-
-    checkCollision(other) {
-        const halfSize = this.width / 2;
-        const otherHalfW = other.width / 2;
-        const otherHalfH = other.height / 2;
-        
-        return (
-            this.x - halfSize < other.x + otherHalfW &&
-            this.x + halfSize > other.x - otherHalfW &&
-            this.y - halfSize < other.y + otherHalfH &&
-            this.y + halfSize > other.y - otherHalfH
-        );
     }
 
     deactivate() {
         this.active = false;
-        this.toRemove = true;
+        this.kill();
     }
 
     draw(ctx) {
         if (!this.active) return;
         
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(0, 0, 5, 0, Math.PI * 2);
-        ctx.fill();
-        
-        ctx.strokeStyle = '#FF6B35';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        ctx.restore();
+        // Frame 3 : Projectile (4ème colonne, 1ère ligne)
+        // On décale de -8 pixels (16 visual px) pour centrer la hitbox 16x16 sur le sprite 32x32
+        this.spriteSheet.drawFrame(ctx, 3, this.x - 8, this.y - 8, SCALE);
     }
-}
+}

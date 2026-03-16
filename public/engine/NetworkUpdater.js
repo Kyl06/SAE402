@@ -188,7 +188,7 @@ export class NetworkUpdater {
         const action = p.actionAnimation?.type || 'IDLE';
 
         // Envoi joueur local
-        const msg = `${action}|${Math.round(p.x)}|${Math.round(p.y)}|${Math.round(p.velX ?? 0)}|${Math.round(p.velY ?? 0)}|${p.skinId}|${p.facing}`;
+        const msg = `${action}|${Math.round(p.x)}|${Math.round(p.y)}|${Math.round(p.velX ?? 0)}|${Math.round(p.velY ?? 0)}|${p.skinId}|${p.facing}|${p.arrows || 0}`;
         this.socket.emit('player_update', msg);
 
         // Si Hôte : diffusion état global des ennemis

@@ -16,15 +16,15 @@ export class Player extends Entity {
      * @param {string} skinId - "LINK" (vert) ou "LINK2" (bleu)
      */
     constructor(x, y, skinId) {
-        super(x, y, 16, 16); // Hitbox de 16x16
-        
+        super(x, y, 32, 32); // Hitbox de 16x16
+
         this.hp = 6;                // Points de vie (3 coeurs complets)
         this.addTag(TAG_PLAYER);    // Identifié comme un joueur par les monstres
         this.skinId = skinId;       // Stocke le nom de l'asset utilisé
         this.facing = DOWN;         // Direction actuelle (utilisée par draw et actions)
         this.speed = 160;           // Vitesse de marche (pixels/seconde)
         this.z = 10;                // Profondeur (dessiné par-dessus les monstres)
-        
+
         this.visible = true;        // Utilisé pour l'effet de clignotement lors d'un dégât
         this.isDead = false;        // État de mort
         this.isPainFlashing = false; // Indique si le joueur est en train de subir un dégât
@@ -35,15 +35,19 @@ export class Player extends Entity {
 
         // Configuration des animateurs pour chaque direction
         this.animations = {
-            [DOWN]:  new Animator([0, 1], 150),
-            [UP]:    new Animator([5, 6], 150),
-            [LEFT]:  new Animator([10, 11], 150),
+            [DOWN]: new Animator([0, 1], 150),
+            [UP]: new Animator([5, 6], 150),
+            [LEFT]: new Animator([10, 11], 150),
             [RIGHT]: new Animator([15, 16], 150),
         };
 
         // Module externe gérant les attaques et les effets spéciaux
         this.actions = new PlayerActions(this);
-        
+
+        // Inventaire initial
+        this.emeralds = 0;
+        this.arrows = 30; // On commence avec quelques flèches pour le test
+
         // Stocke l'action en cours (si différent de null, bloque le mouvement libre)
         this.actionAnimation = null;
     }
@@ -66,9 +70,9 @@ export class Player extends Entity {
             } else {
                 direction = dy > 0 ? DOWN : UP;
             }
-            
+
             this.takeDamage(1, direction);
-            
+
             // Recul immédiat (Knockback) pour sortir de la collision
             const push = 20;
             this.x += this.x < other.x ? -push : push;
@@ -84,18 +88,18 @@ export class Player extends Entity {
     takeDamage(amount) {
         if (this.hp <= 0 || this.isPainFlashing) return;
 
-    this.hp -= amount;
-    window.game.engine.shake(6, 150);
+        this.hp -= amount;
+        window.game.engine.shake(6, 150);
 
-    if (this.hp <= 0) return this.die();
+        if (this.hp <= 0) return this.die();
 
-    this.isPainFlashing = true;
+        this.isPainFlashing = true;
 
         // Effet de recul basé sur la direction actuelle
         const knock = 45;
-        if (this.facing === UP)    this.y += knock;
-        if (this.facing === DOWN)  this.y -= knock;
-        if (this.facing === LEFT)  this.x += knock;
+        if (this.facing === UP) this.y += knock;
+        if (this.facing === DOWN) this.y -= knock;
+        if (this.facing === LEFT) this.x += knock;
         if (this.facing === RIGHT) this.x -= knock;
 
         // Fin de l'invincibilité après 400ms
@@ -113,7 +117,7 @@ export class Player extends Entity {
         this.isDead = true;
         this.visible = false;
         this.collider = false;
-        
+
         // Affiche l'écran de Game Over HTML
         const ui = document.getElementById("game-over-ui");
         if (ui) ui.style.display = "block";
@@ -154,11 +158,11 @@ export class Player extends Entity {
         this.velY = 0;
 
         // Directions prioritaires
-        if (inputs.isHeld("ArrowLeft"))       { this.velX = -this.speed; this.facing = LEFT; }
-        else if (inputs.isHeld("ArrowRight")) { this.velX = this.speed;  this.facing = RIGHT; }
+        if (inputs.isHeld("ArrowLeft")) { this.velX = -this.speed; this.facing = LEFT; }
+        else if (inputs.isHeld("ArrowRight")) { this.velX = this.speed; this.facing = RIGHT; }
 
-        if (inputs.isHeld("ArrowUp"))         { this.velY = -this.speed; this.facing = UP; }
-        else if (inputs.isHeld("ArrowDown"))  { this.velY = this.speed;  this.facing = DOWN; }
+        if (inputs.isHeld("ArrowUp")) { this.velY = -this.speed; this.facing = UP; }
+        else if (inputs.isHeld("ArrowDown")) { this.velY = this.speed; this.facing = DOWN; }
 
         // Normalisation de la vitesse en diagonale (Pythagore)
         // Évite que Link aille plus vite en courant de travers
