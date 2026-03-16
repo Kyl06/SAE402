@@ -6,16 +6,16 @@
  */
 
 // ── DIRECTIONS ───────────────────────────────────────────────────────────
-export const UP    = 'UP';
-export const DOWN  = 'DOWN';
-export const LEFT  = 'LEFT';
+export const UP = 'UP';
+export const DOWN = 'DOWN';
+export const LEFT = 'LEFT';
 export const RIGHT = 'RIGHT';
 
 // ── TAGS D'ENTITÉS (Utilisés pour la détection de collision et l'IA) ─────
-export const TAG_PLAYER        = 'PLAYER';        // Joueur local ou distant
-export const TAG_ENEMY         = 'ENEMY';         // Moblins et autres monstres
+export const TAG_PLAYER = 'PLAYER';        // Joueur local ou distant
+export const TAG_ENEMY = 'ENEMY';         // Moblins et autres monstres
 export const TAG_PLAYER_WEAPON = 'PLAYER_WEAPON';  // Épées, flèches, etc.
-export const TAG_WALL          = 'WALL';          // Obstacles du décor
+export const TAG_WALL = 'WALL';          // Obstacles du décor
 
 // ── RENDU ────────────────────────────────────────────────────────────────
 /**
