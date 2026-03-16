@@ -1,7 +1,16 @@
+/**
+ * @file Emerald.js
+ * @description Objet de monnaie (Émeraude) collectable.
+ * Augmente le compteur d'émeraudes du joueur lors du ramassage.
+ */
+
 import { Entity } from "../../engine/Entity.js";
 import { Assets } from "../../engine/Assets.js";
 
 export class Emerald extends Entity {
+    /**
+     * @param {number} x, y - Position d'apparition
+     */
     constructor(x, y) {
         super(x, y, 24, 24);
         this.addTag("ITEM");

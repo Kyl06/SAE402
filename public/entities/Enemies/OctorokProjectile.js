@@ -1,6 +1,7 @@
 /**
  * @file OctorokProjectile.js
- * @description Projectile de l'Octorok
+ * @description Projectile (pierre) lancé par l'Octorok. 
+ * Se détruit à l'impact ou après un certain temps.
  */
 
 import { Entity } from "../../engine/Entity.js";

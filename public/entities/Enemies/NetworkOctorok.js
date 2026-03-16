@@ -1,5 +1,6 @@
 /**
  * @file NetworkOctorok.js
+ * @description Réplique réseau de l'Octorok pour le multijoueur.
  */
 import { Entity } from '../../engine/Entity.js';
 import { SpriteSheet } from '../../engine/SpriteSheet.js';

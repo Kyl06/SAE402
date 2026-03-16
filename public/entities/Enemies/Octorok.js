@@ -1,3 +1,9 @@
+/**
+ * @file Octorok.js
+ * @description Ennemi qui tire des projectiles. 
+ * Possède une IA de patrouille et de tir à distance.
+ */
+
 import { Entity } from "../../engine/Entity.js";
 import { SpriteSheet } from "../../engine/SpriteSheet.js";
 import { Explosion } from "../Effects/Explosion.js";

@@ -1,3 +1,9 @@
+/**
+ * @file Floor.js
+ * @description Gère les éléments du décor (sol, arbres, murs).
+ * Détermine les zones marchables et les obstacles solides.
+ */
+
 import { Entity } from '../engine/Entity.js';
 import { Assets } from '../engine/Assets.js';
 import { SCALE } from '../constants.js';

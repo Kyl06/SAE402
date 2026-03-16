@@ -1,3 +1,9 @@
+/**
+ * @file Map.js
+ * @description Gestionnaire de niveau.
+ * Charge les données de carte et génère les entités de décor correspondantes.
+ */
+
 import { Entity } from '../engine/Entity.js';
 import { Floor } from './Floor.js';
 
