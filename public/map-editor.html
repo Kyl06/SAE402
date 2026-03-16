@@ -58,7 +58,8 @@
             height: 32px;
             margin: 0 auto 5px;
             background-image: url('assets/map.png');
-            background-size: 512px 256px; /* 256x128 scaled x2 */
+            background-size: 336px 112px;
+            background-repeat: no-repeat;
             image-rendering: pixelated;
         }
 
@@ -111,77 +112,73 @@
         let isDrawing = false;
 
         const TILE_TYPES = {
-            // Row 0
-            'TREE':           { sx: 0,   sy: 0,  sw: 32, sh: 32, label: 'Arbre' },
-            'GRASS':          { sx: 32,  sy: 0,  sw: 16, sh: 16, label: 'Herbe' },
-            'WATER':          { sx: 48,  sy: 0,  sw: 16, sh: 16, label: 'Eau' },
-            'WALL_DOWN':      { sx: 64,  sy: 0,  sw: 16, sh: 16, label: 'Mur BAS' },
-            'WALL_UP':        { sx: 80,  sy: 0,  sw: 16, sh: 16, label: 'Mur HAUT' },
-            'BRIDGE_H_RIGHT': { sx: 96,  sy: 0,  sw: 16, sh: 16, label: 'Pont H D' },
-            'BRIDGE_H_LEFT':  { sx: 112, sy: 0,  sw: 16, sh: 16, label: 'Pont H G' },
-            'ORANGE_BLOCK':   { sx: 128, sy: 0,  sw: 16, sh: 16, label: 'Bloc Orange' },
-            'ORANGE_PATH':    { sx: 144, sy: 0,  sw: 16, sh: 16, label: 'Chemin Or.' },
-            'YELLOW_BLOCK':   { sx: 160, sy: 0,  sw: 16, sh: 16, label: 'Bloc Jaune' },
-            'DESERT_BUSH':    { sx: 176, sy: 0,  sw: 16, sh: 16, label: 'Pante Désert' },
-            'WATER_WAVES':    { sx: 192, sy: 0,  sw: 16, sh: 16, label: 'Eau Vagues' },
-            'FENCE_1':        { sx: 208, sy: 0,  sw: 16, sh: 16, label: 'Barrière 1' },
-            'FENCE_2':        { sx: 224, sy: 0,  sw: 16, sh: 16, label: 'Barrière 2' },
-            'FENCE_3':        { sx: 240, sy: 0,  sw: 16, sh: 16, label: 'Barrière 3' },
+            'GRASS': { sx: 32, sy: 0, sw: 16, sh: 16, label: 'Herbe' },
+            'SAND': { sx: 32, sy: 16, sw: 16, sh: 16, label: 'Sable' },
+            'TREE': { sx: 0, sy: 0, sw: 32, sh: 32, label: 'Arbre', size: 64 },
+            'WATER': { sx: 48, sy: 0, sw: 16, sh: 16, label: 'Eau' },
+            'BUSH': { sx: 48, sy: 16, sw: 16, sh: 16, label: 'Buisson' },
 
-            // Row 1
-            'SAND':           { sx: 32,  sy: 16, sw: 16, sh: 16, label: 'Sable' },
-            'BUSH':           { sx: 48,  sy: 16, sw: 16, sh: 16, label: 'Herbe Haute' },
-            'WALL_RIGHT':     { sx: 64,  sy: 16, sw: 16, sh: 16, label: 'Mur D' },
-            'WALL_LEFT':      { sx: 80,  sy: 16, sw: 16, sh: 16, label: 'Mur G' },
-            'CAVE_ENTRANCE':  { sx: 96,  sy: 16, sw: 16, sh: 16, label: 'Grotte' },
-            'OWL':            { sx: 112, sy: 16, sw: 16, sh: 16, label: 'Hibou' },
-            'STATUE':         { sx: 128, sy: 16, sw: 16, sh: 16, label: 'Statue' },
-            'BARREL':         { sx: 144, sy: 16, sw: 16, sh: 16, label: 'Tonneau' },
-            'BUSH_GREEN':     { sx: 160, sy: 16, sw: 16, sh: 16, label: 'Buisson V' },
-            'TALL_GRASS':     { sx: 176, sy: 16, sw: 16, sh: 16, label: 'Herbe V' },
-            'ROCK_GREY':      { sx: 192, sy: 16, sw: 16, sh: 16, label: 'Rocher G' },
+            'WALL_DOWN': { sx: 64, sy: 0, sw: 16, sh: 16, label: 'Mur BAS' },
+            'WALL_UP': { sx: 80, sy: 0, sw: 16, sh: 16, label: 'Mur HAUT' },
+            'WALL_RIGHT': { sx: 64, sy: 16, sw: 16, sh: 16, label: 'Mur DROITE' },
+            'WALL_LEFT': { sx: 80, sy: 16, sw: 16, sh: 16, label: 'Mur GAUCHE' },
 
-            // Row 2
-            'PALM':           { sx: 0,   sy: 32, sw: 32, sh: 32, label: 'Palmier' },
-            'DUNGEON_WALL_1': { sx: 32,  sy: 32, sw: 16, sh: 16, label: 'Dungeon 1' },
-            'DUNGEON_WALL_2': { sx: 48,  sy: 32, sw: 16, sh: 16, label: 'Dungeon 2' },
-            'DUNGEON_WALL_3': { sx: 64,  sy: 32, sw: 16, sh: 16, label: 'Dungeon 3' },
-            'DUNGEON_WALL_4': { sx: 80,  sy: 32, sw: 16, sh: 16, label: 'Dungeon 4' },
-            'BIG_BUSH':       { sx: 96,  sy: 32, sw: 32, sh: 32, label: 'Gros Buisson' },
-            'WATERFALL':      { sx: 128, sy: 32, sw: 16, sh: 16, label: 'Cascade' },
-            'ROCK_WATER':     { sx: 144, sy: 32, sw: 16, sh: 16, label: 'Rocher Eau' },
-            'FLOWERS':        { sx: 160, sy: 32, sw: 16, sh: 16, label: 'Fleurs' },
-            'STREAM':         { sx: 176, sy: 32, sw: 16, sh: 16, label: 'Ruisseau' },
-            'OWL_STATUE':     { sx: 192, sy: 32, sw: 16, sh: 16, label: 'Hibou Statue' },
-            'CRYSTAL':        { sx: 208, sy: 32, sw: 16, sh: 16, label: 'Cristal' },
+            'BRIDGE_H_RIGHT': { sx: 96, sy: 0, sw: 16, sh: 16, label: 'Pont H D' },
+            'BRIDGE_H_LEFT': { sx: 112, sy: 0, sw: 16, sh: 16, label: 'Pont H G' },
+            'BRIDGE_V_LEFT': { sx: 96, sy: 16, sw: 16, sh: 16, label: 'Pont V G' },
+            'BRIDGE_V_RIGHT': { sx: 112, sy: 16, sw: 16, sh: 16, label: 'Pont V D' },
 
-            // Row 3
-            'CHEST':          { sx: 128, sy: 48, sw: 16, sh: 16, label: 'Coffre' },
-            'STREAM_ALT':     { sx: 144, sy: 48, sw: 16, sh: 16, label: 'Ruiss. Alt' },
-            'LEAVES':         { sx: 160, sy: 48, sw: 16, sh: 16, label: 'Feuilles' },
-            'ROCK':           { sx: 176, sy: 48, sw: 16, sh: 16, label: 'Rocher' },
-            'LANTERN':        { sx: 192, sy: 48, sw: 16, sh: 16, label: 'Lanterne' },
-            'CAULDRON':       { sx: 208, sy: 48, sw: 16, sh: 16, label: 'Chaudron' },
+            'ORANGE_GROUND': { sx: 128, sy: 0, sw: 16, sh: 16, label: 'Sol orange' },
+            'ORANGE_PLANT': { sx: 144, sy: 0, sw: 16, sh: 16, label: 'Plante orange' },
+            'YELLOW_GROUND': { sx: 128, sy: 16, sw: 16, sh: 16, label: 'Sol jaune' },
+            'BLACK_HOLE': { sx: 144, sy: 16, sw: 16, sh: 16, label: 'Trou noir' },
 
-            // Row 4
-            'SHOP':           { sx: 0,   sy: 64, sw: 48, sh: 48, label: 'SHOP (48x48)' }
+            'BLUE_GROUND': { sx: 160, sy: 0, sw: 16, sh: 16, label: 'Sol bleu' },
+            'FENCE': { sx: 176, sy: 0, sw: 16, sh: 16, label: 'Barrière' },
+            'RED_WALL': { sx: 160, sy: 16, sw: 16, sh: 16, label: 'Mur rouge' },
+            'BLUE_PLANT': { sx: 176, sy: 16, sw: 16, sh: 16, label: 'Plante bleue' },
+
+            'ORANGE_TREE': { sx: 0, sy: 32, sw: 32, sh: 32, label: 'Arbre orange', size: 64 },
+'DOOR': { sx: 32, sy: 32, sw: 32, sh: 32, label: 'Porte', size: 64 },
+'BUSH_BIG': { sx: 64, sy: 32, sw: 32, sh: 32, label: 'Gros buisson', size: 64 },
+
+'VERT_TOP': { sx: 96, sy: 32, sw: 16, sh: 16, label: 'Haut vertical' },
+'STONE': { sx: 112, sy: 32, sw: 16, sh: 16, label: 'Pierre' },
+'CHEST': { sx: 96, sy: 48, sw: 16, sh: 16, label: 'Coffre' },
+'HORI_TOP': { sx: 112, sy: 48, sw: 16, sh: 16, label: 'Haut horizontal' },
+
+'TULIP': { sx: 128, sy: 32, sw: 16, sh: 16, label: 'Tulipe' },
+'LEAVES': { sx: 144, sy: 32, sw: 16, sh: 16, label: 'Feuilles' },
+'LIGHT_BLUE_GROUND': { sx: 128, sy: 48, sw: 16, sh: 16, label: 'Sol bleu clair' },
+'LEAF_GROUND': { sx: 144, sy: 48, sw: 16, sh: 16, label: 'Sol feuille' },
+
+'OWL': { sx: 160, sy: 32, sw: 16, sh: 16, label: 'Hibou' },
+'EGGS': { sx: 176, sy: 32, sw: 16, sh: 16, label: 'Œufs' },
+'SIGN': { sx: 160, sy: 48, sw: 16, sh: 16, label: 'Panneau' },
+'PURPLE_HOLE': { sx: 176, sy: 48, sw: 16, sh: 16, label: 'Trou violet' },
+
+'SHOP': { sx: 0, sy: 64, sw: 48, sh: 48, label: 'Magasin', size: 96 }
         };
-
-        
 
         let selectedType = 'GRASS';
         const tileset = new Image();
         tileset.src = 'assets/map.png';
 
-        tileset.onload = () => { errorDiv.style.display = 'none'; draw(); };
-        tileset.onerror = () => { errorDiv.style.display = 'block'; };
+        tileset.onload = () => { 
+            errorDiv.style.display = 'none'; 
+            draw(); 
+        };
+
+        tileset.onerror = () => { 
+            errorDiv.style.display = 'block'; 
+        };
 
         const selector = document.getElementById('selector');
+
         Object.keys(TILE_TYPES).forEach(type => {
             const config = TILE_TYPES[type];
             const div = document.createElement('div');
             div.className = `tile-option ${type === selectedType ? 'active' : ''}`;
-            // On multiplie par 2 pour la preview pour que ce soit bien visible
             div.innerHTML = `<div class="tile-preview" style="background-position: -${config.sx * 2}px -${config.sy * 2}px"></div>${config.label}`;
             div.onclick = () => {
                 document.querySelectorAll('.tile-option').forEach(el => el.classList.remove('active'));
@@ -197,45 +194,71 @@
             const y = Math.floor((e.clientY - rect.top) / GRID) * GRID;
 
             if (e.buttons === 1) {
-                if (!walls.some(w => w.x === x && w.y === y && w.type === selectedType)) {
-                    walls = walls.filter(w => !(w.x === x && w.y === y));
-                    walls.push({ x, y, type: selectedType });
-                    draw();
-                }
+                walls = walls.filter(w => !(w.x === x && w.y === y));
+                walls.push({ x, y, type: selectedType });
+                draw();
             } else if (e.buttons === 2) {
                 walls = walls.filter(w => !(w.x === x && w.y === y));
                 draw();
             }
         }
 
-        canvas.addEventListener('mousedown', (e) => { isDrawing = true; placeTile(e); });
-        canvas.addEventListener('mousemove', (e) => { if (isDrawing) placeTile(e); });
-        window.addEventListener('mouseup', () => { isDrawing = false; updateJSON(); });
+        canvas.addEventListener('mousedown', (e) => { 
+            isDrawing = true; 
+            placeTile(e); 
+        });
+
+        canvas.addEventListener('mousemove', (e) => { 
+            if (isDrawing) placeTile(e); 
+        });
+
+        window.addEventListener('mouseup', () => { 
+            isDrawing = false; 
+            updateJSON(); 
+        });
 
         function draw() {
             ctx.fillStyle = "#333";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.strokeStyle = "rgba(255,255,255,0.05)";
-            for (let i = 0; i < canvas.width; i += GRID) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke(); }
-            for (let i = 0; i < canvas.height; i += GRID) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke(); }
+            for (let i = 0; i < canvas.width; i += GRID) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += GRID) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
 
             walls.forEach(w => {
                 const t = TILE_TYPES[w.type];
                 if (tileset.complete) {
-                    // Calcul de la taille d'affichage en fonction de la taille source
-                    let displaySize = GRID;
-                    if (['TREE', 'PALM', 'BIG_BUSH'].includes(w.type)) displaySize = GRID * 2;
-                    if (w.type === 'SHOP') displaySize = GRID * 3;
-                    
-                    ctx.drawImage(tileset, t.sx, t.sy, t.sw, t.sh, w.x, w.y, displaySize, displaySize);
+                    const displaySize = t.size || GRID;
+                    ctx.drawImage(
+                        tileset,
+                        t.sx, t.sy, t.sw, t.sh,
+                        w.x, w.y, displaySize, displaySize
+                    );
                 }
             });
         }
 
-        function updateJSON() { output.value = JSON.stringify({ walls }, null, 2); }
+        function updateJSON() {
+            output.value = JSON.stringify({ walls }, null, 2);
+        }
+
         canvas.oncontextmenu = (e) => e.preventDefault();
-        window.copyJSON = () => { output.select(); document.execCommand('copy'); alert("JSON Copié !"); };
+
+        window.copyJSON = () => {
+            output.select();
+            document.execCommand('copy');
+            alert("JSON Copié !");
+        };
     </script>
 </body>
 
