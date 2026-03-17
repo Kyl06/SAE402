@@ -1,6 +1,6 @@
 /**
  * @file OctorokProjectile.js
- * @description Projectile (pierre) lancé par l'Octorok. 
+ * @description Projectile (pierre) lancé par l'Octorok.
  * Se détruit à l'impact ou après un certain temps.
  */
 
@@ -11,13 +11,13 @@ import { UP, DOWN, LEFT, RIGHT, SCALE } from "../../constants.js";
 export class OctorokProjectile extends Entity {
     constructor(x, y, vx, vy, ownerNetId = null) {
         super(x, y, 16, 16); // Hitbox augmentée à 16x16
-        
+
         this.netId = 'octo_proj_' + Math.random().toString(36).slice(2, 11);
         this.ownerNetId = ownerNetId;
-        
+
         this.velX = vx;
         this.velY = vy;
-        
+
         this.lifetime = 2500;
         this.age = 0;
         this.active = true;
@@ -29,13 +29,13 @@ export class OctorokProjectile extends Entity {
 
     update(delta) {
         if (!this.active) return;
-        
+
         this.age += delta;
         if (this.age >= this.lifetime) {
             this.deactivate();
             return;
         }
-        
+
         // Physique héritée (super.update gère déjà x += velX * delta)
         super.update(delta);
 
@@ -56,11 +56,11 @@ export class OctorokProjectile extends Entity {
             } else {
                 direction = this.velY > 0 ? DOWN : UP;
             }
-            
+
             other.takeDamage?.(this.damage, direction);
             this.deactivate();
         }
-        
+
         // Collision murs (Floor.js avec collider=true)
         if (other.hasTag("WALL") || other.hasTag("SOLID")) {
             this.deactivate();
@@ -74,9 +74,9 @@ export class OctorokProjectile extends Entity {
 
     draw(ctx) {
         if (!this.active) return;
-        
+
         // Frame 3 : Projectile (4ème colonne, 1ère ligne)
         // On décale de -8 pixels (16 visual px) pour centrer la hitbox 16x16 sur le sprite 32x32
         this.spriteSheet.drawFrame(ctx, 3, this.x - 8, this.y - 8, SCALE);
     }
-}
+}

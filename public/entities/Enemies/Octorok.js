@@ -190,18 +190,7 @@ export class Octorok extends Entity {
     }
 
     onCollision(other) {
-        if (other.hasTag("PLAYER")) {
-            // Calcul de la direction de l'attaque (de l'octorok vers le joueur)
-            const dx = other.x - this.x;
-            const dy = other.y - this.y;
-            let direction;
-            if (Math.abs(dx) > Math.abs(dy)) {
-                direction = dx > 0 ? RIGHT : LEFT;
-            } else {
-                direction = dy > 0 ? DOWN : UP;
-            }
-            other.takeDamage?.(1, direction);
-        }
+        if (other.hasTag("PLAYER")) other.takeDamage?.(1);
     }
 
     /**

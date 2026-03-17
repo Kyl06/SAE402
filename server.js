@@ -9,9 +9,60 @@ const io = require('socket.io')(server, {
     cors: { origin: "*" } // Sécurité pour éviter les blocages de navigateur
 });
 const path = require('path');
+const fs = require('fs');
 
-// Sert les fichiers du dossier 'public' (assure-toi que tes fichiers .js/.png sont dedans)
-app.use(express.static(path.join(__dirname, 'public')));
+const SAVE_FILE = path.join(__dirname, 'save.json');
+
+// Sert les fichiers du dossier 'public' - desactive le cache pour les .js
+app.use(express.static(path.join(__dirname, 'public'), {
+    etag: false,
+    lastModified: false,
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.js')) {
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+        }
+    }
+}));
+app.use(express.json());
+
+function loadSave() {
+    try {
+        if (fs.existsSync(SAVE_FILE)) {
+            return JSON.parse(fs.readFileSync(SAVE_FILE, 'utf8'));
+        }
+    } catch (e) {
+        console.log('[Save] Erreur de lecture:', e.message);
+    }
+    return null;
+}
+
+function writeSave(data) {
+    try {
+        fs.writeFileSync(SAVE_FILE, JSON.stringify(data, null, 2), 'utf8');
+    } catch (e) {
+        console.log('[Save] Erreur d\'ecriture:', e.message);
+    }
+}
+
+// API de sauvegarde
+app.get('/api/save', (req, res) => {
+    const data = loadSave();
+    res.json(data || { exists: false });
+});
+
+app.post('/api/save', (req, res) => {
+    writeSave(req.body);
+    console.log('[Save] Partie sauvegardee');
+    res.json({ ok: true });
+});
+
+app.delete('/api/save', (req, res) => {
+    try {
+        if (fs.existsSync(SAVE_FILE)) fs.unlinkSync(SAVE_FILE);
+    } catch (e) { /* ignore */ }
+    console.log('[Save] Nouvelle partie');
+    res.json({ ok: true });
+});
 
 let roles = { player1: null, player2: null };
 
@@ -74,6 +125,10 @@ io.on('connection', (socket) => {
 
     socket.on('explosion', (data) => {
         socket.broadcast.emit('network_explosion', data);
+    });
+
+    socket.on('zone_change', (data) => {
+        socket.broadcast.emit('network_zone_change', data);
     });
 
     socket.on('disconnect', () => {

@@ -9,29 +9,59 @@ import { Assets } from '../engine/Assets.js';
 import { SCALE } from '../constants.js';
 
 export class Floor extends Entity {
-    constructor(x, y, type = 'GRASS') {
+    constructor(x, y, type = 'GRASS', options = {}) {
         // Définition de la taille source
         let srcSize = 16;
         if (['TREE', 'ORANGE_TREE', 'DOOR', 'BUSH_BIG'].includes(type)) srcSize = 32;
         if (type === 'SHOP') srcSize = 48;
-        
-        // TAILLE RÉELLE DANS LE JEU (ex: 16 * 2 = 32px)
+
+        // TAILLE RÉELLE DANS LE JEU (ex: 16 * SCALE)
+
         const realSize = srcSize * SCALE;
 
         super(x, y, realSize, realSize);
-        
+
         this.type = type;
         // On ajuste le Z pour les objets hauts et les objets de décor
-        const decors = ['OWL', 'EGGS', 'SIGN', 'CHEST', 'STONE', 'VERT_TOP', 'HORI_TOP'];
-        this.z = (srcSize > 16 || decors.includes(type)) ? 10 : 0;
-        
+        const decors = ['OWL', 'EGGS', 'SIGN', 'CHEST', 'STONE', 'VERT_TOP', 'HORI_TOP', 'STATUE', 'BARREL', 'LANTERN', 'CAULDRON', 'OWL_STATUE', 'CRYSTAL'];
+        this.z = (srcSize > 16 || decors.includes(type)) ? 10 : (['ORANGE_BLOCK'].includes(type) ? 5 : 0);
+
         // Système de collision : Solide par défaut sauf pour les sols
-        const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LEAVES', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND'];
+        const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LEAVES', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL'];
         this.collider = !walkables.includes(this.type);
-        
+
         if (this.collider) {
             this.addTag('SOLID');
         }
+
+        // Panneau interactif
+        this.signText = options.signText || null;
+        this.interactRange = 50;
+        this.interactKeyWasDown = false;
+        this.playerInRange = false;
+        this.indicatorBounce = 0;
+    }
+
+    update(delta) {
+        if (!this.signText) return;
+        const player = window.game.player;
+        if (!player) return;
+
+        const dx = (this.x + this.width / 2) - (player.x + player.width / 2);
+        const dy = (this.y + this.height / 2) - (player.y + player.height / 2);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        this.playerInRange = dist < this.interactRange;
+
+        this.indicatorBounce += delta * 0.005;
+
+        const keyDown = window.game.inputs.isHeld('KeyE');
+        if (this.playerInRange && keyDown && !this.interactKeyWasDown && !window.game.dialogueActive) {
+            const dialogueBox = window.game.dialogueBox;
+            if (dialogueBox) {
+                dialogueBox.show('Panneau', [this.signText]);
+            }
+        }
+        this.interactKeyWasDown = keyDown;
     }
 
     draw(ctx) {
@@ -87,11 +117,50 @@ export class Floor extends Entity {
             'SHOP': { sx: 0, sy: 64, sw: 48, sh: 48 }
         };
 
+        // Tiles avec leur propre asset (pas dans le tileset)
+        const standalone = { 'HERBESOL': 'HERBESOL', 'HERBESOL2': 'HERBESOL2', 'PORTAIL': 'PORTAIL', 'BRIQUE': 'BRIQUE' };
+        if (standalone[this.type]) {
+            const sImg = Assets.get(standalone[this.type]);
+            if (!sImg) return;
+            if (this.type === 'PORTAIL') {
+                // Portail : 64x32 source, dessine sur 4x2 tiles (128x64 px)
+                ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, this.x, this.y, 4 * 32, 2 * 32);
+            } else {
+                ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, this.x, this.y, this.width, this.height);
+            }
+            return;
+        }
+
         const t = mapping[this.type];
         if (t) {
             // On dessine à la taille calculée dans le constructeur
             ctx.drawImage(img, t.sx, t.sy, t.sw, t.sh, this.x, this.y, this.width, this.height);
         }
+
+        // Indicateur [E] si panneau et joueur a portee
+        if (this.signText && this.playerInRange && !window.game.dialogueActive) {
+            this.drawSignIndicator(ctx);
+        }
+    }
+
+    drawSignIndicator(ctx) {
+        const bounceY = Math.sin(this.indicatorBounce * 3) * 3;
+        const cx = this.x + this.width / 2;
+        const cy = this.y - 10 + bounceY;
+
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(cx - 12, cy - 12, 24, 16);
+        ctx.strokeStyle = '#ffcc00';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cx - 12, cy - 12, 24, 16);
+
+        ctx.fillStyle = '#ffcc00';
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('E', cx, cy - 4);
+        ctx.textBaseline = 'alphabetic';
+        ctx.textAlign = 'left';
     }
 
     // Système de collision AABB simple

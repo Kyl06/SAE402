@@ -12,22 +12,35 @@ export class Map extends Entity {
         super(0, 0, 800, 608);
         this.engine = engine;
         this.z = -10;
+        this.bgColor = '#1a1a1a';
+        this.floorEntities = [];
     }
 
     load(mapData) {
         if (!mapData || !mapData.walls) return;
 
         mapData.walls.forEach(tile => {
-            // On crée un Floor pour chaque tuile, le constructeur gère le reste
-            const block = new Floor(tile.x, tile.y, tile.type);
+            const block = new Floor(tile.x, tile.y, tile.type, tile);
+            this.floorEntities.push(block);
             this.engine.add(block);
         });
 
-        this.engine.add(this);
+        // S'ajouter au moteur si pas deja present
+        if (!this.engine.entities.includes(this)) {
+            this.engine.add(this);
+        }
+    }
+
+    unload() {
+        this.floorEntities.forEach(f => f.kill());
+        // Retirer immediatement du moteur pour eviter les doublons
+        const toRemoveSet = new Set(this.floorEntities);
+        this.engine.entities = this.engine.entities.filter(e => !toRemoveSet.has(e));
+        this.floorEntities = [];
     }
 
     draw(ctx) {
-        ctx.fillStyle = "#1a1a1a";
+        ctx.fillStyle = this.bgColor;
         ctx.fillRect(0, 0, 800, 600);
     }
 }

@@ -18,7 +18,9 @@ export class Arrow extends Entity {
     super(x, y, 16, 16);
     this.facing = facing;
     this.owner = owner;
-    this.speed = 300;   // Vitesse du projectile rapide
+    // Arc long : vitesse et portee augmentees
+    const bowLevel = owner?.bowLevel || 0;
+    this.speed = bowLevel > 0 ? 400 : 300;
     this.z = 50;        // Toujours au premier plan
     
     // Spritesheet de la flèche (1 colonne x 4 lignes)

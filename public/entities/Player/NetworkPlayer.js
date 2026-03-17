@@ -53,32 +53,33 @@ export class NetworkPlayer extends Entity {
      * Met à jour l'état interne à partir d'un message réseau.
      * @param {string} data - Format : action|x|y|vx|vy|skinId|facing|arrows|isPainFlashing
      */
-   onNetworkUpdate(data) {
-    const [action, x, y, vx, vy, skin, facing, arrows, isPainFlashing] = data.split('|');
+    onNetworkUpdate(data) {
+        const [action, x, y, vx, vy, skin, facing, arrows, isPainFlashing] = data.split('|');
 
-    // On ne change pas l'action si on a déjà une animation locale lancée par triggerAction
-    if (!this.actionAnimation) {
-        this.currentAction = action;
-    }
-    
-    this.x = parseInt(x);
-    this.y = parseInt(y);
-    this.facing = facing || DOWN;
-    this.isWalking = (parseFloat(vx) !== 0 || parseFloat(vy) !== 0);
-    
-    if (arrows !== undefined) {
-        this.arrows = parseInt(arrows);
-    }
+        // On ne change pas l'action si on a déjà une animation locale lancée par triggerAction
+        if (!this.actionAnimation) {
+            this.currentAction = action;
+        }
 
-    if (isPainFlashing !== undefined) {
-        this.isPainFlashing = (isPainFlashing === 'true');
-    }
+        this.x = parseInt(x);
+        this.y = parseInt(y);
+        this.facing = facing || DOWN;
+        this.isWalking = (parseFloat(vx) !== 0 || parseFloat(vy) !== 0);
 
-    if (skin && this.skinId !== skin) {
-        this.skinId = skin;
-        this._buildSheets();
+        if (arrows !== undefined) {
+            this.arrows = parseInt(arrows);
+        }
+
+        if (isPainFlashing !== undefined) {
+            this.isPainFlashing = (isPainFlashing === 'true');
+        }
+
+        // Si le joueur distant change de personnage, on met à jour localement
+        if (skin && this.skinId !== skin) {
+            this.skinId = skin;
+            this._buildSheets();
+        }
     }
-}
 
     /** 
      * Reproduit visuellement une attaque déclenchée par le joueur distant.

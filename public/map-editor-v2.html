@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Map Editor v2 - RPG La Relique Volee</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #1a1a2e;
+            color: #eee;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* === SIDEBAR GAUCHE : Palette === */
+        .sidebar-left {
+            width: 260px;
+            background: #16213e;
+            border-right: 2px solid #0f3460;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-left h2 {
+            padding: 12px;
+            text-align: center;
+            background: #0f3460;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            padding: 6px;
+            background: #1a1a2e;
+        }
+
+        .cat-tab {
+            flex: 1;
+            min-width: 60px;
+            padding: 5px 4px;
+            font-size: 10px;
+            text-align: center;
+            background: #16213e;
+            border: 1px solid #0f3460;
+            color: #aaa;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .cat-tab.active {
+            background: #e94560;
+            color: white;
+            border-color: #e94560;
+        }
+
+        .tile-palette {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            align-content: start;
+        }
+
+        .tile-btn {
+            border: 2px solid #333;
+            background: #111;
+            cursor: pointer;
+            padding: 4px;
+            text-align: center;
+            border-radius: 4px;
+            transition: border-color 0.15s;
+        }
+
+        .tile-btn:hover { border-color: #e94560; }
+        .tile-btn.active { border-color: #e94560; background: #2a1a2e; }
+
+        .tile-btn canvas {
+            display: block;
+            margin: 0 auto 3px;
+            image-rendering: pixelated;
+        }
+
+        .tile-btn span {
+            font-size: 9px;
+            color: #aaa;
+            display: block;
+        }
+
+        /* === ZONE CENTRALE : Canvas === */
+        .editor-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #16213e;
+            border-bottom: 2px solid #0f3460;
+            flex-wrap: wrap;
+        }
+
+        .toolbar label {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .toolbar select, .toolbar input, .toolbar button {
+            padding: 5px 10px;
+            background: #1a1a2e;
+            color: white;
+            border: 1px solid #0f3460;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .toolbar button {
+            cursor: pointer;
+            background: #0f3460;
+            transition: background 0.15s;
+        }
+
+        .toolbar button:hover { background: #e94560; }
+
+        .toolbar .sep {
+            width: 1px;
+            height: 24px;
+            background: #333;
+        }
+
+        .canvas-wrap {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111;
+        }
+
+        #editorCanvas {
+            image-rendering: pixelated;
+            cursor: crosshair;
+            border: 2px solid #0f3460;
+        }
+
+        /* === SIDEBAR DROITE : Export / Infos === */
+        .sidebar-right {
+            width: 300px;
+            background: #16213e;
+            border-left: 2px solid #0f3460;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-right h3 {
+            padding: 10px;
+            background: #0f3460;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .info-panel {
+            padding: 10px;
+            font-size: 12px;
+            border-bottom: 1px solid #333;
+        }
+
+        .info-panel span { color: #e94560; font-weight: bold; }
+
+        .export-btns {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .export-btns button {
+            padding: 8px;
+            cursor: pointer;
+            background: #0f3460;
+            color: white;
+            border: 1px solid #0f3460;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .export-btns button:hover { background: #e94560; }
+
+        .export-btns textarea {
+            width: 100%;
+            height: 200px;
+            background: #0a0a1a;
+            color: #0f0;
+            font-family: 'Consolas', monospace;
+            font-size: 10px;
+            border: 1px solid #333;
+            border-radius: 3px;
+            resize: vertical;
+            padding: 6px;
+        }
+
+        .layers-panel {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .layers-panel label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            margin-bottom: 4px;
+            cursor: pointer;
+        }
+
+        .help-panel {
+            padding: 10px;
+            font-size: 11px;
+            color: #888;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .help-panel kbd {
+            background: #333;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SIDEBAR GAUCHE -->
+    <div class="sidebar-left">
+        <h2>PALETTE</h2>
+        <div class="category-tabs" id="catTabs"></div>
+        <div class="tile-palette" id="palette"></div>
+    </div>
+
+    <!-- ZONE CENTRALE -->
+    <div class="editor-main">
+        <div class="toolbar">
+            <label>Zone :</label>
+            <select id="zoneSelect">
+                <option value="">-- Nouvelle map --</option>
+                <option value="village">Village</option>
+                <option value="forest_south">Foret Sud</option>
+                <option value="swamp_west">Marais Ouest</option>
+                <option value="ruins_east">Ruines Est</option>
+                <option value="fortress_north">Forteresse Nord</option>
+                <option value="shop_interior">Interieur Shop</option>
+            </select>
+            <button id="btnLoad">Charger</button>
+            <div class="sep"></div>
+            <label>Outil :</label>
+            <button id="btnPen" class="active-tool">Crayon</button>
+            <button id="btnFill">Remplir</button>
+            <button id="btnErase">Gomme</button>
+            <div class="sep"></div>
+            <label><input type="checkbox" id="showGrid" checked> Grille</label>
+            <label><input type="checkbox" id="showCoords"> Coords</label>
+            <div class="sep"></div>
+            <button id="btnUndo">Annuler</button>
+            <button id="btnClear">Tout effacer</button>
+        </div>
+        <div class="canvas-wrap">
+            <canvas id="editorCanvas" width="800" height="576"></canvas>
+        </div>
+    </div>
+
+    <!-- SIDEBAR DROITE -->
+    <div class="sidebar-right">
+        <h3>EXPORT / INFOS</h3>
+        <div class="info-panel">
+            Tuile : <span id="infoTile">GRASS</span><br>
+            Position : <span id="infoPos">-</span><br>
+            Total tuiles : <span id="infoCount">0</span>
+        </div>
+        <div class="layers-panel">
+            <strong style="font-size:12px">Couches visibles :</strong>
+            <label><input type="checkbox" class="layerToggle" value="ground" checked> Sol (herbe, sable)</label>
+            <label><input type="checkbox" class="layerToggle" value="walls" checked> Murs / Bordures</label>
+            <label><input type="checkbox" class="layerToggle" value="objects" checked> Objets (arbres, etc.)</label>
+            <label><input type="checkbox" class="layerToggle" value="water" checked> Eau</label>
+        </div>
+        <div class="export-btns">
+            <button id="btnExportJSON">Exporter en JSON</button>
+            <button id="btnExportJS">Exporter en JS (zone file)</button>
+            <button id="btnCopy">Copier dans le presse-papier</button>
+            <button id="btnImportJSON">Importer du JSON</button>
+            <textarea id="outputArea" placeholder="Le code exporte apparaitra ici..."></textarea>
+        </div>
+        <div class="help-panel">
+            <strong>Raccourcis :</strong><br>
+            <kbd>Clic gauche</kbd> Placer tuile<br>
+            <kbd>Clic droit</kbd> Supprimer tuile<br>
+            <kbd>Ctrl+Z</kbd> Annuler<br>
+            <kbd>G</kbd> Grille on/off<br>
+            <kbd>E</kbd> Gomme<br>
+            <kbd>B</kbd> Crayon<br>
+            <kbd>F</kbd> Remplir<br>
+        </div>
+    </div>
+
+    <script>
+        // =============================================
+        //  CONSTANTES
+        // =============================================
+        const T = 32;
+        const COLS = 25;
+        const ROWS = 18;
+        const canvas = document.getElementById('editorCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // =============================================
+        //  TILE DEFINITIONS (identiques a Floor.js)
+        // =============================================
+        const TILE_DEFS = {
+            // --- Sol ---
+            'GRASS':          { sx: 32,  sy: 0,  sw: 16, sh: 16, label: 'Herbe',         cat: 'sol' },
+            'SAND':           { sx: 32,  sy: 16, sw: 16, sh: 16, label: 'Sable',         cat: 'sol' },
+            'ORANGE_PATH':    { sx: 144, sy: 0,  sw: 16, sh: 16, label: 'Chemin orange', cat: 'sol' },
+            'FLOWERS':        { sx: 160, sy: 32, sw: 16, sh: 16, label: 'Fleurs',        cat: 'sol' },
+            'LEAVES':         { sx: 160, sy: 48, sw: 16, sh: 16, label: 'Feuilles',      cat: 'sol' },
+            'TALL_GRASS':     { sx: 176, sy: 16, sw: 16, sh: 16, label: 'Hautes herbes', cat: 'sol' },
+            'HERBESOL':       { standalone: 'assets/herbesol.png',  label: 'Herbe sol 1', cat: 'sol' },
+            'HERBESOL2':      { standalone: 'assets/herbesol2.png', label: 'Herbe sol 2', cat: 'sol' },
+
+            // --- Murs & Bordures ---
+            'WALL_DOWN':      { sx: 64,  sy: 0,  sw: 16, sh: 16, label: 'Mur bas',       cat: 'murs' },
+            'WALL_UP':        { sx: 80,  sy: 0,  sw: 16, sh: 16, label: 'Mur haut',      cat: 'murs' },
+            'WALL_RIGHT':     { sx: 64,  sy: 16, sw: 16, sh: 16, label: 'Mur droite',    cat: 'murs' },
+            'WALL_LEFT':      { sx: 80,  sy: 16, sw: 16, sh: 16, label: 'Mur gauche',    cat: 'murs' },
+            'BRIQUE':         { standalone: 'assets/brique.png',    label: 'Brique',      cat: 'murs' },
+            'ORANGE_BLOCK':   { sx: 128, sy: 0,  sw: 16, sh: 16, label: 'Bloc orange',   cat: 'murs' },
+            'YELLOW_BLOCK':   { sx: 160, sy: 0,  sw: 16, sh: 16, label: 'Bloc jaune',    cat: 'murs' },
+            'FENCE_1':        { sx: 208, sy: 0,  sw: 16, sh: 16, label: 'Barriere 1',    cat: 'murs' },
+            'FENCE_2':        { sx: 224, sy: 0,  sw: 16, sh: 16, label: 'Barriere 2',    cat: 'murs' },
+            'FENCE_3':        { sx: 240, sy: 0,  sw: 16, sh: 16, label: 'Barriere 3',    cat: 'murs' },
+            'DUNGEON_WALL_1': { sx: 32,  sy: 32, sw: 16, sh: 16, label: 'Donjon mur 1', cat: 'murs' },
+            'DUNGEON_WALL_2': { sx: 48,  sy: 32, sw: 16, sh: 16, label: 'Donjon mur 2', cat: 'murs' },
+            'DUNGEON_WALL_3': { sx: 64,  sy: 32, sw: 16, sh: 16, label: 'Donjon mur 3', cat: 'murs' },
+            'DUNGEON_WALL_4': { sx: 80,  sy: 32, sw: 16, sh: 16, label: 'Donjon mur 4', cat: 'murs' },
+
+            // --- Eau & Ponts ---
+            'WATER':          { sx: 48,  sy: 0,  sw: 16, sh: 16, label: 'Eau',           cat: 'eau' },
+            'WATER_WAVES':    { sx: 192, sy: 0,  sw: 16, sh: 16, label: 'Eau vagues',    cat: 'eau' },
+            'WATERFALL':      { sx: 128, sy: 32, sw: 16, sh: 16, label: 'Cascade',       cat: 'eau' },
+            'STREAM':         { sx: 176, sy: 32, sw: 16, sh: 16, label: 'Ruisseau',      cat: 'eau' },
+            'STREAM_ALT':     { sx: 144, sy: 48, sw: 16, sh: 16, label: 'Ruisseau 2',    cat: 'eau' },
+            'ROCK_WATER':     { sx: 144, sy: 32, sw: 16, sh: 16, label: 'Roche eau',     cat: 'eau' },
+            'BRIDGE_H_RIGHT': { sx: 96,  sy: 0,  sw: 16, sh: 16, label: 'Pont H droite', cat: 'eau' },
+            'BRIDGE_H_LEFT':  { sx: 112, sy: 0,  sw: 16, sh: 16, label: 'Pont H gauche', cat: 'eau' },
+
+            // --- Objets & Decors ---
+            'TREE':           { sx: 0,   sy: 0,  sw: 32, sh: 32, label: 'Arbre',         cat: 'objets', size: 64 },
+            'PALM':           { sx: 0,   sy: 32, sw: 32, sh: 32, label: 'Palmier',       cat: 'objets', size: 64 },
+            'BIG_BUSH':       { sx: 96,  sy: 32, sw: 32, sh: 32, label: 'Grand buisson', cat: 'objets', size: 64 },
+            'BUSH':           { sx: 48,  sy: 16, sw: 16, sh: 16, label: 'Buisson',       cat: 'objets' },
+            'BUSH_GREEN':     { sx: 160, sy: 16, sw: 16, sh: 16, label: 'Buisson vert',  cat: 'objets' },
+            'DESERT_BUSH':    { sx: 176, sy: 0,  sw: 16, sh: 16, label: 'Buisson desert',cat: 'objets' },
+            'ROCK':           { sx: 176, sy: 48, sw: 16, sh: 16, label: 'Rocher',        cat: 'objets' },
+            'ROCK_GREY':      { sx: 192, sy: 16, sw: 16, sh: 16, label: 'Rocher gris',   cat: 'objets' },
+            'BARREL':         { sx: 144, sy: 16, sw: 16, sh: 16, label: 'Tonneau',       cat: 'objets' },
+            'STATUE':         { sx: 128, sy: 16, sw: 16, sh: 16, label: 'Statue',        cat: 'objets' },
+            'OWL':            { sx: 112, sy: 16, sw: 16, sh: 16, label: 'Hibou',         cat: 'objets' },
+            'OWL_STATUE':     { sx: 192, sy: 32, sw: 16, sh: 16, label: 'Statue hibou',  cat: 'objets' },
+            'LANTERN':        { sx: 192, sy: 48, sw: 16, sh: 16, label: 'Lanterne',      cat: 'objets' },
+            'CAULDRON':       { sx: 208, sy: 48, sw: 16, sh: 16, label: 'Chaudron',      cat: 'objets' },
+            'CRYSTAL':        { sx: 208, sy: 32, sw: 16, sh: 16, label: 'Cristal',       cat: 'objets' },
+            'CHEST':          { sx: 128, sy: 48, sw: 16, sh: 16, label: 'Coffre',        cat: 'objets' },
+            'CAVE_ENTRANCE':  { sx: 96,  sy: 16, sw: 16, sh: 16, label: 'Grotte',       cat: 'objets' },
+
+            // --- Batiments & Speciaux ---
+            'SHOP':           { sx: 0,   sy: 64, sw: 48, sh: 48, label: 'Magasin',       cat: 'special', size: 96 },
+            'PORTAIL':        { standalone: 'assets/Portail.png',   label: 'Portail',     cat: 'special', size: 128, h: 64 },
+        };
+
+        const CATEGORIES = {
+            sol:     'Sol',
+            murs:    'Murs',
+            eau:     'Eau',
+            objets:  'Objets',
+            special: 'Special',
+        };
+
+        // Layer classification for visibility toggles
+        const LAYER_MAP = {
+            'GRASS': 'ground', 'SAND': 'ground', 'ORANGE_PATH': 'ground', 'FLOWERS': 'ground',
+            'LEAVES': 'ground', 'TALL_GRASS': 'ground', 'HERBESOL': 'ground', 'HERBESOL2': 'ground',
+            'WATER': 'water', 'WATER_WAVES': 'water', 'WATERFALL': 'water', 'STREAM': 'water',
+            'STREAM_ALT': 'water', 'ROCK_WATER': 'water', 'BRIDGE_H_RIGHT': 'water', 'BRIDGE_H_LEFT': 'water',
+            'WALL_DOWN': 'walls', 'WALL_UP': 'walls', 'WALL_RIGHT': 'walls', 'WALL_LEFT': 'walls',
+            'BRIQUE': 'walls', 'ORANGE_BLOCK': 'walls', 'YELLOW_BLOCK': 'walls',
+            'FENCE_1': 'walls', 'FENCE_2': 'walls', 'FENCE_3': 'walls',
+            'DUNGEON_WALL_1': 'walls', 'DUNGEON_WALL_2': 'walls', 'DUNGEON_WALL_3': 'walls', 'DUNGEON_WALL_4': 'walls',
+        };
+
+        // =============================================
+        //  STATE
+        // =============================================
+        let tiles = [];            // [{x, y, type}, ...]
+        let selectedType = 'GRASS';
+        let currentTool = 'pen';   // pen | erase | fill
+        let undoStack = [];
+        let visibleLayers = { ground: true, walls: true, objects: true, water: true };
+
+        // =============================================
+        //  ASSET LOADING
+        // =============================================
+        const tileset = new Image();
+        tileset.src = 'assets/map.png';
+
+        const standaloneImages = {};
+        const standaloneEntries = Object.entries(TILE_DEFS).filter(([, d]) => d.standalone);
+        standaloneEntries.forEach(([type, def]) => {
+            const img = new Image();
+            img.src = def.standalone;
+            standaloneImages[type] = img;
+        });
+
+        tileset.onload = () => {
+            buildPalette();
+            draw();
+        };
+
+        // =============================================
+        //  PALETTE UI
+        // =============================================
+        let activeCategory = 'sol';
+
+        function buildCategoryTabs() {
+            const container = document.getElementById('catTabs');
+            container.innerHTML = '';
+            Object.entries(CATEGORIES).forEach(([key, label]) => {
+                const btn = document.createElement('div');
+                btn.className = 'cat-tab' + (key === activeCategory ? ' active' : '');
+                btn.textContent = label;
+                btn.onclick = () => {
+                    activeCategory = key;
+                    buildCategoryTabs();
+                    buildPalette();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function buildPalette() {
+            const container = document.getElementById('palette');
+            container.innerHTML = '';
+            Object.entries(TILE_DEFS)
+                .filter(([, def]) => def.cat === activeCategory)
+                .forEach(([type, def]) => {
+                    const btn = document.createElement('div');
+                    btn.className = 'tile-btn' + (type === selectedType ? ' active' : '');
+
+                    // Mini preview canvas
+                    const preview = document.createElement('canvas');
+                    const pSize = 40;
+                    preview.width = pSize;
+                    preview.height = pSize;
+                    preview.style.width = pSize + 'px';
+                    preview.style.height = pSize + 'px';
+                    const pCtx = preview.getContext('2d');
+                    pCtx.imageSmoothingEnabled = false;
+
+                    if (def.standalone) {
+                        const img = standaloneImages[type];
+                        if (img && img.complete) {
+                            pCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, pSize, pSize);
+                        } else if (img) {
+                            img.onload = () => pCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, pSize, pSize);
+                        }
+                    } else if (tileset.complete) {
+                        pCtx.drawImage(tileset, def.sx, def.sy, def.sw, def.sh, 0, 0, pSize, pSize);
+                    }
+
+                    const span = document.createElement('span');
+                    span.textContent = def.label;
+
+                    btn.appendChild(preview);
+                    btn.appendChild(span);
+                    btn.onclick = () => {
+                        selectedType = type;
+                        currentTool = 'pen';
+                        updateToolButtons();
+                        buildPalette();
+                    };
+                    container.appendChild(btn);
+                });
+        }
+
+        buildCategoryTabs();
+
+        // =============================================
+        //  TOOL BUTTONS
+        // =============================================
+        function updateToolButtons() {
+            document.getElementById('btnPen').style.background = currentTool === 'pen' ? '#e94560' : '';
+            document.getElementById('btnFill').style.background = currentTool === 'fill' ? '#e94560' : '';
+            document.getElementById('btnErase').style.background = currentTool === 'erase' ? '#e94560' : '';
+        }
+
+        document.getElementById('btnPen').onclick   = () => { currentTool = 'pen';   updateToolButtons(); };
+        document.getElementById('btnFill').onclick   = () => { currentTool = 'fill';  updateToolButtons(); };
+        document.getElementById('btnErase').onclick  = () => { currentTool = 'erase'; updateToolButtons(); };
+        document.getElementById('btnUndo').onclick   = undo;
+        document.getElementById('btnClear').onclick  = () => { saveUndo(); tiles = []; draw(); };
+
+        // =============================================
+        //  DRAWING
+        // =============================================
+        function draw() {
+            ctx.fillStyle = '#1a3a1e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw tiles
+            tiles.forEach(t => {
+                const def = TILE_DEFS[t.type];
+                if (!def) return;
+
+                // Layer visibility
+                const layer = LAYER_MAP[t.type] || 'objects';
+                if (!visibleLayers[layer]) return;
+
+                if (def.standalone) {
+                    const img = standaloneImages[t.type];
+                    if (img && img.complete) {
+                        const w = def.size || T;
+                        const h = def.h || def.size || T;
+                        ctx.drawImage(img, 0, 0, img.width, img.height, t.x, t.y, w, h);
+                    }
+                } else if (tileset.complete) {
+                    const displaySize = def.size || T;
+                    ctx.drawImage(tileset, def.sx, def.sy, def.sw, def.sh, t.x, t.y, displaySize, displaySize);
+                }
+            });
+
+            // Grid
+            if (document.getElementById('showGrid').checked) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.lineWidth = 1;
+                for (let x = 0; x <= canvas.width; x += T) {
+                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+                }
+                for (let y = 0; y <= canvas.height; y += T) {
+                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+                }
+            }
+
+            // Coordinates overlay
+            if (document.getElementById('showCoords').checked) {
+                ctx.font = '8px monospace';
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        ctx.fillText(`${c},${r}`, c * T + 2, r * T + 10);
+                    }
+                }
+            }
+
+            // Update info
+            document.getElementById('infoTile').textContent = selectedType;
+            document.getElementById('infoCount').textContent = tiles.length;
+        }
+
+        // =============================================
+        //  TILE PLACEMENT
+        // =============================================
+        let isDrawing = false;
+
+        function getGridPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = Math.floor((e.clientX - rect.left) * scaleX / T) * T;
+            const y = Math.floor((e.clientY - rect.top) * scaleY / T) * T;
+            return { x, y };
+        }
+
+        function placeTile(e) {
+            const { x, y } = getGridPos(e);
+            if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) return;
+
+            document.getElementById('infoPos').textContent = `${x}, ${y} (col ${x/T}, row ${y/T})`;
+
+            if (currentTool === 'erase' || e.buttons === 2) {
+                tiles = tiles.filter(t => !(t.x === x && t.y === y));
+            } else if (currentTool === 'pen') {
+                tiles = tiles.filter(t => !(t.x === x && t.y === y));
+                tiles.push({ x, y, type: selectedType });
+            } else if (currentTool === 'fill') {
+                fillArea(x, y);
+                isDrawing = false; // fill only once per click
+            }
+            draw();
+        }
+
+        function fillArea(startX, startY) {
+            saveUndo();
+            const targetType = getTileAt(startX, startY);
+            if (targetType === selectedType) return;
+
+            const queue = [{ x: startX, y: startY }];
+            const visited = new Set();
+
+            while (queue.length > 0) {
+                const { x, y } = queue.shift();
+                const key = `${x},${y}`;
+                if (visited.has(key)) continue;
+                if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) continue;
+
+                const current = getTileAt(x, y);
+                if (current !== targetType) continue;
+
+                visited.add(key);
+                tiles = tiles.filter(t => !(t.x === x && t.y === y));
+                tiles.push({ x, y, type: selectedType });
+
+                queue.push({ x: x + T, y }, { x: x - T, y }, { x, y: y + T }, { x, y: y - T });
+            }
+        }
+
+        function getTileAt(x, y) {
+            const tile = tiles.find(t => t.x === x && t.y === y);
+            return tile ? tile.type : null;
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            if (currentTool !== 'fill') saveUndo();
+            isDrawing = true;
+            placeTile(e);
+        });
+        canvas.addEventListener('mousemove', (e) => {
+            const { x, y } = getGridPos(e);
+            document.getElementById('infoPos').textContent = `${x}, ${y} (col ${x/T}, row ${y/T})`;
+            if (isDrawing) placeTile(e);
+        });
+        window.addEventListener('mouseup', () => { isDrawing = false; });
+        canvas.oncontextmenu = (e) => e.preventDefault();
+
+        // =============================================
+        //  UNDO
+        // =============================================
+        function saveUndo() {
+            undoStack.push(JSON.stringify(tiles));
+            if (undoStack.length > 50) undoStack.shift();
+        }
+
+        function undo() {
+            if (undoStack.length === 0) return;
+            tiles = JSON.parse(undoStack.pop());
+            draw();
+        }
+
+        // =============================================
+        //  LAYER TOGGLES
+        // =============================================
+        document.querySelectorAll('.layerToggle').forEach(cb => {
+            cb.addEventListener('change', () => {
+                visibleLayers[cb.value] = cb.checked;
+                draw();
+            });
+        });
+
+        document.getElementById('showGrid').addEventListener('change', draw);
+        document.getElementById('showCoords').addEventListener('change', draw);
+
+        // =============================================
+        //  KEYBOARD SHORTCUTS
+        // =============================================
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+            if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+            if (e.key === 'g') document.getElementById('showGrid').click();
+            if (e.key === 'e') { currentTool = 'erase'; updateToolButtons(); }
+            if (e.key === 'b') { currentTool = 'pen';   updateToolButtons(); }
+            if (e.key === 'f') { currentTool = 'fill';  updateToolButtons(); }
+        });
+
+        // =============================================
+        //  LOAD ZONE
+        // =============================================
+        document.getElementById('btnLoad').onclick = async () => {
+            const zoneId = document.getElementById('zoneSelect').value;
+            if (!zoneId) { tiles = []; draw(); return; }
+
+            try {
+                const mod = await import(`./world/maps/${zoneId}.js?v=${Date.now()}`);
+                const data = mod.zoneData;
+                if (data && data.mapData && data.mapData.walls) {
+                    tiles = data.mapData.walls.map(t => ({ x: t.x, y: t.y, type: t.type }));
+                    draw();
+                }
+            } catch (err) {
+                alert('Erreur de chargement : ' + err.message);
+            }
+        };
+
+        // =============================================
+        //  EXPORT
+        // =============================================
+        document.getElementById('btnExportJSON').onclick = () => {
+            const output = document.getElementById('outputArea');
+            output.value = JSON.stringify({ walls: tiles }, null, 2);
+        };
+
+        document.getElementById('btnExportJS').onclick = () => {
+            const output = document.getElementById('outputArea');
+            const zoneId = document.getElementById('zoneSelect').value || 'custom_zone';
+
+            // Group tiles by type for readable output
+            const grouped = {};
+            tiles.forEach(t => {
+                if (!grouped[t.type]) grouped[t.type] = [];
+                grouped[t.type].push(t);
+            });
+
+            let tilesStr = '';
+            for (const [type, arr] of Object.entries(grouped)) {
+                tilesStr += `    // --- ${TILE_DEFS[type]?.label || type} ---\n`;
+                arr.forEach(t => {
+                    tilesStr += `    { x: ${t.x}, y: ${t.y}, type: '${t.type}' },\n`;
+                });
+                tilesStr += '\n';
+            }
+
+            const js = `/**
+ * @file ${zoneId}.js
+ * @description Zone generee par Map Editor v2
+ */
+import { generateBorder, T, COLS, ROWS } from './mapUtils.js';
+
+// Modifie les sorties selon tes besoins
+const walls = generateBorder({ north: false, south: false, east: false, west: false });
+
+const interior = [
+${tilesStr}];
+
+export const zoneData = {
+    id: '${zoneId}',
+    name: '${zoneId}',
+    bgColor: '#1a3a1e',
+    mapData: { walls: [...walls, ...interior] },
+    enemies: { moblins: 0, octoroks: 0 },
+    connections: {},
+    npcs: []
+};
+`;
+            output.value = js;
+        };
+
+        document.getElementById('btnCopy').onclick = () => {
+            const output = document.getElementById('outputArea');
+            output.select();
+            document.execCommand('copy');
+            const btn = document.getElementById('btnCopy');
+            const orig = btn.textContent;
+            btn.textContent = 'Copie !';
+            setTimeout(() => btn.textContent = orig, 1500);
+        };
+
+        document.getElementById('btnImportJSON').onclick = () => {
+            const input = document.getElementById('outputArea').value.trim();
+            if (!input) return;
+            try {
+                const data = JSON.parse(input);
+                if (data.walls && Array.isArray(data.walls)) {
+                    saveUndo();
+                    tiles = data.walls.map(t => ({ x: t.x, y: t.y, type: t.type }));
+                    draw();
+                } else {
+                    alert('Format invalide : le JSON doit contenir un champ "walls" (tableau).');
+                }
+            } catch (err) {
+                alert('JSON invalide : ' + err.message);
+            }
+        };
+
+        // =============================================
+        //  INIT
+        // =============================================
+        updateToolButtons();
+    </script>
+</body>
+
+</html>

@@ -59,6 +59,10 @@ export class GameEngine {
         // Décompte du tremblement
         if (this._shakeTimer > 0) this._shakeTimer -= delta;
 
+        // Mise a jour du fondu de transition
+        const zm = window.game?.zoneManager;
+        if (zm) zm.updateFade(delta);
+
         // On demande à chaque entité de se mettre à jour
         this.entities.forEach(entity => entity.update?.(delta));
 
@@ -119,8 +123,12 @@ export class GameEngine {
 
         // On demande à chaque entité de s'afficher
         this.entities.forEach(entity => entity.draw?.(this.ctx));
-        
+
         this.ctx.restore(); // Annule la translation de tremblement pour la frame suivante
+
+        // Overlay de transition (fondu noir) par-dessus tout
+        const zm = window.game?.zoneManager;
+        if (zm) zm.drawFade(this.ctx);
     }
 
     /**

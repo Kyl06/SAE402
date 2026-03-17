@@ -44,12 +44,23 @@ export class Player extends Entity {
         // Module externe gérant les attaques et les effets spéciaux
         this.actions = new PlayerActions(this);
 
-        // Inventaire initial
-        this.emeralds = 0;
-        this.arrows = 5; // On commence avec quelques flèches pour le test
-
         // Stocke l'action en cours (si différent de null, bloque le mouvement libre)
         this.actionAnimation = null;
+
+        // Inventaire
+        this.emeralds = 0;
+        this.arrows = 5;       // Nombre de fleches disponibles
+        this.potions = 0;
+        this.hasShield = false;
+        this.swordLevel = 0;   // 0 = base, 1 = epee en fer
+        this.bowLevel = 0;     // 0 = base, 1 = arc long
+        this.fragments = [false, false, false];
+
+        // Stamina
+        this.stamina = 100;
+        this.maxStamina = 100;
+        this.staminaDepleted = false;   // true = epuise, doit attendre regen complete
+        this.staminaRegenDelay = 0;     // delai avant regen apres une attaque
     }
 
     /**
@@ -78,10 +89,14 @@ export class Player extends Entity {
     /**
      * Applique des dégâts et gère le feedback visuel.
      * @param {number} amount - Nombre de demi-coeurs à retirer
-     * @param {string} direction - Direction du recul (UP, DOWN, LEFT, RIGHT)
      */
     takeDamage(amount, direction) {
         if (this.hp <= 0 || this.isPainFlashing) return;
+
+        // Le bouclier reduit les degats de 1 (minimum 1)
+        if (this.hasShield && amount > 1) {
+            amount -= 1;
+        }
 
         this.hp -= amount;
         window.game.engine.shake(6, 150);
@@ -143,10 +158,27 @@ export class Player extends Entity {
     update(delta) {
         if (this.isDead) return;
 
+        // Bloquer le mouvement pendant un dialogue
+        if (window.game.dialogueActive) {
+            this.velX = 0;
+            this.velY = 0;
+            return;
+        }
+
         // Si une animation d'attaque est en cours, elle a la priorité sur le mouvement
         if (this.actionAnimation) {
             this.actionAnimation.work?.(delta);
             return;
+        }
+
+        // Regeneration de la stamina
+        if (this.staminaRegenDelay > 0) {
+            this.staminaRegenDelay -= delta;
+        } else {
+            this.stamina = Math.min(this.stamina + delta * 0.03, this.maxStamina);
+            if (this.staminaDepleted && this.stamina >= this.maxStamina * 0.3) {
+                this.staminaDepleted = false;
+            }
         }
 
         // Lecture clavier et mouvement physique
@@ -161,6 +193,11 @@ export class Player extends Entity {
 
         // Appel de la physique de base (Entity.update)
         super.update(delta);
+
+        // Verification de transition de zone
+        if (window.game.zoneManager) {
+            window.game.zoneManager.checkTransition(this);
+        }
     }
 
     /**
@@ -188,6 +225,21 @@ export class Player extends Entity {
         // Vérification des touches d'action
         if (inputs.isHeld("KeyZ")) this.actions.actionSwingSword();
         if (inputs.isHeld("KeyX")) this.actions.actionShootArrow();
+
+        // Utiliser une potion (touche P, front montant)
+        if (inputs.isHeld("KeyP") && !this._potionKeyWas) {
+            this.usePotion();
+        }
+        this._potionKeyWas = inputs.isHeld("KeyP");
+    }
+
+    /**
+     * Utilise une potion pour restaurer 2 coeurs (4 HP).
+     */
+    usePotion() {
+        if (this.potions <= 0 || this.hp >= 6) return;
+        this.potions--;
+        this.hp = Math.min(this.hp + 4, 6);
     }
 
     /**

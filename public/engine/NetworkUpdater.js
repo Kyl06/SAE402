@@ -165,7 +165,16 @@ export class NetworkUpdater {
             }
         });
 
-        // 8. DÉCONNEXION
+        // 8. CHANGEMENT DE ZONE (synchronisation entre joueurs)
+        this.socket.on('network_zone_change', async ({ zone, entryDir }) => {
+            const zm = window.game.zoneManager;
+            if (zm && zm.currentZone !== zone) {
+                await zm.loadZone(zone, entryDir);
+                console.log(`[Network] Zone synchronisee : ${zone}`);
+            }
+        });
+
+        // 9. DÉCONNEXION
         this.socket.on('player_disconnected', (id) => {
             if (this.remotePlayers[id]) {
                 this.engine.remove(this.remotePlayers[id]);
@@ -173,7 +182,7 @@ export class NetworkUpdater {
             }
         });
 
-        // 9. RÉCEPTION DÉGÂTS (Exécuté sur l'Hôte uniquement)
+        // 10. RÉCEPTION DÉGÂTS (Exécuté sur l'Hôte uniquement)
         this.socket.on('network_enemy_hit', ({ enemyNetId, damage, direction }) => {
             if (!this.isHost) return;
             const realMob = this.engine.entities.find(e => e.netId === enemyNetId);
