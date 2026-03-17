@@ -10,6 +10,7 @@ import { InputHandler } from "./engine/InputHandler.js";
 import { Player } from "./entities/Player/Player.js";
 import { Moblin } from "./entities/Enemies/Moblin.js";
 import { Octorok } from "./entities/Enemies/Octorok.js";
+import { Maldek } from "./entities/Enemies/Maldek.js";
 import { BottomBar } from "./ui/BottomBar.js";
 import { NetworkUpdater } from "./engine/NetworkUpdater.js";
 import { Map } from "./world/Map.js";
@@ -55,7 +56,7 @@ window.respawn = function () {
  * Génère des ennemis aléatoirement sur la carte.
  * Uniquement appelé par l'Hôte.
  */
-function spawnEnemyGroup(moblinCount = 3, octorokCount = 2) {
+function spawnEnemyGroup(moblinCount = 3, octorokCount = 2, maldekCount = 1) {
     // Spawn des Moblins
     for (let i = 0; i < moblinCount; i++) {
         const x = 200 + Math.random() * 400;
@@ -68,6 +69,13 @@ function spawnEnemyGroup(moblinCount = 3, octorokCount = 2) {
         const x = 300 + Math.random() * 300;
         const y = 300 + Math.random() * 250;
         engine.add(new Octorok(x, y, 100));
+    }
+
+    // Spawn des Maldeks
+    for (let i = 0; i < maldekCount; i++) {
+        const x = 400 + Math.random() * 200;
+        const y = 400 + Math.random() * 200;
+        engine.add(new Maldek(x, y, 150));
     }
 }
 
@@ -92,6 +100,7 @@ Assets.load({
     LINK2: "./assets/link2.png",      
     MOBLIN: "./assets/moblin.png",    
     OCTOROK: "./assets/octorok.png",
+    MALDEK: "./assets/maldek.png",
     HEARTS: "./assets/hearts.png",    
     EMERALD: "./assets/emeraude.png", 
     EXPLOSION: "./assets/explosion.png", 
@@ -118,7 +127,7 @@ Assets.load({
     
     // ⑤ Logique spécifique au rôle
     if (forceHost) {
-        spawnEnemyGroup(3, 2);
+        spawnEnemyGroup(0, 0, 1);
         console.log("[Main] Master Mode: Je gère les monstres et le loot.");
     } else {
         console.log("[Main] Client Mode: Synchronisation avec l'Hôte.");

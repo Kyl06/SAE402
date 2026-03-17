@@ -80,6 +80,9 @@ export class NetworkUpdater {
                     if (type === 'OCTOROK') {
                         const { NetworkOctorok } = await import('../entities/Enemies/NetworkOctorok.js');
                         mob = new NetworkOctorok(parseFloat(x), parseFloat(y));
+                    } else if (type === 'MALDEK') {
+                        const { NetworkMaldek } = await import('../entities/Enemies/NetworkMaldek.js');
+                        mob = new NetworkMaldek(parseFloat(x), parseFloat(y));
                     } else {
                         const { NetworkMoblin } = await import('../entities/Enemies/NetworkMoblin.js');
                         mob = new NetworkMoblin(parseFloat(x), parseFloat(y));
@@ -133,12 +136,19 @@ export class NetworkUpdater {
         this.socket.on('network_projectile_spawn', async (data) => {
             if (this.isHost) return;
             try {
-                const { OctorokProjectile } = await import('../entities/Enemies/OctorokProjectile.js');
-                const proj = new OctorokProjectile(data.x, data.y, data.vx, data.vy, data.ownerId);
-                proj.netId = data.id;
-                // Désactiver le collider pour le P2 car seul l'Hôte gère les dégâts réels
-                proj.collider = false; 
-                this.engine.add(proj);
+                if (data.type === 'BEAM') {
+                    const { MaldekBeam } = await import('../entities/Enemies/MaldekBeam.js');
+                    const proj = new MaldekBeam(data.x, data.y, data.vx, data.vy, data.ownerId);
+                    proj.netId = data.id;
+                    proj.collider = false;
+                    this.engine.add(proj);
+                } else {
+                    const { OctorokProjectile } = await import('../entities/Enemies/OctorokProjectile.js');
+                    const proj = new OctorokProjectile(data.x, data.y, data.vx, data.vy, data.ownerId);
+                    proj.netId = data.id;
+                    proj.collider = false; 
+                    this.engine.add(proj);
+                }
             } catch (e) {
                 console.error("Erreur projectile réseau:", e);
             }
@@ -201,7 +211,7 @@ export class NetworkUpdater {
 
                 const type = e.enemyType || 'MOBLIN';
                 // On récupère les états visuels pour le SpriteSheet du P2
-                const isAiming = e.state === "AIM" ? "true" : "false";
+                const isAiming = (e.state === "AIM" || e.state === "CHARGING") ? "true" : "false";
                 const isHurt = e.painState ? "true" : "false"; 
 
                 return `${e.netId}|${Math.round(e.x)}|${Math.round(e.y)}|${e.facing}|${type}|${isAiming}|${isHurt}`;
