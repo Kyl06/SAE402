@@ -389,14 +389,185 @@
             // --- Batiments & Speciaux ---
             'SHOP':           { sx: 0,   sy: 64, sw: 48, sh: 48, label: 'Magasin',       cat: 'special', size: 96 },
             'PORTAIL':        { standalone: 'assets/Portail.png',   label: 'Portail',     cat: 'special', size: 128, h: 64 },
+
+            // --- Forteresse (forteresse.png 160x80, grille 10x5) ---
+            'FORT_MUR_GRIS':       { sheet: 'forteresse', sx: 0,   sy: 0,  sw: 16, sh: 16, label: 'Mur pierre',      cat: 'forteresse' },
+            'FORT_MUR_BLEU':       { sheet: 'forteresse', sx: 16,  sy: 0,  sw: 16, sh: 16, label: 'Mur bleu',        cat: 'forteresse' },
+            'FORT_BARREAUX_1':     { sheet: 'forteresse', sx: 32,  sy: 0,  sw: 16, sh: 16, label: 'Barreaux 1',     cat: 'forteresse' },
+            'FORT_BARREAUX_2':     { sheet: 'forteresse', sx: 48,  sy: 0,  sw: 16, sh: 16, label: 'Barreaux 2',     cat: 'forteresse' },
+            'FORT_SOL_BLEU':       { sheet: 'forteresse', sx: 64,  sy: 0,  sw: 16, sh: 16, label: 'Sol bleu',       cat: 'forteresse' },
+            'FORT_PIERRE_SOMBRE':  { sheet: 'forteresse', sx: 80,  sy: 0,  sw: 16, sh: 16, label: 'Pierre sombre',  cat: 'forteresse' },
+            'FORT_MUR_LIGNE':      { sheet: 'forteresse', sx: 96,  sy: 0,  sw: 16, sh: 16, label: 'Mur ligne',      cat: 'forteresse' },
+            'FORT_NOIR':           { sheet: 'forteresse', sx: 112, sy: 0,  sw: 16, sh: 16, label: 'Noir',           cat: 'forteresse' },
+            'FORT_COIN_1':         { sheet: 'forteresse', sx: 128, sy: 0,  sw: 16, sh: 16, label: 'Coin 1',         cat: 'forteresse' },
+            'FORT_COIN_2':         { sheet: 'forteresse', sx: 144, sy: 0,  sw: 16, sh: 16, label: 'Coin 2',         cat: 'forteresse' },
+
+            'FORT_MUR_GRIS_2':     { sheet: 'forteresse', sx: 0,   sy: 16, sw: 16, sh: 16, label: 'Mur pierre 2',  cat: 'forteresse' },
+            'FORT_MUR_BLEU_2':     { sheet: 'forteresse', sx: 16,  sy: 16, sw: 16, sh: 16, label: 'Mur bleu 2',    cat: 'forteresse' },
+            'FORT_BARREAUX_3':     { sheet: 'forteresse', sx: 32,  sy: 16, sw: 16, sh: 16, label: 'Barreaux 3',    cat: 'forteresse' },
+            'FORT_BARREAUX_4':     { sheet: 'forteresse', sx: 48,  sy: 16, sw: 16, sh: 16, label: 'Barreaux 4',    cat: 'forteresse' },
+            'FORT_SOL_BLEU_2':     { sheet: 'forteresse', sx: 64,  sy: 16, sw: 16, sh: 16, label: 'Sol bleu 2',    cat: 'forteresse' },
+            'FORT_PIERRE_SOMBRE_2':{ sheet: 'forteresse', sx: 80,  sy: 16, sw: 16, sh: 16, label: 'Pierre sombre 2',cat:'forteresse' },
+            'FORT_MUR_LIGNE_2':    { sheet: 'forteresse', sx: 96,  sy: 16, sw: 16, sh: 16, label: 'Mur ligne 2',   cat: 'forteresse' },
+            'FORT_NOIR_2':         { sheet: 'forteresse', sx: 112, sy: 16, sw: 16, sh: 16, label: 'Noir 2',        cat: 'forteresse' },
+            'FORT_COIN_3':         { sheet: 'forteresse', sx: 128, sy: 16, sw: 16, sh: 16, label: 'Coin 3',        cat: 'forteresse' },
+            'FORT_COIN_4':         { sheet: 'forteresse', sx: 144, sy: 16, sw: 16, sh: 16, label: 'Coin 4',        cat: 'forteresse' },
+
+            'FORT_SOL_1':          { sheet: 'forteresse', sx: 0,   sy: 32, sw: 16, sh: 16, label: 'Sol fort. 1',   cat: 'forteresse' },
+            'FORT_SOL_2':          { sheet: 'forteresse', sx: 16,  sy: 32, sw: 16, sh: 16, label: 'Sol fort. 2',   cat: 'forteresse' },
+            'FORT_SOL_3':          { sheet: 'forteresse', sx: 32,  sy: 32, sw: 16, sh: 16, label: 'Sol fort. 3',   cat: 'forteresse' },
+            'FORT_SOL_4':          { sheet: 'forteresse', sx: 48,  sy: 32, sw: 16, sh: 16, label: 'Sol fort. 4',   cat: 'forteresse' },
+            'FORT_SOL_5':          { sheet: 'forteresse', sx: 64,  sy: 32, sw: 16, sh: 16, label: 'Sol fort. 5',   cat: 'forteresse' },
+            'FORT_SOL_6':          { sheet: 'forteresse', sx: 80,  sy: 32, sw: 16, sh: 16, label: 'Sol fort. 6',   cat: 'forteresse' },
+            'FORT_SOL_7':          { sheet: 'forteresse', sx: 96,  sy: 32, sw: 16, sh: 16, label: 'Sol fort. 7',   cat: 'forteresse' },
+            'FORT_SOL_8':          { sheet: 'forteresse', sx: 112, sy: 32, sw: 16, sh: 16, label: 'Sol fort. 8',   cat: 'forteresse' },
+            'FORT_SOL_9':          { sheet: 'forteresse', sx: 128, sy: 32, sw: 16, sh: 16, label: 'Sol fort. 9',   cat: 'forteresse' },
+            'FORT_SOL_10':         { sheet: 'forteresse', sx: 144, sy: 32, sw: 16, sh: 16, label: 'Sol fort. 10',  cat: 'forteresse' },
+
+            'FORT_DECO_1':         { sheet: 'forteresse', sx: 0,   sy: 48, sw: 16, sh: 16, label: 'Deco fort. 1', cat: 'forteresse' },
+            'FORT_DECO_2':         { sheet: 'forteresse', sx: 16,  sy: 48, sw: 16, sh: 16, label: 'Deco fort. 2', cat: 'forteresse' },
+            'FORT_DECO_3':         { sheet: 'forteresse', sx: 32,  sy: 48, sw: 16, sh: 16, label: 'Deco fort. 3', cat: 'forteresse' },
+            'FORT_DECO_4':         { sheet: 'forteresse', sx: 48,  sy: 48, sw: 16, sh: 16, label: 'Deco fort. 4', cat: 'forteresse' },
+            'FORT_DECO_5':         { sheet: 'forteresse', sx: 64,  sy: 48, sw: 16, sh: 16, label: 'Deco fort. 5', cat: 'forteresse' },
+            'FORT_DECO_6':         { sheet: 'forteresse', sx: 80,  sy: 48, sw: 16, sh: 16, label: 'Deco fort. 6', cat: 'forteresse' },
+            'FORT_DECO_7':         { sheet: 'forteresse', sx: 96,  sy: 48, sw: 16, sh: 16, label: 'Deco fort. 7', cat: 'forteresse' },
+            'FORT_DECO_8':         { sheet: 'forteresse', sx: 112, sy: 48, sw: 16, sh: 16, label: 'Deco fort. 8', cat: 'forteresse' },
+            'FORT_DECO_9':         { sheet: 'forteresse', sx: 128, sy: 48, sw: 16, sh: 16, label: 'Deco fort. 9', cat: 'forteresse' },
+            'FORT_DECO_10':        { sheet: 'forteresse', sx: 144, sy: 48, sw: 16, sh: 16, label: 'Deco fort. 10',cat: 'forteresse' },
+
+            'FORT_BAS_1':          { sheet: 'forteresse', sx: 0,   sy: 64, sw: 16, sh: 16, label: 'Bas fort. 1',  cat: 'forteresse' },
+            'FORT_BAS_2':          { sheet: 'forteresse', sx: 16,  sy: 64, sw: 16, sh: 16, label: 'Bas fort. 2',  cat: 'forteresse' },
+            'FORT_BAS_3':          { sheet: 'forteresse', sx: 32,  sy: 64, sw: 16, sh: 16, label: 'Bas fort. 3',  cat: 'forteresse' },
+            'FORT_BAS_4':          { sheet: 'forteresse', sx: 48,  sy: 64, sw: 16, sh: 16, label: 'Bas fort. 4',  cat: 'forteresse' },
+            'FORT_BAS_5':          { sheet: 'forteresse', sx: 64,  sy: 64, sw: 16, sh: 16, label: 'Bas fort. 5',  cat: 'forteresse' },
+            'FORT_BAS_6':          { sheet: 'forteresse', sx: 80,  sy: 64, sw: 16, sh: 16, label: 'Bas fort. 6',  cat: 'forteresse' },
+            'FORT_BAS_7':          { sheet: 'forteresse', sx: 96,  sy: 64, sw: 16, sh: 16, label: 'Bas fort. 7',  cat: 'forteresse' },
+            'FORT_BAS_8':          { sheet: 'forteresse', sx: 112, sy: 64, sw: 16, sh: 16, label: 'Bas fort. 8',  cat: 'forteresse' },
+            'FORT_BAS_9':          { sheet: 'forteresse', sx: 128, sy: 64, sw: 16, sh: 16, label: 'Bas fort. 9',  cat: 'forteresse' },
+            'FORT_BAS_10':         { sheet: 'forteresse', sx: 144, sy: 64, sw: 16, sh: 16, label: 'Bas fort. 10', cat: 'forteresse' },
+
+            // --- Cimetiere (cimetiere.png 224x112, grille 14x7) ---
+            // Row 0
+            'CIM_TOMBE_HG':    { sheet: 'cimetiere', sx: 0,   sy: 0,  sw: 16, sh: 16, label: 'Tombe haut-G',    cat: 'cimetiere' },
+            'CIM_TOMBE_HD':    { sheet: 'cimetiere', sx: 16,  sy: 0,  sw: 16, sh: 16, label: 'Tombe haut-D',    cat: 'cimetiere' },
+            'CIM_SOL_1':       { sheet: 'cimetiere', sx: 32,  sy: 0,  sw: 16, sh: 16, label: 'Sol gris 1',      cat: 'cimetiere' },
+            'CIM_SOL_2':       { sheet: 'cimetiere', sx: 48,  sy: 0,  sw: 16, sh: 16, label: 'Sol gris 2',      cat: 'cimetiere' },
+            'CIM_SOL_3':       { sheet: 'cimetiere', sx: 64,  sy: 0,  sw: 16, sh: 16, label: 'Sol gris 3',      cat: 'cimetiere' },
+            'CIM_SOL_4':       { sheet: 'cimetiere', sx: 80,  sy: 0,  sw: 16, sh: 16, label: 'Sol gris 4',      cat: 'cimetiere' },
+            'CIM_SOL_5':       { sheet: 'cimetiere', sx: 96,  sy: 0,  sw: 16, sh: 16, label: 'Sol gris 5',      cat: 'cimetiere' },
+            'CIM_SOL_6':       { sheet: 'cimetiere', sx: 112, sy: 0,  sw: 16, sh: 16, label: 'Sol gris 6',      cat: 'cimetiere' },
+            'CIM_SOL_7':       { sheet: 'cimetiere', sx: 128, sy: 0,  sw: 16, sh: 16, label: 'Sol gris 7',      cat: 'cimetiere' },
+            'CIM_MUR_1':       { sheet: 'cimetiere', sx: 144, sy: 0,  sw: 16, sh: 16, label: 'Mur violet 1',    cat: 'cimetiere' },
+            'CIM_MUR_2':       { sheet: 'cimetiere', sx: 160, sy: 0,  sw: 16, sh: 16, label: 'Mur violet 2',    cat: 'cimetiere' },
+            'CIM_PILIER_1':    { sheet: 'cimetiere', sx: 176, sy: 0,  sw: 16, sh: 16, label: 'Pilier haut',     cat: 'cimetiere' },
+            'CIM_MUR_3':       { sheet: 'cimetiere', sx: 192, sy: 0,  sw: 16, sh: 16, label: 'Mur violet 3',    cat: 'cimetiere' },
+            'CIM_MUR_4':       { sheet: 'cimetiere', sx: 208, sy: 0,  sw: 16, sh: 16, label: 'Mur violet 4',    cat: 'cimetiere' },
+
+            // Row 1
+            'CIM_TOMBE_BG':    { sheet: 'cimetiere', sx: 0,   sy: 16, sw: 16, sh: 16, label: 'Tombe bas-G',     cat: 'cimetiere' },
+            'CIM_TOMBE_BD':    { sheet: 'cimetiere', sx: 16,  sy: 16, sw: 16, sh: 16, label: 'Tombe bas-D',     cat: 'cimetiere' },
+            'CIM_SOL_8':       { sheet: 'cimetiere', sx: 32,  sy: 16, sw: 16, sh: 16, label: 'Sol gris 8',      cat: 'cimetiere' },
+            'CIM_SOL_9':       { sheet: 'cimetiere', sx: 48,  sy: 16, sw: 16, sh: 16, label: 'Sol gris 9',      cat: 'cimetiere' },
+            'CIM_SOL_10':      { sheet: 'cimetiere', sx: 64,  sy: 16, sw: 16, sh: 16, label: 'Sol gris 10',     cat: 'cimetiere' },
+            'CIM_SOL_11':      { sheet: 'cimetiere', sx: 80,  sy: 16, sw: 16, sh: 16, label: 'Sol gris 11',     cat: 'cimetiere' },
+            'CIM_SOL_12':      { sheet: 'cimetiere', sx: 96,  sy: 16, sw: 16, sh: 16, label: 'Sol gris 12',     cat: 'cimetiere' },
+            'CIM_SOL_13':      { sheet: 'cimetiere', sx: 112, sy: 16, sw: 16, sh: 16, label: 'Sol gris 13',     cat: 'cimetiere' },
+            'CIM_SOL_14':      { sheet: 'cimetiere', sx: 128, sy: 16, sw: 16, sh: 16, label: 'Sol gris 14',     cat: 'cimetiere' },
+            'CIM_MUR_5':       { sheet: 'cimetiere', sx: 144, sy: 16, sw: 16, sh: 16, label: 'Mur violet 5',    cat: 'cimetiere' },
+            'CIM_MUR_6':       { sheet: 'cimetiere', sx: 160, sy: 16, sw: 16, sh: 16, label: 'Mur violet 6',    cat: 'cimetiere' },
+            'CIM_PILIER_2':    { sheet: 'cimetiere', sx: 176, sy: 16, sw: 16, sh: 16, label: 'Pilier milieu',   cat: 'cimetiere' },
+            'CIM_MUR_7':       { sheet: 'cimetiere', sx: 192, sy: 16, sw: 16, sh: 16, label: 'Mur violet 7',    cat: 'cimetiere' },
+            'CIM_MUR_8':       { sheet: 'cimetiere', sx: 208, sy: 16, sw: 16, sh: 16, label: 'Mur violet 8',    cat: 'cimetiere' },
+
+            // Row 2
+            'CIM_DECO_1':      { sheet: 'cimetiere', sx: 0,   sy: 32, sw: 16, sh: 16, label: 'Deco violet 1',   cat: 'cimetiere' },
+            'CIM_DECO_2':      { sheet: 'cimetiere', sx: 16,  sy: 32, sw: 16, sh: 16, label: 'Deco violet 2',   cat: 'cimetiere' },
+            'CIM_DECO_3':      { sheet: 'cimetiere', sx: 32,  sy: 32, sw: 16, sh: 16, label: 'Deco violet 3',   cat: 'cimetiere' },
+            'CIM_DECO_4':      { sheet: 'cimetiere', sx: 48,  sy: 32, sw: 16, sh: 16, label: 'Deco violet 4',   cat: 'cimetiere' },
+            'CIM_MOSAIQUE_1':  { sheet: 'cimetiere', sx: 64,  sy: 32, sw: 16, sh: 16, label: 'Mosaique 1',     cat: 'cimetiere' },
+            'CIM_MOSAIQUE_2':  { sheet: 'cimetiere', sx: 80,  sy: 32, sw: 16, sh: 16, label: 'Mosaique 2',     cat: 'cimetiere' },
+            'CIM_MOSAIQUE_3':  { sheet: 'cimetiere', sx: 96,  sy: 32, sw: 16, sh: 16, label: 'Mosaique 3',     cat: 'cimetiere' },
+            'CIM_MOSAIQUE_4':  { sheet: 'cimetiere', sx: 112, sy: 32, sw: 16, sh: 16, label: 'Mosaique 4',     cat: 'cimetiere' },
+            'CIM_MOSAIQUE_5':  { sheet: 'cimetiere', sx: 128, sy: 32, sw: 16, sh: 16, label: 'Mosaique 5',     cat: 'cimetiere' },
+            'CIM_MUR_9':       { sheet: 'cimetiere', sx: 144, sy: 32, sw: 16, sh: 16, label: 'Mur violet 9',    cat: 'cimetiere' },
+            'CIM_MUR_10':      { sheet: 'cimetiere', sx: 160, sy: 32, sw: 16, sh: 16, label: 'Mur violet 10',   cat: 'cimetiere' },
+            'CIM_PILIER_3':    { sheet: 'cimetiere', sx: 176, sy: 32, sw: 16, sh: 16, label: 'Pilier bas',      cat: 'cimetiere' },
+            'CIM_MUR_11':      { sheet: 'cimetiere', sx: 192, sy: 32, sw: 16, sh: 16, label: 'Mur violet 11',   cat: 'cimetiere' },
+            'CIM_MUR_12':      { sheet: 'cimetiere', sx: 208, sy: 32, sw: 16, sh: 16, label: 'Mur violet 12',   cat: 'cimetiere' },
+
+            // Row 3
+            'CIM_DECO_5':      { sheet: 'cimetiere', sx: 0,   sy: 48, sw: 16, sh: 16, label: 'Deco violet 5',   cat: 'cimetiere' },
+            'CIM_DECO_6':      { sheet: 'cimetiere', sx: 16,  sy: 48, sw: 16, sh: 16, label: 'Deco violet 6',   cat: 'cimetiere' },
+            'CIM_ROSE_1':      { sheet: 'cimetiere', sx: 32,  sy: 48, sw: 16, sh: 16, label: 'Sol rose 1',      cat: 'cimetiere' },
+            'CIM_ROSE_2':      { sheet: 'cimetiere', sx: 48,  sy: 48, sw: 16, sh: 16, label: 'Sol rose 2',      cat: 'cimetiere' },
+            'CIM_ROSE_3':      { sheet: 'cimetiere', sx: 64,  sy: 48, sw: 16, sh: 16, label: 'Sol rose 3',      cat: 'cimetiere' },
+            'CIM_ROSE_4':      { sheet: 'cimetiere', sx: 80,  sy: 48, sw: 16, sh: 16, label: 'Sol rose 4',      cat: 'cimetiere' },
+            'CIM_ROSE_5':      { sheet: 'cimetiere', sx: 96,  sy: 48, sw: 16, sh: 16, label: 'Sol rose 5',      cat: 'cimetiere' },
+            'CIM_ROSE_6':      { sheet: 'cimetiere', sx: 112, sy: 48, sw: 16, sh: 16, label: 'Sol rose 6',      cat: 'cimetiere' },
+            'CIM_ROSE_7':      { sheet: 'cimetiere', sx: 128, sy: 48, sw: 16, sh: 16, label: 'Sol rose 7',      cat: 'cimetiere' },
+            'CIM_MUR_13':      { sheet: 'cimetiere', sx: 144, sy: 48, sw: 16, sh: 16, label: 'Mur violet 13',   cat: 'cimetiere' },
+            'CIM_MUR_14':      { sheet: 'cimetiere', sx: 160, sy: 48, sw: 16, sh: 16, label: 'Mur violet 14',   cat: 'cimetiere' },
+            'CIM_PILIER_4':    { sheet: 'cimetiere', sx: 176, sy: 48, sw: 16, sh: 16, label: 'Pilier deco',     cat: 'cimetiere' },
+            'CIM_MUR_15':      { sheet: 'cimetiere', sx: 192, sy: 48, sw: 16, sh: 16, label: 'Mur violet 15',   cat: 'cimetiere' },
+            'CIM_MUR_16':      { sheet: 'cimetiere', sx: 208, sy: 48, sw: 16, sh: 16, label: 'Mur violet 16',   cat: 'cimetiere' },
+
+            // Row 4
+            'CIM_STRUCT_1':    { sheet: 'cimetiere', sx: 0,   sy: 64, sw: 16, sh: 16, label: 'Structure 1',     cat: 'cimetiere' },
+            'CIM_STRUCT_2':    { sheet: 'cimetiere', sx: 16,  sy: 64, sw: 16, sh: 16, label: 'Structure 2',     cat: 'cimetiere' },
+            'CIM_ROSE_8':      { sheet: 'cimetiere', sx: 32,  sy: 64, sw: 16, sh: 16, label: 'Sol rose 8',      cat: 'cimetiere' },
+            'CIM_ROSE_9':      { sheet: 'cimetiere', sx: 48,  sy: 64, sw: 16, sh: 16, label: 'Sol rose 9',      cat: 'cimetiere' },
+            'CIM_ROSE_10':     { sheet: 'cimetiere', sx: 64,  sy: 64, sw: 16, sh: 16, label: 'Sol rose 10',     cat: 'cimetiere' },
+            'CIM_ROSE_11':     { sheet: 'cimetiere', sx: 80,  sy: 64, sw: 16, sh: 16, label: 'Sol rose 11',     cat: 'cimetiere' },
+            'CIM_ROSE_12':     { sheet: 'cimetiere', sx: 96,  sy: 64, sw: 16, sh: 16, label: 'Sol rose 12',     cat: 'cimetiere' },
+            'CIM_ROSE_13':     { sheet: 'cimetiere', sx: 112, sy: 64, sw: 16, sh: 16, label: 'Sol rose 13',     cat: 'cimetiere' },
+            'CIM_ROSE_14':     { sheet: 'cimetiere', sx: 128, sy: 64, sw: 16, sh: 16, label: 'Sol rose 14',     cat: 'cimetiere' },
+            'CIM_MUR_17':      { sheet: 'cimetiere', sx: 144, sy: 64, sw: 16, sh: 16, label: 'Mur violet 17',   cat: 'cimetiere' },
+            'CIM_MUR_18':      { sheet: 'cimetiere', sx: 160, sy: 64, sw: 16, sh: 16, label: 'Mur violet 18',   cat: 'cimetiere' },
+            'CIM_PILIER_5':    { sheet: 'cimetiere', sx: 176, sy: 64, sw: 16, sh: 16, label: 'Pilier base',     cat: 'cimetiere' },
+            'CIM_MUR_19':      { sheet: 'cimetiere', sx: 192, sy: 64, sw: 16, sh: 16, label: 'Mur violet 19',   cat: 'cimetiere' },
+            'CIM_MUR_20':      { sheet: 'cimetiere', sx: 208, sy: 64, sw: 16, sh: 16, label: 'Mur violet 20',   cat: 'cimetiere' },
+
+            // Row 5
+            'CIM_STRUCT_3':    { sheet: 'cimetiere', sx: 0,   sy: 80, sw: 16, sh: 16, label: 'Structure 3',     cat: 'cimetiere' },
+            'CIM_STRUCT_4':    { sheet: 'cimetiere', sx: 16,  sy: 80, sw: 16, sh: 16, label: 'Structure 4',     cat: 'cimetiere' },
+            'CIM_SOL_15':      { sheet: 'cimetiere', sx: 32,  sy: 80, sw: 16, sh: 16, label: 'Sol violet 1',    cat: 'cimetiere' },
+            'CIM_SOL_16':      { sheet: 'cimetiere', sx: 48,  sy: 80, sw: 16, sh: 16, label: 'Sol violet 2',    cat: 'cimetiere' },
+            'CIM_SOL_17':      { sheet: 'cimetiere', sx: 64,  sy: 80, sw: 16, sh: 16, label: 'Sol violet 3',    cat: 'cimetiere' },
+            'CIM_SOL_18':      { sheet: 'cimetiere', sx: 80,  sy: 80, sw: 16, sh: 16, label: 'Sol violet 4',    cat: 'cimetiere' },
+            'CIM_SOL_19':      { sheet: 'cimetiere', sx: 96,  sy: 80, sw: 16, sh: 16, label: 'Sol violet 5',    cat: 'cimetiere' },
+            'CIM_SOL_20':      { sheet: 'cimetiere', sx: 112, sy: 80, sw: 16, sh: 16, label: 'Sol violet 6',    cat: 'cimetiere' },
+            'CIM_SOL_21':      { sheet: 'cimetiere', sx: 128, sy: 80, sw: 16, sh: 16, label: 'Sol violet 7',    cat: 'cimetiere' },
+            'CIM_MUR_21':      { sheet: 'cimetiere', sx: 144, sy: 80, sw: 16, sh: 16, label: 'Mur violet 21',   cat: 'cimetiere' },
+            'CIM_MUR_22':      { sheet: 'cimetiere', sx: 160, sy: 80, sw: 16, sh: 16, label: 'Mur violet 22',   cat: 'cimetiere' },
+            'CIM_DECO_7':      { sheet: 'cimetiere', sx: 176, sy: 80, sw: 16, sh: 16, label: 'Deco violet 7',   cat: 'cimetiere' },
+            'CIM_MUR_23':      { sheet: 'cimetiere', sx: 192, sy: 80, sw: 16, sh: 16, label: 'Mur violet 23',   cat: 'cimetiere' },
+            'CIM_MUR_24':      { sheet: 'cimetiere', sx: 208, sy: 80, sw: 16, sh: 16, label: 'Mur violet 24',   cat: 'cimetiere' },
+
+            // Row 6
+            'CIM_STRUCT_5':    { sheet: 'cimetiere', sx: 0,   sy: 96, sw: 16, sh: 16, label: 'Structure 5',     cat: 'cimetiere' },
+            'CIM_STRUCT_6':    { sheet: 'cimetiere', sx: 16,  sy: 96, sw: 16, sh: 16, label: 'Structure 6',     cat: 'cimetiere' },
+            'CIM_SOL_22':      { sheet: 'cimetiere', sx: 32,  sy: 96, sw: 16, sh: 16, label: 'Sol violet 8',    cat: 'cimetiere' },
+            'CIM_SOL_23':      { sheet: 'cimetiere', sx: 48,  sy: 96, sw: 16, sh: 16, label: 'Sol violet 9',    cat: 'cimetiere' },
+            'CIM_SOL_24':      { sheet: 'cimetiere', sx: 64,  sy: 96, sw: 16, sh: 16, label: 'Sol violet 10',   cat: 'cimetiere' },
+            'CIM_SOL_25':      { sheet: 'cimetiere', sx: 80,  sy: 96, sw: 16, sh: 16, label: 'Sol violet 11',   cat: 'cimetiere' },
+            'CIM_SOL_26':      { sheet: 'cimetiere', sx: 96,  sy: 96, sw: 16, sh: 16, label: 'Sol violet 12',   cat: 'cimetiere' },
+            'CIM_SOL_27':      { sheet: 'cimetiere', sx: 112, sy: 96, sw: 16, sh: 16, label: 'Sol violet 13',   cat: 'cimetiere' },
+            'CIM_SOL_28':      { sheet: 'cimetiere', sx: 128, sy: 96, sw: 16, sh: 16, label: 'Sol violet 14',   cat: 'cimetiere' },
+            'CIM_MUR_25':      { sheet: 'cimetiere', sx: 144, sy: 96, sw: 16, sh: 16, label: 'Mur violet 25',   cat: 'cimetiere' },
+            'CIM_MUR_26':      { sheet: 'cimetiere', sx: 160, sy: 96, sw: 16, sh: 16, label: 'Mur violet 26',   cat: 'cimetiere' },
+            'CIM_DECO_8':      { sheet: 'cimetiere', sx: 176, sy: 96, sw: 16, sh: 16, label: 'Deco violet 8',   cat: 'cimetiere' },
+            'CIM_MUR_27':      { sheet: 'cimetiere', sx: 192, sy: 96, sw: 16, sh: 16, label: 'Mur violet 27',   cat: 'cimetiere' },
+            'CIM_MUR_28':      { sheet: 'cimetiere', sx: 208, sy: 96, sw: 16, sh: 16, label: 'Mur violet 28',   cat: 'cimetiere' },
         };
 
         const CATEGORIES = {
-            sol:     'Sol',
-            murs:    'Murs',
-            eau:     'Eau',
-            objets:  'Objets',
-            special: 'Special',
+            sol:        'Sol',
+            murs:       'Murs',
+            eau:        'Eau',
+            objets:     'Objets',
+            special:    'Special',
+            forteresse: 'Forteresse',
+            cimetiere:  'Cimetiere',
         };
 
         // Layer classification for visibility toggles
@@ -423,8 +594,28 @@
         // =============================================
         //  ASSET LOADING
         // =============================================
-        const tileset = new Image();
-        tileset.src = 'assets/map.png';
+        // Spritesheet principal (map.png) + sheets supplementaires
+        const spritesheets = {};
+        const sheetFiles = {
+            'map':        'assets/map.png',
+            'forteresse': 'assets/forteresse.png',
+            'cimetiere': 'assets/cimetiere.png',
+        };
+        let sheetsLoaded = 0;
+        const totalSheets = Object.keys(sheetFiles).length;
+
+        Object.entries(sheetFiles).forEach(([name, src]) => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => {
+                sheetsLoaded++;
+                if (sheetsLoaded >= totalSheets) { buildPalette(); draw(); }
+            };
+            spritesheets[name] = img;
+        });
+
+        // Alias pour compatibilite
+        const tileset = spritesheets['map'];
 
         const standaloneImages = {};
         const standaloneEntries = Object.entries(TILE_DEFS).filter(([, d]) => d.standalone);
@@ -433,11 +624,6 @@
             img.src = def.standalone;
             standaloneImages[type] = img;
         });
-
-        tileset.onload = () => {
-            buildPalette();
-            draw();
-        };
 
         // =============================================
         //  PALETTE UI
@@ -486,8 +672,11 @@
                         } else if (img) {
                             img.onload = () => pCtx.drawImage(img, 0, 0, img.width, img.height, 0, 0, pSize, pSize);
                         }
-                    } else if (tileset.complete) {
-                        pCtx.drawImage(tileset, def.sx, def.sy, def.sw, def.sh, 0, 0, pSize, pSize);
+                    } else {
+                        const sheet = def.sheet ? spritesheets[def.sheet] : tileset;
+                        if (sheet && sheet.complete) {
+                            pCtx.drawImage(sheet, def.sx, def.sy, def.sw, def.sh, 0, 0, pSize, pSize);
+                        }
                     }
 
                     const span = document.createElement('span');
@@ -545,9 +734,12 @@
                         const h = def.h || def.size || T;
                         ctx.drawImage(img, 0, 0, img.width, img.height, t.x, t.y, w, h);
                     }
-                } else if (tileset.complete) {
-                    const displaySize = def.size || T;
-                    ctx.drawImage(tileset, def.sx, def.sy, def.sw, def.sh, t.x, t.y, displaySize, displaySize);
+                } else {
+                    const sheet = def.sheet ? spritesheets[def.sheet] : tileset;
+                    if (sheet && sheet.complete) {
+                        const displaySize = def.size || T;
+                        ctx.drawImage(sheet, def.sx, def.sy, def.sw, def.sh, t.x, t.y, displaySize, displaySize);
+                    }
                 }
             });
 

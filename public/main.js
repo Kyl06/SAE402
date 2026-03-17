@@ -131,6 +131,8 @@ Assets.load({
     HERBESOL2: "./assets/herbesol2.png",
     PORTAIL: "./assets/Portail.png",
     BRIQUE: "./assets/brique.png",
+    FORTERESSE: "./assets/forteresse.png",
+    CIMETIERE: "./assets/cimetiere.png",
 }).then(async () => {
     // 1. Attendre le choix du role
     const role = await waitForPlayerSelection();

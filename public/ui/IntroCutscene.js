@@ -50,6 +50,22 @@ export class IntroCutscene extends Entity {
 
         // Flash d'eclat
         this.flashAlpha = 0;
+
+        // Ecouteur pour passer la cinematique
+        this._skipHandler = (e) => {
+            if (e.code === 'Escape' || e.code === 'Space' || e.code === 'Enter') {
+                this.skip();
+            }
+        };
+        window.addEventListener('keydown', this._skipHandler);
+    }
+
+    skip() {
+        if (this.done) return;
+        this.done = true;
+        window.removeEventListener('keydown', this._skipHandler);
+        this.kill();
+        if (this.onComplete) this.onComplete();
     }
 
     update(delta) {
@@ -129,9 +145,7 @@ export class IntroCutscene extends Entity {
                 this.fadeAlpha = Math.min(1, this.phaseTimer / 800);
                 this.subtitleAlpha = Math.max(0, 1 - this.phaseTimer / 400);
                 if (this.phaseTimer > 1000) {
-                    this.done = true;
-                    this.kill();
-                    if (this.onComplete) this.onComplete();
+                    this.skip();
                 }
                 break;
         }
@@ -262,6 +276,16 @@ export class IntroCutscene extends Entity {
             ctx.fillText(this.subtitleText, 400, 552);
             ctx.restore();
         }
+
+        // Indication skip
+        const skipAlpha = 0.4 + Math.sin(this.time * 0.003) * 0.2;
+        ctx.save();
+        ctx.globalAlpha = skipAlpha;
+        ctx.font = '9px "Press Start 2P", monospace';
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#888';
+        ctx.fillText('Echap pour passer', 790, 30);
+        ctx.restore();
 
         // Fade overlay
         if (this.fadeAlpha > 0) {
