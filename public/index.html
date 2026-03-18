@@ -1,0 +1,391 @@
+<!doctype html>
+<!--
+    @file index.html
+    @description Point d'entrée principal du jeu. Contient le menu de sélection et le canvas.
+-->
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>La Relique Volee</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #0a0a12;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+        }
+
+        canvas {
+            background: #222;
+            border: 4px solid #444;
+            image-rendering: pixelated;
+            box-shadow: 0 0 40px rgba(0,0,0,0.7);
+            display: none;
+        }
+
+        /* ── MENU ─────────────────────────────── */
+        #start-menu {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at 50% 40%, #1a2a1a 0%, #0a0a12 70%);
+            z-index: 3000;
+            overflow: hidden;
+        }
+
+        /* Particules decoratives */
+        #start-menu::before,
+        #start-menu::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: float 6s ease-in-out infinite;
+        }
+        #start-menu::before {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, #f5c542 0%, transparent 70%);
+            top: 10%; left: 5%;
+        }
+        #start-menu::after {
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, #4ade80 0%, transparent 70%);
+            bottom: 15%; right: 10%;
+            animation-delay: -3s;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Titre */
+        .title-wrapper {
+            text-align: center;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .title-main {
+            font-size: 32px;
+            color: #f5c542;
+            text-shadow: 0 0 30px rgba(245,197,66,0.4), 0 4px 0 #7a5c00, 0 5px 10px rgba(0,0,0,0.5);
+            letter-spacing: 3px;
+            line-height: 1.6;
+        }
+        .title-sub {
+            font-size: 11px;
+            color: #c9a33a;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            text-shadow: 0 0 10px rgba(245,197,66,0.3);
+        }
+
+        /* Separateur */
+        .separator {
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f5c54260, transparent);
+            margin: 20px 0 30px;
+        }
+
+        /* Description */
+        .game-lore {
+            font-size: 8px;
+            color: #667766;
+            text-align: center;
+            line-height: 2.2;
+            max-width: 500px;
+            margin-bottom: 36px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Cartes joueur */
+        .player-cards {
+            display: flex;
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .player-card {
+            width: 220px;
+            padding: 24px 20px;
+            border: 2px solid #2a3a2a;
+            background: rgba(20, 30, 20, 0.8);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .player-card:hover {
+            border-color: #f5c542;
+            background: rgba(40, 50, 30, 0.9);
+            transform: translateY(-6px);
+            box-shadow: 0 10px 40px rgba(245,197,66,0.2), 0 0 20px rgba(245,197,66,0.1);
+        }
+
+        .player-card .role-badge {
+            font-size: 7px;
+            color: #667766;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .player-card .player-icon {
+            display: block;
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 14px;
+            image-rendering: pixelated;
+            border: 2px solid #334433;
+            background: #111a11;
+            padding: 4px;
+        }
+
+        .player-card .player-name {
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        #player1-card .player-name { color: #4ade80; }
+        #player2-card .player-name { color: #60a5fa; }
+
+        .player-card .player-desc {
+            font-size: 7px;
+            color: #556655;
+            line-height: 2;
+        }
+
+        /* Boutons bas */
+        .menu-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-top: 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        #new-game-btn {
+            background: none;
+            border: 1px solid #553333;
+            color: #aa5555;
+            padding: 8px 20px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+        #new-game-btn:hover {
+            border-color: #e74c3c;
+            color: #e74c3c;
+            background: rgba(231,76,60,0.1);
+        }
+
+        .waiting-msg {
+            font-size: 8px;
+            color: #445544;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .subtitle {
+            font-size: 8px;
+            color: #667766;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Credits */
+        .credits {
+            font-size: 6px;
+            color: #333;
+            letter-spacing: 1px;
+        }
+
+        /* ── GAME OVER ──────────────────────── */
+        #game-over-ui {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(5, 5, 10, 0.95);
+            color: white;
+            padding: 48px;
+            border: 3px solid #e74c3c;
+            text-align: center;
+            z-index: 2000;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        .respawn-btn {
+            background: none;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 12px 28px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 10px;
+            font-family: 'Press Start 2P', monospace;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+        .respawn-btn:hover {
+            background: #fff;
+            color: #000;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-menu">
+        <div class="title-wrapper">
+            <div class="title-main">LA RELIQUE VOLEE</div>
+            <div class="title-sub">Aventure Cooperative</div>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="game-lore">
+            Le sorcier Maldrek a derobe la Relique Sacree du village.<br>
+            Reunissez les 3 fragments de cristal pour briser sa barriere<br>
+            et affrontez-le dans sa forteresse au nord.
+        </div>
+
+        <div class="subtitle" id="status-text">Choisissez votre heros</div>
+
+        <div class="player-cards">
+            <div class="player-card" id="player1-card" onclick="selectPlayer(1)">
+                <div class="role-badge">HOTE</div>
+                <img class="player-icon" src="assets/link1.png" alt="Heros 1">
+                <div class="player-name">HEROS 1</div>
+                <div class="player-desc">Cree la partie<br>Genere les ennemis</div>
+            </div>
+            <div class="player-card" id="player2-card" onclick="selectPlayer(2)">
+                <div class="role-badge">INVITE</div>
+                <img class="player-icon" src="assets/link2.png" alt="Heros 2">
+                <div class="player-name">HEROS 2</div>
+                <div class="player-desc">Rejoint la partie<br>En cooperation</div>
+            </div>
+        </div>
+
+        <div class="menu-footer">
+            <button id="new-game-btn" onclick="newGame()">NOUVELLE PARTIE</button>
+            <div class="waiting-msg">Selectionnez un heros pour commencer</div>
+            <div class="credits">SAE 402 - MMI2</div>
+        </div>
+    </div>
+
+    <div id="game-over-ui">
+        <h2 style="font-size: 20px; margin-bottom: 24px; color: #e74c3c;">DEFAITE</h2>
+        <p style="font-size: 8px; margin-bottom: 28px; color: #887777; line-height: 2;">Votre aventure s'arrete ici...</p>
+        <button class="respawn-btn" onclick="location.reload()">REAPPARAITRE</button>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="660"></canvas>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        window.selectedPlayerRole = null;
+        const menuSocket = io();
+
+        menuSocket.on('roles_update', ({ player1Taken, player2Taken }) => {
+            setCardState('player1-card', player1Taken);
+            setCardState('player2-card', player2Taken);
+        });
+
+        menuSocket.on('role_confirmed', ({ role, skin, isHost }) => {
+            window.selectedPlayerRole = isHost ? 1 : 2;
+            window.menuSocket = menuSocket;
+        });
+
+        menuSocket.on('role_denied', () => {
+            document.getElementById('status-text').textContent = 'Heros deja pris, choisissez l\'autre !';
+            ['player1-card','player2-card'].forEach(id => {
+                const c = document.getElementById(id);
+                c.style.pointerEvents = '';
+            });
+        });
+
+        function setCardState(cardId, taken) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            if (taken) {
+                card.style.opacity = '0.3';
+                card.style.pointerEvents = 'none';
+                card.style.filter = 'grayscale(80%)';
+                let badge = card.querySelector('.taken-badge');
+                if (!badge) {
+                    badge = document.createElement('div');
+                    badge.className = 'taken-badge';
+                    badge.textContent = 'PRIS';
+                    badge.style.cssText = 'position:absolute;top:10px;right:10px;font-size:7px;color:#e74c3c;font-family:"Press Start 2P",monospace;';
+                    card.appendChild(badge);
+                }
+            } else {
+                card.style.opacity = '';
+                card.style.pointerEvents = '';
+                card.style.filter = '';
+                const badge = card.querySelector('.taken-badge');
+                if (badge) badge.remove();
+            }
+        }
+
+        function newGame() {
+            fetch('/api/save', { method: 'DELETE' }).then(() => {
+                const btn = document.getElementById('new-game-btn');
+                btn.textContent = 'SAUVEGARDE SUPPRIMEE !';
+                btn.style.borderColor = '#4ade80';
+                btn.style.color = '#4ade80';
+                setTimeout(() => {
+                    btn.textContent = 'NOUVELLE PARTIE';
+                    btn.style.borderColor = '#553333';
+                    btn.style.color = '#aa5555';
+                }, 1500);
+            });
+        }
+
+        function selectPlayer(num) {
+            const role = num === 1 ? 'player1' : 'player2';
+            menuSocket.emit('select_role', role);
+
+            const card = document.getElementById(`player${num}-card`);
+            card.style.opacity = '0.5';
+            card.style.pointerEvents = 'none';
+
+            document.getElementById('status-text').textContent = 'Connexion au serveur...';
+            document.getElementById('start-menu').style.transition = 'opacity 0.5s';
+        }
+
+        window.hideMenu = function() {
+            const menu = document.getElementById('start-menu');
+            menu.style.opacity = '0';
+            setTimeout(() => {
+                menu.style.display = 'none';
+                document.getElementById('gameCanvas').style.display = 'block';
+            }, 500);
+        };
+    </script>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
