@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<!--
+    @file map-editor.html
+    @description Outil interne pour créer et exporter les grilles de collision (JSON).
+-->
+<html>
+
+<head>
+    <title>Zelda Map Editor - 16x16 Walls</title>
+    <style>
+        html {
+            margin: 40px;
+        }
+        
+        body {
+            background: #222;
+            color: white;
+            font-family: sans-serif;
+            display: flex;
+            margin: 0;
+        }
+
+        canvas {
+            background: #333;
+            border: 2px solid #555;
+            cursor: crosshair;
+            image-rendering: pixelated;
+        }
+
+        .sidebar {
+            padding: 20px;
+            width: 320px;
+            background: #1a1a1a;
+            overflow-y: auto;
+            height: 50vh;
+            box-sizing: border-box;
+        }
+
+        .tile-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tile-option {
+            border: 2px solid #444;
+            padding: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 11px;
+            background: #252525;
+        }
+
+        .tile-option.active {
+            border-color: #0f0;
+            background: #333;
+        }
+
+        .tile-preview {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto 5px;
+            background-image: url('assets/map.png');
+            background-size: 336px 112px;
+            background-repeat: no-repeat;
+            image-rendering: pixelated;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 10px;
+        }
+
+        button {
+            padding: 10px;
+            cursor: pointer;
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .error-msg {
+            color: #ff4444;
+            font-size: 12px;
+            margin-bottom: 10px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="editorCanvas" width="800" height="608"></canvas>
+    <div class="sidebar">
+        <h2>Map Editor</h2>
+        <div id="imageError" class="error-msg">⚠️ Image "assets/map.png" non trouvée !</div>
+        <div class="tile-selector" id="selector"></div>
+        <button onclick="copyJSON()">Copier le JSON</button>
+        <textarea id="jsonOutput" readonly></textarea>
+    </div>
+
+    <script type="module">
+        const canvas = document.getElementById('editorCanvas');
+        const ctx = canvas.getContext('2d');
+        const output = document.getElementById('jsonOutput');
+        const errorDiv = document.getElementById('imageError');
+        const GRID = 32;
+
+        let walls = [];
+        let isDrawing = false;
+
+        const TILE_TYPES = {
+            'GRASS': { sx: 32, sy: 0, sw: 16, sh: 16, label: 'Herbe' },
+            'SAND': { sx: 32, sy: 16, sw: 16, sh: 16, label: 'Sable' },
+            'TREE': { sx: 0, sy: 0, sw: 32, sh: 32, label: 'Arbre', size: 64 },
+            'WATER': { sx: 48, sy: 0, sw: 16, sh: 16, label: 'Eau' },
+            'BUSH': { sx: 48, sy: 16, sw: 16, sh: 16, label: 'Buisson' },
+
+            'WALL_DOWN': { sx: 64, sy: 0, sw: 16, sh: 16, label: 'Mur BAS' },
+            'WALL_UP': { sx: 80, sy: 0, sw: 16, sh: 16, label: 'Mur HAUT' },
+            'WALL_RIGHT': { sx: 64, sy: 16, sw: 16, sh: 16, label: 'Mur DROITE' },
+            'WALL_LEFT': { sx: 80, sy: 16, sw: 16, sh: 16, label: 'Mur GAUCHE' },
+
+            'BRIDGE_H_RIGHT': { sx: 96, sy: 0, sw: 16, sh: 16, label: 'Pont H D' },
+            'BRIDGE_H_LEFT': { sx: 112, sy: 0, sw: 16, sh: 16, label: 'Pont H G' },
+            'BRIDGE_V_LEFT': { sx: 96, sy: 16, sw: 16, sh: 16, label: 'Pont V G' },
+            'BRIDGE_V_RIGHT': { sx: 112, sy: 16, sw: 16, sh: 16, label: 'Pont V D' },
+
+            'ORANGE_GROUND': { sx: 128, sy: 0, sw: 16, sh: 16, label: 'Sol orange' },
+            'ORANGE_PLANT': { sx: 144, sy: 0, sw: 16, sh: 16, label: 'Plante orange' },
+            'YELLOW_GROUND': { sx: 128, sy: 16, sw: 16, sh: 16, label: 'Sol jaune' },
+            'BLACK_HOLE': { sx: 144, sy: 16, sw: 16, sh: 16, label: 'Trou noir' },
+
+            'BLUE_GROUND': { sx: 160, sy: 0, sw: 16, sh: 16, label: 'Sol bleu' },
+            'FENCE': { sx: 176, sy: 0, sw: 16, sh: 16, label: 'Barrière' },
+            'RED_WALL': { sx: 160, sy: 16, sw: 16, sh: 16, label: 'Mur rouge' },
+            'BLUE_PLANT': { sx: 176, sy: 16, sw: 16, sh: 16, label: 'Plante bleue' },
+
+            'ORANGE_TREE': { sx: 0, sy: 32, sw: 32, sh: 32, label: 'Arbre orange', size: 64 },
+'DOOR': { sx: 32, sy: 32, sw: 32, sh: 32, label: 'Porte', size: 64 },
+'BUSH_BIG': { sx: 64, sy: 32, sw: 32, sh: 32, label: 'Gros buisson', size: 64 },
+
+'VERT_TOP': { sx: 96, sy: 32, sw: 16, sh: 16, label: 'Haut vertical' },
+'STONE': { sx: 112, sy: 32, sw: 16, sh: 16, label: 'Pierre' },
+'CHEST': { sx: 96, sy: 48, sw: 16, sh: 16, label: 'Coffre' },
+'HORI_TOP': { sx: 112, sy: 48, sw: 16, sh: 16, label: 'Haut horizontal' },
+
+'TULIP': { sx: 128, sy: 32, sw: 16, sh: 16, label: 'Tulipe' },
+'LEAVES': { sx: 144, sy: 32, sw: 16, sh: 16, label: 'Feuilles' },
+'LIGHT_BLUE_GROUND': { sx: 128, sy: 48, sw: 16, sh: 16, label: 'Sol bleu clair' },
+'LEAF_GROUND': { sx: 144, sy: 48, sw: 16, sh: 16, label: 'Sol feuille' },
+
+'OWL': { sx: 160, sy: 32, sw: 16, sh: 16, label: 'Hibou' },
+'EGGS': { sx: 176, sy: 32, sw: 16, sh: 16, label: 'Œufs' },
+'SIGN': { sx: 160, sy: 48, sw: 16, sh: 16, label: 'Panneau' },
+'PURPLE_HOLE': { sx: 176, sy: 48, sw: 16, sh: 16, label: 'Trou violet' },
+
+'SHOP': { sx: 0, sy: 64, sw: 48, sh: 48, label: 'Magasin', size: 96 }
+        };
+
+        let selectedType = 'GRASS';
+        const tileset = new Image();
+
+
+        
+        tileset.src = 'assets/map.png';
+
+        tileset.onload = () => { 
+            errorDiv.style.display = 'none'; 
+            draw(); 
+        };
+
+        tileset.onerror = () => { 
+            errorDiv.style.display = 'block'; 
+        };
+
+        const selector = document.getElementById('selector');
+
+        Object.keys(TILE_TYPES).forEach(type => {
+            const config = TILE_TYPES[type];
+            const div = document.createElement('div');
+            div.className = `tile-option ${type === selectedType ? 'active' : ''}`;
+            div.innerHTML = `<div class="tile-preview" style="background-position: -${config.sx * 2}px -${config.sy * 2}px"></div>${config.label}`;
+            div.onclick = () => {
+                document.querySelectorAll('.tile-option').forEach(el => el.classList.remove('active'));
+                div.classList.add('active');
+                selectedType = type;
+            };
+            selector.appendChild(div);
+        });
+
+        function placeTile(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / GRID) * GRID;
+            const y = Math.floor((e.clientY - rect.top) / GRID) * GRID;
+
+            if (e.buttons === 1) {
+                walls = walls.filter(w => !(w.x === x && w.y === y));
+                walls.push({ x, y, type: selectedType });
+                draw();
+            } else if (e.buttons === 2) {
+                walls = walls.filter(w => !(w.x === x && w.y === y));
+                draw();
+            }
+        }
+
+        canvas.addEventListener('mousedown', (e) => { 
+            isDrawing = true; 
+            placeTile(e); 
+        });
+
+        canvas.addEventListener('mousemove', (e) => { 
+            if (isDrawing) placeTile(e); 
+        });
+
+        window.addEventListener('mouseup', () => { 
+            isDrawing = false; 
+            updateJSON(); 
+        });
+
+        function draw() {
+            ctx.fillStyle = "#333";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = "rgba(255,255,255,0.05)";
+            for (let i = 0; i < canvas.width; i += GRID) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += GRID) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            walls.forEach(w => {
+                const t = TILE_TYPES[w.type];
+                if (tileset.complete) {
+                    const displaySize = t.size || GRID;
+                    ctx.drawImage(
+                        tileset,
+                        t.sx, t.sy, t.sw, t.sh,
+                        w.x, w.y, displaySize, displaySize
+                    );
+                }
+            });
+        }
+
+        function updateJSON() {
+            output.value = JSON.stringify({ walls }, null, 2);
+        }
+
+        canvas.oncontextmenu = (e) => e.preventDefault();
+
+        window.copyJSON = () => {
+            output.select();
+            document.execCommand('copy');
+            alert("JSON Copié !");
+        };
+    </script>
+</body>
+
+</html>
