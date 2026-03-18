@@ -29,7 +29,9 @@ export class Floor extends Entity {
         // Système de collision : Solide par défaut sauf pour les sols
         const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LEAVES', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL',
             'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU',
-            'CIM_STRUCT_4', 'CIM_SOL_15', 'CIM_SOL_16', 'CIM_SOL_17', 'CIM_SOL_18', 'CIM_SOL_19', 'CIM_SOL_20', 'CIM_SOL_21', 'CIM_SOL_22', 'CIM_SOL_23', 'CIM_SOL_24', 'CIM_SOL_25', 'CIM_SOL_26', 'CIM_SOL_27', 'CIM_SOL_28'];
+            'CIM_STRUCT_4', 'CIM_SOL_2', 'CIM_SOL_3', 'CIM_SOL_4', 'CIM_SOL_5', 'CIM_SOL_6', 'CIM_SOL_7', 'CIM_SOL_9', 'CIM_SOL_10', 'CIM_SOL_11', 'CIM_SOL_12', 'CIM_SOL_13', 'CIM_SOL_14',
+            'CIM_MOSAIQUE_1', 'CIM_MOSAIQUE_2', 'CIM_MOSAIQUE_3', 'CIM_MOSAIQUE_4', 'CIM_MOSAIQUE_5',
+            'CIM_SOL_18', 'CIM_SOL_21', 'CIM_SOL_22', 'CIM_SOL_23', 'CIM_SOL_24', 'CIM_SOL_25', 'CIM_SOL_26', 'CIM_SOL_27', 'CIM_SOL_28'];
         this.collider = !walkables.includes(this.type);
 
         if (this.collider) {

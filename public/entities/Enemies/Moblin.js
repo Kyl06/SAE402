@@ -137,7 +137,7 @@ export class Moblin extends Entity {
     }
 
     onCollision(other) {
-        if (other.hasTag("PLAYER")) other.takeDamage?.(1);
+        // Redirection : on laisse le Player gérer ses propres dégâts via son onCollision pour un recul précis.
         if (other instanceof Moblin) {
             this.x += this.x < other.x ? -1.5 : 1.5;
             this.y += this.y < other.y ? -1.5 : 1.5;

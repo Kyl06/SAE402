@@ -202,8 +202,17 @@ export class MiniBoss extends Entity {
 
     onCollision(other) {
         if (other.hasTag('PLAYER')) {
-            const dmg = this.state === 'CHARGE' ? 2 : 1;
-            other.takeDamage?.(dmg);
+            // Note : le Player gère ses propres dégâts via son onCollision.
+            // Cependant, le MiniBoss a un bonus de dégâts en CHARGE.
+            // Pour ne pas briser cela, on laisse le Player faire, mais on pourrait
+            // aussi passer le montant de dégâts ici si on voulait être précis.
+            // Dans ce projet, le Player.onCollision appelle takeDamage(1, dir).
+            // Si on veut 2 dégâts, on doit quand même appeler takeDamage ici
+            // mais direction sera calculée par le Player si on ne la passe pas (ou passée ici).
+            
+            if (this.state === 'CHARGE') {
+                other.takeDamage?.(2); // On guarde l'appel pour le bonus de dégâts
+            }
         }
     }
 

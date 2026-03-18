@@ -143,9 +143,7 @@ export class Maldek extends Entity {
     }
 
     onCollision(other) {
-        if (other.hasTag("PLAYER")) {
-            other.takeDamage?.(1, DOWN);
-        }
+        // On laisse le Player gérer ses propres dégâts pour un recul calculé depuis son centre.
     }
 
     die() {

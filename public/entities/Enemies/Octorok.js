@@ -190,7 +190,7 @@ export class Octorok extends Entity {
     }
 
     onCollision(other) {
-        if (other.hasTag("PLAYER")) other.takeDamage?.(1);
+        // Redirection : le Player gère ses propres dégâts via son onCollision.
     }
 
     /**

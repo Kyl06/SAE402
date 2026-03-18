@@ -77,9 +77,15 @@ export class Player extends Entity {
 
         // Si on touche un ennemi, on prend des dégâts
         if (other.hasTag("ENEMY")) {
-            // Calcul de la direction de l'attaque (du ennemi vers le joueur)
-            const dx = this.x - other.x;
-            const dy = this.y - other.y;
+            // Calcul du centre de chaque entité pour une direction plus précise
+            const centerX = this.x + this.width / 2;
+            const centerY = this.y + this.height / 2;
+            const otherCenterX = other.x + other.width / 2;
+            const otherCenterY = other.y + other.height / 2;
+
+            const dx = centerX - otherCenterX;
+            const dy = centerY - otherCenterY;
+            
             let direction;
             if (Math.abs(dx) > Math.abs(dy)) {
                 direction = dx > 0 ? RIGHT : LEFT;
@@ -105,7 +111,9 @@ export class Player extends Entity {
         }
 
         this.hp -= amount;
-        window.game.engine.shake(6, 150);
+        
+        // Tremblement d'écran retro (un peu plus fort pour l'impact)
+        window.game.engine.shake(8, 200);
 
         if (this.hp <= 0) return this.die();
 
@@ -114,31 +122,51 @@ export class Player extends Entity {
         // Si direction n'est pas fournie, on utilise l'opposé du regard (recul par défaut)
         const hitDir = direction || (this.facing === UP ? DOWN : this.facing === DOWN ? UP : this.facing === LEFT ? RIGHT : LEFT);
 
-        const knock = 45;
+        const knockIntensity = 80;
         const dirX = hitDir === LEFT ? -1 : hitDir === RIGHT ? 1 : 0;
         const dirY = hitDir === UP ? -1 : hitDir === DOWN ? 1 : 0;
 
         let elapsed = 0;
-        const duration = 150; // ms
+        const knockDuration = 180; // ms
+        const hitStopDuration = 60; // Petit gel de l'image pour l'impact (ms)
         const originalUpdate = this.update.bind(this);
 
-        // On surcharge temporairement update() pour animer le recul
+        // Effet Hitstop : On bloque tout mouvement pendant une fraction de seconde
+        let hitStopTimer = 0;
+
+        // On surcharge temporairement update() pour animer le recul et le clignotement
         this.update = (delta) => {
+            // Gestion du Hitstop
+            if (hitStopTimer < hitStopDuration) {
+                hitStopTimer += delta;
+                return; // On ne fait rien pendant le hitstop
+            }
+
             elapsed += delta;
-            if (elapsed >= duration) {
+            
+            // Effet de clignotement retro (visible/invisible toutes les 50ms)
+            this.visible = (Math.floor(elapsed / 50) % 2 === 0);
+
+            if (elapsed >= knockDuration) {
                 this.update = originalUpdate; // Restaure le comportement normal
+                this.visible = true; // S'assure d'être visible à la fin
                 return;
             }
-            // Déplacement petit à petit → les collisions auront le temps de réagir
-            this.velX = (dirX * knock) / (duration / 1000);
-            this.velY = (dirY * knock) / (duration / 1000);
-            super.update(delta); // appelle Entity.update() pour bouger + déclencher les collisions
+
+            // Déplacement de recul
+            this.velX = (dirX * knockIntensity) / (knockDuration / 1000);
+            this.velY = (dirY * knockIntensity) / (knockDuration / 1000);
+            
+            // On appelle Entity.update pour la physique des collisions
+            super.update(delta);
         };
 
+        // On s'assure que l'état d'invulnérabilité dure un peu plus longtemps que le recul
         setTimeout(() => {
             this.isPainFlashing = false;
+            this.visible = true;
             if (this.update !== originalUpdate) this.update = originalUpdate;
-        }, 400);
+        }, 1200); // 1.2 seconde d'invulnérabilité (clignotement inclus via update)
     }
 
     /** Permet de changer de personnage dynamiquement (ex: passage à Link2). */

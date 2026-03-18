@@ -31,7 +31,7 @@ class MagicProjectile extends Entity {
 
     onCollision(other) {
         if (other.hasTag('PLAYER') && !other.isDead) {
-            other.takeDamage?.(1);
+            // Le Player gère ses propres dégâts via son onCollision s'il touche l'ennemi.
             this.kill();
         }
         if (other.hasTag('SOLID') && !other.hasTag('ENEMY')) {
@@ -288,10 +288,8 @@ export class Maldrek extends Entity {
     }
 
     onCollision(other) {
-        if (other.hasTag('PLAYER') && !other.isDead) {
-            const dmg = this.state === 'CHARGE' ? 3 : 2;
-            other.takeDamage?.(dmg);
-        }
+        // Redirection : on laisse le Player gérer ses propres dégâts via son onCollision.
+        // Cela garantit un recul correct calculé par le Player.
     }
 
     die() {
