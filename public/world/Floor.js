@@ -28,7 +28,7 @@ export class Floor extends Entity {
 
         // Système de collision : Solide par défaut sauf pour les sols
         const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LEAVES', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL',
-            'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU'];
+            'FORT_SOL_BLEU', "FORT_MUR_GRIS", 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU'];
         // Bordures CIM solides (murs, tombes, deco, piliers)
         const cimSolid = ['CIM_SOL_1', 'CIM_TOMBE_HD', 'CIM_TOMBE_HG', 'CIM_TOMBE_BG', 'CIM_SOL_8', 'CIM_TOMBE_BD',
             'CIM_MUR_5', 'CIM_MUR_8', 'CIM_DECO_1', 'CIM_DECO_2', 'CIM_DECO_3', 'CIM_DECO_4',
@@ -161,10 +161,19 @@ export class Floor extends Entity {
                 'FORT_DECO_1': { sx: 0, sy: 48 }, 'FORT_DECO_2': { sx: 16, sy: 48 }, 'FORT_DECO_3': { sx: 32, sy: 48 }, 'FORT_DECO_4': { sx: 48, sy: 48 }, 'FORT_DECO_5': { sx: 64, sy: 48 }, 'FORT_DECO_6': { sx: 80, sy: 48 }, 'FORT_DECO_7': { sx: 96, sy: 48 }, 'FORT_DECO_8': { sx: 112, sy: 48 }, 'FORT_DECO_9': { sx: 128, sy: 48 }, 'FORT_DECO_10': { sx: 144, sy: 48 },
                 'FORT_BAS_1': { sx: 0, sy: 64 }, 'FORT_BAS_2': { sx: 16, sy: 64 }, 'FORT_BAS_3': { sx: 32, sy: 64 }, 'FORT_BAS_4': { sx: 48, sy: 64 }, 'FORT_BAS_5': { sx: 64, sy: 64 }, 'FORT_BAS_6': { sx: 80, sy: 64 }, 'FORT_BAS_7': { sx: 96, sy: 64 }, 'FORT_BAS_8': { sx: 112, sy: 64 }, 'FORT_BAS_9': { sx: 128, sy: 64 }, 'FORT_BAS_10': { sx: 144, sy: 64 },
             };
-            const ft = fortMapping[this.type];
+
+            let currentType = this.type;
+            if (['FORT_BAS_10', 'FORT_BAS_9', 'FORT_BAS_8'].includes(this.type)) {
+                const anim = ['FORT_BAS_10', 'FORT_BAS_9', 'FORT_BAS_8'];
+                const frameIndex = Math.floor(Date.now() / 300) % 3;
+                currentType = anim[frameIndex];
+            }
+
+            const ft = fortMapping[currentType];
             if (ft) {
                 ctx.drawImage(fortImg, ft.sx, ft.sy, 16, 16, this.x, this.y, this.width, this.height);
             }
+
             return;
         }
 
@@ -249,12 +258,12 @@ export class Floor extends Entity {
     // Système de collision AABB simple
     onCollision(other) {
         if (!this.collider || !other.collider || other.hasTag('ITEM')) return;
-        
-        const dx = (this.x + this.width/2) - (other.x + other.width/2);
-        const dy = (this.y + this.height/2) - (other.y + other.height/2);
-        
-        const overlapX = (this.width + other.width)/2 - Math.abs(dx);
-        const overlapY = (this.height + other.height)/2 - Math.abs(dy);
+
+        const dx = (this.x + this.width / 2) - (other.x + other.width / 2);
+        const dy = (this.y + this.height / 2) - (other.y + other.height / 2);
+
+        const overlapX = (this.width + other.width) / 2 - Math.abs(dx);
+        const overlapY = (this.height + other.height) / 2 - Math.abs(dy);
 
         if (overlapX > 0 && overlapY > 0) {
             if (overlapX < overlapY) {
