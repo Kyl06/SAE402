@@ -142,7 +142,7 @@ export class QuestManager {
             quests: this.quests,
             fragments: this.fragments,
             player: player ? {
-                emeralds: player.emeralds === Infinity ? 0 : player.emeralds,
+                emeralds: player.emeralds,
                 arrows: player.arrows,
                 potions: player.potions,
                 hasShield: player.hasShield,

@@ -10,7 +10,7 @@ export class Hearts {
     constructor() {
         // Spritesheet d'origine : 3 colonnes (0:Vide, 1:Demi, 2:Plein)
         this.spriteSheet = new SpriteSheet("HEARTS", 3, 1, 8, 8);
-        this.heartSize = 24; // Taille d'affichage (8px * scale 3)
+        this.heartSize = 32; // Taille d'affichage (8px * scale 4)
     }
 
     /**
@@ -36,11 +36,11 @@ export class Hearts {
 
             // Dessin du cœur actuel avec un espacement horizontal
             this.spriteSheet.drawFrame(
-                ctx, 
-                frame, 
-                startX + i * (this.heartSize + 10), 
-                startY, 
-                3 // Scale de 3 pour un look bien rétro
+                ctx,
+                frame,
+                startX + i * (this.heartSize + 8),
+                startY,
+                4 // Scale de 4 pour un look bien rétro
             );
         }
     }

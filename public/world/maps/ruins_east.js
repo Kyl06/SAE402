@@ -2263,6 +2263,24 @@ export const zoneData = {
     bgColor: '#1a1020',
     mapData: { walls: interior },
     enemies: { moblins: 2, octoroks: 3 },
-    connections: { west: 'village' }
+    connections: { west: 'village' },
+    npcs: [
+        {
+            name: 'Gardien des Ruines',
+            x: 50, y: 228,
+            sprite: 'VILLAGEOIS_BLEU',
+            spriteColumns: 1,
+            spriteW: 63,
+            spriteH: 63,
+            spriteFrame: 0,
+            spriteScale: 0.5,
+            z: 5,
+            dialogues: [
+                "Ces ruines etaient autrefois un temple sacre...",
+                "Le fragment de cristal est garde par une creature puissante.",
+                "Sois prudent, heros. Les morts ne dorment pas ici."
+            ],
+        }
+    ]
 };
 

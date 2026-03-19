@@ -27,9 +27,8 @@ export class Floor extends Entity {
         this.z = (srcSize > 16 || decors.includes(type)) ? 10 : (['ORANGE_BLOCK'].includes(type) ? 5 : 0);
 
         // Système de collision : Solide par défaut sauf pour les sols
-        const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LEAVES', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL',
-            'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU'];
-        // Bordures CIM solides (murs, tombes, deco, piliers)
+        const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL',
+            'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS'];
         const cimSolid = ['CIM_SOL_1', 'CIM_TOMBE_HD', 'CIM_TOMBE_HG', 'CIM_TOMBE_BG', 'CIM_SOL_8', 'CIM_TOMBE_BD',
             'CIM_MUR_5', 'CIM_MUR_8', 'CIM_DECO_1', 'CIM_DECO_2', 'CIM_DECO_3', 'CIM_DECO_4',
             'CIM_MUR_9', 'CIM_MUR_12', 'CIM_DECO_5', 'CIM_DECO_6', 'CIM_ROSE_1', 'CIM_ROSE_2', 'CIM_ROSE_3',
@@ -124,7 +123,7 @@ export class Floor extends Entity {
             'HORI_TOP': { sx: 112, sy: 48, sw: 16, sh: 16 },
 
             'TULIP': { sx: 128, sy: 32, sw: 16, sh: 16 },
-            'LEAVES': { sx: 144, sy: 32, sw: 16, sh: 16 },
+            'PANELS': { sx: 160, sy: 48, sw: 16, sh: 16 },
             'LIGHT_BLUE_GROUND': { sx: 128, sy: 48, sw: 16, sh: 16 },
             'LEAF_GROUND': { sx: 144, sy: 48, sw: 16, sh: 16 },
 

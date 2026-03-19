@@ -21,6 +21,7 @@ export class Arrow extends Entity {
     // Arc long : vitesse et portee augmentees
     const bowLevel = owner?.bowLevel || 0;
     this.speed = bowLevel > 0 ? 400 : 300;
+    this.damage = bowLevel > 0 ? 1.3 : 1;
     this.z = 50;        // Toujours au premier plan
     
     // Spritesheet de la flèche (1 colonne x 4 lignes)
@@ -52,11 +53,11 @@ export class Arrow extends Entity {
     // Hit sur un MONSTRE
     if (other.hasTag("ENEMY")) {
       // Feedback local (recul du monstre)
-      if (other.takeDamage) other.takeDamage(this.facing);
+      if (other.takeDamage) other.takeDamage(this.facing, this.damage);
 
       // SIGNAL RÉSEAU : Prévient l'Hôte pour valider les dégâts réels
       if (window.game.network && other.netId) {
-          window.game.network.sendHit(other.netId, 1, this.facing);
+          window.game.network.sendHit(other.netId, this.damage, this.facing);
       }
 
       this.kill(); // La flèche se détruit à l'impact

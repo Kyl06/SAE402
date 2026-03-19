@@ -8,7 +8,7 @@ import { Assets } from '../engine/Assets.js';
 
 export class BottomBar extends Entity {
     constructor() {
-        super(0, 600, 800, 60);
+        super(0, 576, 800, 84);
         this.collider = false;
         this.z = 999;
         this.heartsUI = new Hearts();
@@ -28,13 +28,13 @@ export class BottomBar extends Entity {
         if (!player) return;
 
         // --- Ligne du haut : coeurs + stamina + emeraudes + fleches ---
-        this.heartsUI.draw(ctx, player.hp, 20, this.y + 6);
-        this.drawStamina(ctx, player, 130, this.y + 12);
-        this.drawEmeralds(ctx, player, 260, this.y + 18);
-        this.drawArrows(ctx, player, 380, this.y + 18);
+        this.heartsUI.draw(ctx, player.hp, 20, this.y + 8);
+        this.drawStamina(ctx, player, 140, this.y + 18);
+        this.drawEmeralds(ctx, player, 280, this.y + 24);
+        this.drawArrows(ctx, player, 420, this.y + 24);
 
         // --- Ligne du bas : inventaire ---
-        const invY = this.y + 42;
+        const invY = this.y + 58;
         let cursorX = 20;
 
         // Fragments de cristal
@@ -51,12 +51,12 @@ export class BottomBar extends Entity {
         cursorX = this.drawEquipment(ctx, player, cursorX, invY);
 
         // Zone courante (affichee a droite)
-        this.drawZoneName(ctx, this.y + 22);
+        this.drawZoneName(ctx, this.y + 24);
     }
 
     drawStamina(ctx, player, x, y) {
-        const barW = 100;
-        const barH = 6;
+        const barW = 120;
+        const barH = 8;
         const ratio = player.stamina / player.maxStamina;
 
         // Fond
@@ -74,53 +74,51 @@ export class BottomBar extends Entity {
     }
 
     drawEmeralds(ctx, player, x, y) {
-        const iconSize = 18;
+        const iconSize = 22;
         const emeraldImg = Assets.get("EMERALD");
         if (emeraldImg) {
             ctx.drawImage(emeraldImg, x, y - iconSize / 2, iconSize, iconSize);
         }
         ctx.fillStyle = "#fff";
-        ctx.font = "bold 16px monospace";
+        ctx.font = "bold 18px monospace";
         ctx.textBaseline = "middle";
         ctx.textAlign = "left";
-        const emText = player.emeralds === Infinity ? 'INF' : `x${player.emeralds || 0}`;
-        ctx.fillText(emText, x + iconSize + 4, y);
+        ctx.fillText(`x${player.emeralds || 0}`, x + iconSize + 6, y);
     }
 
     drawArrows(ctx, player, x, y) {
-        const iconSize = 18;
+        const iconSize = 22;
         const arrowImg = Assets.get("ARROW");
         if (arrowImg) {
-            // Derniere case 16x16 de arrow.png (16x64 => 4 cases, derniere a sy=48)
+            // Derniere frame 16x16 de arrow.png (4eme ligne)
             ctx.drawImage(arrowImg, 0, 48, 16, 16, x, y - iconSize / 2, iconSize, iconSize);
         }
         const count = player.arrows || 0;
         ctx.fillStyle = count > 0 ? "#fff" : "#666";
-        ctx.font = "bold 16px monospace";
+        ctx.font = "bold 18px monospace";
         ctx.textBaseline = "middle";
         ctx.textAlign = "left";
-        ctx.fillText(`x${count}`, x + iconSize + 4, y);
+        ctx.fillText(`x${count}`, x + iconSize + 6, y);
     }
 
     drawFragments(ctx, x, y) {
         const qm = window.game.questManager;
         if (!qm) return x;
 
-        ctx.font = "bold 12px monospace";
+        ctx.font = "bold 14px monospace";
         ctx.textBaseline = "middle";
         ctx.textAlign = "left";
 
         for (let i = 0; i < 3; i++) {
             const has = qm.fragments[i];
-            // Losange de cristal
-            const cx = x + 8;
+            const cx = x + 9;
             const cy = y;
 
             ctx.beginPath();
-            ctx.moveTo(cx, cy - 7);
-            ctx.lineTo(cx + 6, cy);
-            ctx.lineTo(cx, cy + 7);
-            ctx.lineTo(cx - 6, cy);
+            ctx.moveTo(cx, cy - 9);
+            ctx.lineTo(cx + 7, cy);
+            ctx.lineTo(cx, cy + 9);
+            ctx.lineTo(cx - 7, cy);
             ctx.closePath();
 
             if (has) {
@@ -138,7 +136,7 @@ export class BottomBar extends Entity {
                 ctx.stroke();
             }
 
-            x += 18;
+            x += 22;
         }
 
         return x;
@@ -149,48 +147,38 @@ export class BottomBar extends Entity {
 
         const potionImg = Assets.get("POTION");
         if (potionImg) {
-            ctx.drawImage(potionImg, x, y - 10, 20, 20);
+            ctx.drawImage(potionImg, x, y - 12, 24, 24);
         }
 
         ctx.fillStyle = "#fff";
-        ctx.font = "bold 12px monospace";
+        ctx.font = "bold 14px monospace";
         ctx.textBaseline = "middle";
         ctx.textAlign = "left";
-        ctx.fillText(`x${player.potions}`, x + 24, y + 2);
+        ctx.fillText(`x${player.potions}`, x + 28, y + 2);
 
-        return x + 48;
+        return x + 56;
     }
 
     drawEquipment(ctx, player, x, y) {
-        ctx.font = "10px monospace";
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "left";
-
         // Epee
         if (player.swordLevel > 0) {
             const epeeImg = Assets.get("EPEE_FER");
-            if (epeeImg) {
-                ctx.drawImage(epeeImg, x, y - 8, 16, 16);
-            }
-            x += 22;
+            if (epeeImg) ctx.drawImage(epeeImg, x, y - 10, 20, 20);
+            x += 26;
         }
 
         // Arc
         if (player.bowLevel > 0) {
             const arcImg = Assets.get("ARC_LONG");
-            if (arcImg) {
-                ctx.drawImage(arcImg, x, y - 8, 16, 16);
-            }
-            x += 22;
+            if (arcImg) ctx.drawImage(arcImg, x, y - 10, 20, 20);
+            x += 26;
         }
 
         // Bouclier
         if (player.hasShield) {
             const bouclierImg = Assets.get("BOUCLIER");
-            if (bouclierImg) {
-                ctx.drawImage(bouclierImg, x, y - 8, 16, 16);
-            }
-            x += 22;
+            if (bouclierImg) ctx.drawImage(bouclierImg, x, y - 10, 20, 20);
+            x += 26;
         }
 
         return x;
@@ -201,7 +189,7 @@ export class BottomBar extends Entity {
         if (!zm || !zm.currentZoneData) return;
 
         ctx.fillStyle = "#aaa";
-        ctx.font = "12px monospace";
+        ctx.font = "14px monospace";
         ctx.textBaseline = "middle";
         ctx.textAlign = "right";
         ctx.fillText(zm.currentZoneData.name, 780, y);

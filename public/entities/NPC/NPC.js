@@ -52,8 +52,6 @@ export class NPC extends Entity {
                 this.animator = new Animator([0, 1], 500);
             }
         }
-
-        // Echelle personnalisee pour le rendu du sprite
         this.spriteScale = config.spriteScale ?? SCALE;
 
         // Hauteur visuelle reelle du sprite (pour centrer la detection)
@@ -215,8 +213,7 @@ export class NPC extends Entity {
      */
     drawIndicator(ctx) {
         const bounceY = Math.sin(this.indicatorBounce * 3) * 3;
-        const spriteDisplayW = this.spriteSheet ? this.spriteSheet.spriteW * this.spriteScale : this.width * SCALE;
-        const cx = this.x + spriteDisplayW / 2;
+        const cx = this.x + (this.spriteAsset ? (this.spriteSheet.spriteW * this.spriteScale) / 2 : this.width * SCALE / 2);
         const cy = this.y - 10 + bounceY;
 
         // Fond

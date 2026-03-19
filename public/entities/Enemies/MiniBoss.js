@@ -174,9 +174,9 @@ export class MiniBoss extends Entity {
         }
     }
 
-    takeDamage(direction, damage = 1) {
+    takeDamage(direction) {
         if (this.painState || this.toRemove) return;
-        this.hp -= damage;
+        this.hp--;
         this.flashTime = 150;
         window.game.engine.shake(4, 100);
 
@@ -201,8 +201,19 @@ export class MiniBoss extends Entity {
     }
 
     onCollision(other) {
-        // Le Player gere ses propres degats via son onCollision.
-        // Il detecte automatiquement l'etat CHARGE du MiniBoss pour infliger 2 degats.
+        if (other.hasTag('PLAYER')) {
+            // Note : le Player gère ses propres dégâts via son onCollision.
+            // Cependant, le MiniBoss a un bonus de dégâts en CHARGE.
+            // Pour ne pas briser cela, on laisse le Player faire, mais on pourrait
+            // aussi passer le montant de dégâts ici si on voulait être précis.
+            // Dans ce projet, le Player.onCollision appelle takeDamage(1, dir).
+            // Si on veut 2 dégâts, on doit quand même appeler takeDamage ici
+            // mais direction sera calculée par le Player si on ne la passe pas (ou passée ici).
+            
+            if (this.state === 'CHARGE') {
+                other.takeDamage?.(2); // On guarde l'appel pour le bonus de dégâts
+            }
+        }
     }
 
     die() {

@@ -3,7 +3,14 @@
     "allow": [
       "Read(///se4fs/users/12400591/Bureau/SAE402-master/public/assets/**)",
       "Read(///se4fs/users/12400591/Bureau/**)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(for f:*)",
+      "Bash(do git:*)",
+      "Bash(\"$f.tmp\")",
+      "Bash(mv \"$f.tmp\" \"$f\")",
+      "Bash(pkill -f \"node server.js\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill:*)"
     ]
   }
 }

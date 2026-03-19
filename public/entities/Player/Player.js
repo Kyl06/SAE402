@@ -93,9 +93,7 @@ export class Player extends Entity {
                 direction = dy > 0 ? DOWN : UP;
             }
 
-            // Degats bonus si le MiniBoss/boss est en charge
-            const dmg = (other.state === 'CHARGE') ? 2 : 1;
-            this.takeDamage(dmg, direction);
+            this.takeDamage(1, direction);
         }
     }
 
@@ -113,16 +111,7 @@ export class Player extends Entity {
         }
 
         this.hp -= amount;
-
-        // Nettoyer l'animation en cours (epee orpheline)
-        if (this.actionAnimation) {
-            if (this.actionAnimation.actorObject) {
-                this.actionAnimation.actorObject.kill();
-            }
-            this.actionAnimation = null;
-        }
-
-
+        
         // Tremblement d'écran retro (un peu plus fort pour l'impact)
         window.game.engine.shake(8, 200);
 
@@ -206,12 +195,6 @@ export class Player extends Entity {
         if (pressed && !this._adminKeyWas) {
             this.adminMode = !this.adminMode;
             this.collider = !this.adminMode;
-            if (this.adminMode) {
-                this._emeraldsBeforeAdmin = this.emeralds;
-                this.emeralds = Infinity;
-            } else {
-                this.emeralds = this._emeraldsBeforeAdmin || 0;
-            }
             console.log(`[ADMIN] Mode admin ${this.adminMode ? 'ACTIVE' : 'DESACTIVE'}`);
         }
         this._adminKeyWas = pressed;
