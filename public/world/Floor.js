@@ -27,8 +27,11 @@ export class Floor extends Entity {
         this.z = (srcSize > 16 || decors.includes(type)) ? 10 : (['ORANGE_BLOCK'].includes(type) ? 5 : 0);
 
         // Système de collision : Solide par défaut sauf pour les sols
+
         const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL',
             'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS'];
+        // Bordures CIM solides (murs, tombes, deco, piliers)
+
         const cimSolid = ['CIM_SOL_1', 'CIM_TOMBE_HD', 'CIM_TOMBE_HG', 'CIM_TOMBE_BG', 'CIM_SOL_8', 'CIM_TOMBE_BD',
             'CIM_MUR_5', 'CIM_MUR_8', 'CIM_DECO_1', 'CIM_DECO_2', 'CIM_DECO_3', 'CIM_DECO_4',
             'CIM_MUR_9', 'CIM_MUR_12', 'CIM_DECO_5', 'CIM_DECO_6', 'CIM_ROSE_1', 'CIM_ROSE_2', 'CIM_ROSE_3',
@@ -160,10 +163,19 @@ export class Floor extends Entity {
                 'FORT_DECO_1': { sx: 0, sy: 48 }, 'FORT_DECO_2': { sx: 16, sy: 48 }, 'FORT_DECO_3': { sx: 32, sy: 48 }, 'FORT_DECO_4': { sx: 48, sy: 48 }, 'FORT_DECO_5': { sx: 64, sy: 48 }, 'FORT_DECO_6': { sx: 80, sy: 48 }, 'FORT_DECO_7': { sx: 96, sy: 48 }, 'FORT_DECO_8': { sx: 112, sy: 48 }, 'FORT_DECO_9': { sx: 128, sy: 48 }, 'FORT_DECO_10': { sx: 144, sy: 48 },
                 'FORT_BAS_1': { sx: 0, sy: 64 }, 'FORT_BAS_2': { sx: 16, sy: 64 }, 'FORT_BAS_3': { sx: 32, sy: 64 }, 'FORT_BAS_4': { sx: 48, sy: 64 }, 'FORT_BAS_5': { sx: 64, sy: 64 }, 'FORT_BAS_6': { sx: 80, sy: 64 }, 'FORT_BAS_7': { sx: 96, sy: 64 }, 'FORT_BAS_8': { sx: 112, sy: 64 }, 'FORT_BAS_9': { sx: 128, sy: 64 }, 'FORT_BAS_10': { sx: 144, sy: 64 },
             };
-            const ft = fortMapping[this.type];
+
+            let currentType = this.type;
+            if (['FORT_BAS_10', 'FORT_BAS_9', 'FORT_BAS_8'].includes(this.type)) {
+                const anim = ['FORT_BAS_10', 'FORT_BAS_9', 'FORT_BAS_8'];
+                const frameIndex = Math.floor(Date.now() / 300) % 3;
+                currentType = anim[frameIndex];
+            }
+
+            const ft = fortMapping[currentType];
             if (ft) {
                 ctx.drawImage(fortImg, ft.sx, ft.sy, 16, 16, this.x, this.y, this.width, this.height);
             }
+
             return;
         }
 
@@ -172,18 +184,27 @@ export class Floor extends Entity {
             const marImg = Assets.get("MARAIS");
             if (!marImg) return;
             const marMapping = {
-                'MAR_CHEMIN_HG': { sx: 0, sy: 0 }, 'MAR_BUISSON_1': { sx: 16, sy: 0 }, 'MAR_BUISSON_2': { sx: 32, sy: 0 }, 'MAR_EAU_PROF': { sx: 48, sy: 0 }, 'MAR_CHAMPI': { sx: 64, sy: 0 }, 'MAR_TERRE_1': { sx: 80, sy: 0 }, 'MAR_SOMBRE_1': { sx: 96, sy: 0 }, 'MAR_BOUE_1': { sx: 112, sy: 0 }, 'MAR_BOUE_2': { sx: 128, sy: 0 }, 'MAR_HERBE': { sx: 144, sy: 0 },
-                'MAR_CHEMIN_BG': { sx: 0, sy: 16 }, 'MAR_MARECAGE_1': { sx: 16, sy: 16 }, 'MAR_MARECAGE_2': { sx: 32, sy: 16 }, 'MAR_PONT_1': { sx: 48, sy: 16 }, 'MAR_PONT_2': { sx: 64, sy: 16 }, 'MAR_SOUCHE': { sx: 80, sy: 16 }, 'MAR_SOMBRE_2': { sx: 96, sy: 16 }, 'MAR_BOUE_3': { sx: 112, sy: 16 }, 'MAR_EAU_TEAL': { sx: 128, sy: 16 }, 'MAR_SOMBRE_3': { sx: 144, sy: 16 },
-                'MAR_CHEMIN_HD': { sx: 0, sy: 32 }, 'MAR_MARECAGE_3': { sx: 16, sy: 32 }, 'MAR_MARECAGE_4': { sx: 32, sy: 32 }, 'MAR_PONT_3': { sx: 48, sy: 32 }, 'MAR_PONT_4': { sx: 64, sy: 32 }, 'MAR_BOIS_1': { sx: 80, sy: 32 }, 'MAR_SOMBRE_4': { sx: 96, sy: 32 }, 'MAR_BOUE_4': { sx: 112, sy: 32 }, 'MAR_EAU_TEAL_2': { sx: 128, sy: 32 }, 'MAR_SOMBRE_5': { sx: 144, sy: 32 },
-                'MAR_CHEMIN_BD': { sx: 0, sy: 48 }, 'MAR_MARECAGE_5': { sx: 16, sy: 48 }, 'MAR_MARECAGE_6': { sx: 32, sy: 48 }, 'MAR_PLANCHE_1': { sx: 48, sy: 48 }, 'MAR_PLANCHE_2': { sx: 64, sy: 48 }, 'MAR_BOIS_2': { sx: 80, sy: 48 }, 'MAR_SOMBRE_6': { sx: 96, sy: 48 }, 'MAR_BOUE_5': { sx: 112, sy: 48 }, 'MAR_BOUE_6': { sx: 128, sy: 48 }, 'MAR_SOMBRE_7': { sx: 144, sy: 48 },
-                'MAR_TERRE_2': { sx: 0, sy: 64 }, 'MAR_MARECAGE_7': { sx: 16, sy: 64 }, 'MAR_MARECAGE_8': { sx: 32, sy: 64 }, 'MAR_PLANCHE_3': { sx: 48, sy: 64 }, 'MAR_PLANCHE_4': { sx: 64, sy: 64 }, 'MAR_BOIS_3': { sx: 80, sy: 64 }, 'MAR_SOMBRE_8': { sx: 96, sy: 64 }, 'MAR_BOUE_7': { sx: 112, sy: 64 }, 'MAR_BOUE_8': { sx: 128, sy: 64 }, 'MAR_SOMBRE_9': { sx: 144, sy: 64 },
-                'MAR_TERRE_3': { sx: 0, sy: 80 }, 'MAR_MARECAGE_9': { sx: 16, sy: 80 }, 'MAR_MARECAGE_10': { sx: 32, sy: 80 }, 'MAR_PLANCHE_5': { sx: 48, sy: 80 }, 'MAR_PLANCHE_6': { sx: 64, sy: 80 }, 'MAR_BOIS_4': { sx: 80, sy: 80 }, 'MAR_SOMBRE_10': { sx: 96, sy: 80 }, 'MAR_BOUE_9': { sx: 112, sy: 80 }, 'MAR_BOUE_10': { sx: 128, sy: 80 }, 'MAR_SOMBRE_11': { sx: 144, sy: 80 },
+                'MAR_CHEMIN_HG': { sx: 0, sy: 0 }, 'MAR_BUISSON_1': { sx: 16, sy: 0 }, 'MAR_BUISSON_2': { sx: 32, sy: 0 }, 'MAR_EAU_PROF': { sx: 48, sy: 0 }, 'MAR_CHAMPI': { sx: 64, sy: 0 }, 'MAR_TERRE_1': { sx: 80, sy: 0 }, 'MAR_SOMBRE_1': { sx: 96, sy: 0 }, 'MAR_BOUE_1': { sx: 112, sy: 0 }, 'MAR_BOUE_2': { sx: 128, sy: 0 }, 'MAR_HERBE': { sx: 144, sy: 0 }, 'MAR_EXTRA_1': { sx: 160, sy: 0 },
+                'MAR_CHEMIN_BG': { sx: 0, sy: 16 }, 'MAR_MARECAGE_1': { sx: 16, sy: 16 }, 'MAR_MARECAGE_2': { sx: 32, sy: 16 }, 'MAR_PONT_1': { sx: 48, sy: 16 }, 'MAR_PONT_2': { sx: 64, sy: 16 }, 'MAR_SOUCHE': { sx: 80, sy: 16 }, 'MAR_SOMBRE_2': { sx: 96, sy: 16 }, 'MAR_BOUE_3': { sx: 112, sy: 16 }, 'MAR_EAU_TEAL': { sx: 128, sy: 16 }, 'MAR_SOMBRE_3': { sx: 144, sy: 16 }, 'MAR_EXTRA_2': { sx: 160, sy: 16 },
+                'MAR_CHEMIN_HD': { sx: 0, sy: 32 }, 'MAR_MARECAGE_3': { sx: 16, sy: 32 }, 'MAR_MARECAGE_4': { sx: 32, sy: 32 }, 'MAR_PONT_3': { sx: 48, sy: 32 }, 'MAR_PONT_4': { sx: 64, sy: 32 }, 'MAR_BOIS_1': { sx: 80, sy: 32 }, 'MAR_SOMBRE_4': { sx: 96, sy: 32 }, 'MAR_BOUE_4': { sx: 112, sy: 32 }, 'MAR_EAU_TEAL_2': { sx: 128, sy: 32 }, 'MAR_SOMBRE_5': { sx: 144, sy: 32 }, 'MAR_EXTRA_3': { sx: 160, sy: 32 },
+                'MAR_CHEMIN_BD': { sx: 0, sy: 48 }, 'MAR_MARECAGE_5': { sx: 16, sy: 48 }, 'MAR_MARECAGE_6': { sx: 32, sy: 48 }, 'MAR_PLANCHE_1': { sx: 48, sy: 48 }, 'MAR_PLANCHE_2': { sx: 64, sy: 48 }, 'MAR_BOIS_2': { sx: 80, sy: 48 }, 'MAR_SOMBRE_6': { sx: 96, sy: 48 }, 'MAR_BOUE_5': { sx: 112, sy: 48 }, 'MAR_BOUE_6': { sx: 128, sy: 48 }, 'MAR_SOMBRE_7': { sx: 144, sy: 48 }, 'MAR_EXTRA_4': { sx: 160, sy: 48 },
+                'MAR_TERRE_2': { sx: 0, sy: 64 }, 'MAR_MARECAGE_7': { sx: 16, sy: 64 }, 'MAR_MARECAGE_8': { sx: 32, sy: 64 }, 'MAR_PLANCHE_3': { sx: 48, sy: 64 }, 'MAR_PLANCHE_4': { sx: 64, sy: 64 }, 'MAR_BOIS_3': { sx: 80, sy: 64 }, 'MAR_SOMBRE_8': { sx: 96, sy: 64 }, 'MAR_BOUE_7': { sx: 112, sy: 64 }, 'MAR_BOUE_8': { sx: 128, sy: 64 }, 'MAR_SOMBRE_9': { sx: 144, sy: 64 }, 'MAR_EXTRA_5': { sx: 160, sy: 64 },
+                'MAR_TERRE_3': { sx: 0, sy: 80 }, 'MAR_MARECAGE_9': { sx: 16, sy: 80 }, 'MAR_MARECAGE_10': { sx: 32, sy: 80 }, 'MAR_PLANCHE_5': { sx: 48, sy: 80 }, 'MAR_PLANCHE_6': { sx: 64, sy: 80 }, 'MAR_BOIS_4': { sx: 80, sy: 80 }, 'MAR_SOMBRE_10': { sx: 96, sy: 80 }, 'MAR_BOUE_9': { sx: 112, sy: 80 }, 'MAR_BOUE_10': { sx: 128, sy: 80 }, 'MAR_SOMBRE_11': { sx: 144, sy: 80 }, 'MAR_EXTRA_6': { sx: 160, sy: 80 },
             };
-            const mt = marMapping[this.type];
+
+            let currentType = this.type;
+            if (['MAR_EXTRA_3', 'MAR_EXTRA_4', 'MAR_EXTRA_5', 'MAR_EXTRA_6'].includes(this.type)) {
+                const anim = ['MAR_EXTRA_3', 'MAR_EXTRA_4', 'MAR_EXTRA_5', 'MAR_EXTRA_6'];
+                const frameIndex = Math.floor(Date.now() / 300) % 4;
+                currentType = anim[frameIndex];
+            }
+
+            const mt = marMapping[currentType];
             if (mt) {
                 ctx.drawImage(marImg, mt.sx, mt.sy, 16, 16, this.x, this.y, this.width, this.height);
             }
             return;
+
         }
 
 
@@ -249,12 +270,12 @@ export class Floor extends Entity {
     // Système de collision AABB simple
     onCollision(other) {
         if (!this.collider || !other.collider || other.hasTag('ITEM')) return;
-        
-        const dx = (this.x + this.width/2) - (other.x + other.width/2);
-        const dy = (this.y + this.height/2) - (other.y + other.height/2);
-        
-        const overlapX = (this.width + other.width)/2 - Math.abs(dx);
-        const overlapY = (this.height + other.height)/2 - Math.abs(dy);
+
+        const dx = (this.x + this.width / 2) - (other.x + other.width / 2);
+        const dy = (this.y + this.height / 2) - (other.y + other.height / 2);
+
+        const overlapX = (this.width + other.width) / 2 - Math.abs(dx);
+        const overlapY = (this.height + other.height) / 2 - Math.abs(dy);
 
         if (overlapX > 0 && overlapY > 0) {
             if (overlapX < overlapY) {
