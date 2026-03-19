@@ -143,4 +143,22 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`--- SERVEUR ZELDA LANCÉ SUR http://localhost:${PORT} ---`);
+    console.log(`(Appuyez sur Ctrl+C pour arrêter le serveur)`);
 });
+
+// --- GESTION DE LA FERMETURE ---
+const shutdown = () => {
+    console.log('\n[Server] Fermeture en cours...');
+    server.close(() => {
+        console.log('[Server] Serveur arrêté proprement.');
+        process.exit(0);
+    });
+    // Force la fermeture après 1 seconde si des sockets restent ouverts
+    setTimeout(() => {
+        console.log('[Server] Fermeture forcée.');
+        process.exit(0);
+    }, 1000);
+};
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
