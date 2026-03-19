@@ -10,9 +10,13 @@
       "Bash(mv \"$f.tmp\" \"$f\")",
       "Bash(pkill -f \"node server.js\")",
       "Bash(netstat -ano)",
+<<<<<<< HEAD
       "Bash(taskkill:*)",
       "Bash(node -e \":*)",
       "Bash(node -e \"const fs=require\\(''fs''\\); const buf=fs.readFileSync\\(''public/assets/shop.png''\\); const w=buf.readUInt32BE\\(16\\); const h=buf.readUInt32BE\\(20\\); console.log\\(w+''x''+h\\);\")"
+=======
+      "Bash(taskkill:*)"
+>>>>>>> 8645eab17fe470279c42164ac06486cb1ef1cd70
     ]
   }
 }
