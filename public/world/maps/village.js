@@ -509,8 +509,13 @@ export const zoneData = {
         {
             name: 'Ancien du Village',
             x: 290, y: 256,
-            color: '#6633aa',
-            skinColor: '#e8c090',
+            sprite: 'VIEUXNPC',
+            spriteColumns: 1,
+            spriteW: 170,
+            spriteH: 226,
+            spriteFrame: 0,
+            spriteScale: 0.18,
+            z: 5,
             dialogues: [
                 "Heros ! Le sorcier Maldrek a vole la Relique Sacree de notre village !",
                 "Il s'est refugie dans sa forteresse au nord, protegee par une barriere magique.",

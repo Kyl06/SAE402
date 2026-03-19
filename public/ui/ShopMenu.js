@@ -5,13 +5,14 @@
  */
 
 import { Entity } from '../engine/Entity.js';
+import { Assets } from '../engine/Assets.js';
 
 const SHOP_ITEMS = [
-    { id: 'potion',  name: 'Potion de soin',  price: 3,  desc: 'Restaure 2 coeurs',     oneTime: false },
-    { id: 'sword',   name: 'Epee en fer',      price: 10, desc: '+1 degat par coup',      oneTime: true },
-    { id: 'bow',     name: 'Arc long',          price: 8,  desc: 'Fleches plus rapides',   oneTime: true },
-    { id: 'shield',  name: 'Bouclier',          price: 7,  desc: 'Reduit les degats de 1', oneTime: true },
-    { id: 'arrows',  name: '5 Fleches',         price: 2,  desc: '+5 fleches',             oneTime: false },
+    { id: 'potion',  name: 'Potion de soin',  price: 3,  desc: 'Restaure 2 coeurs',     oneTime: false, icon: 'POTION' },
+    { id: 'sword',   name: 'Epee en fer',      price: 10, desc: '+1 degat par coup',      oneTime: true,  icon: 'EPEE_FER' },
+    { id: 'bow',     name: 'Arc long',          price: 8,  desc: 'Fleches plus rapides',   oneTime: true,  icon: 'ARC_LONG' },
+    { id: 'shield',  name: 'Bouclier',          price: 7,  desc: 'Reduit les degats de 1', oneTime: true,  icon: 'BOUCLIER' },
+    { id: 'arrows',  name: '5 Fleches',         price: 2,  desc: '+5 fleches',             oneTime: false, icon: 'ARROW' },
 ];
 
 export class ShopMenu extends Entity {
@@ -192,9 +193,22 @@ export class ShopMenu extends Entity {
                 if (item.id === 'shield' && player.hasShield) alreadyBought = true;
             }
 
+            // Icone de l'item
+            const iconImg = item.icon ? Assets.get(item.icon) : null;
+            const iconSize = 20;
+            const textOffsetX = iconImg ? 24 : 0;
+            if (iconImg) {
+                if (item.id === 'arrows') {
+                    // Derniere case 16x16 de arrow.png (16x64)
+                    ctx.drawImage(iconImg, 0, 48, 16, 16, boxX + 38, y - 4, iconSize, iconSize);
+                } else {
+                    ctx.drawImage(iconImg, boxX + 38, y - 4, iconSize, iconSize);
+                }
+            }
+
             ctx.fillStyle = alreadyBought ? '#555566' : '#ffffff';
             ctx.font = 'bold 11px "Press Start 2P", monospace';
-            ctx.fillText(item.name, boxX + 38, y + 8);
+            ctx.fillText(item.name, boxX + 38 + textOffsetX, y + 8);
 
             const canAfford = emeralds >= item.price;
             ctx.fillStyle = alreadyBought ? '#555566' : (canAfford ? '#44ff44' : '#ff4444');
@@ -205,7 +219,7 @@ export class ShopMenu extends Entity {
 
             ctx.fillStyle = alreadyBought ? '#333344' : '#aaaacc';
             ctx.font = 'bold 8px "Press Start 2P", monospace';
-            ctx.fillText(alreadyBought ? '[possede]' : item.desc, boxX + 38, y + 28);
+            ctx.fillText(alreadyBought ? '[possede]' : item.desc, boxX + 38 + textOffsetX, y + 28);
         }
 
         ctx.strokeStyle = '#8888aa';

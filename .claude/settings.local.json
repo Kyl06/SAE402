@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(///se4fs/users/12400591/Bureau/SAE402-master/public/assets/**)",
+      "Read(///se4fs/users/12400591/Bureau/**)",
+      "Bash(npm install:*)"
+    ]
+  }
+}

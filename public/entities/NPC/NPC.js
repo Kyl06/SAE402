@@ -41,16 +41,23 @@ export class NPC extends Entity {
 
         // Sprite (optionnel)
         this.spriteAsset = config.sprite || null;
+        this.staticFrame = config.spriteFrame ?? null;
         if (this.spriteAsset) {
             const cols = config.spriteColumns || 2;
+            const rows = config.spriteRows || 1;
             const spriteW = config.spriteW || 16;
             const spriteH = config.spriteH || 16;
-            this.spriteSheet = new SpriteSheet(this.spriteAsset, cols, 1, spriteW, spriteH);
-            this.animator = new Animator([0, 1], 500);
+            this.spriteSheet = new SpriteSheet(this.spriteAsset, cols, rows, spriteW, spriteH);
+            if (this.staticFrame === null) {
+                this.animator = new Animator([0, 1], 500);
+            }
         }
 
+        // Echelle personnalisee pour le rendu du sprite
+        this.spriteScale = config.spriteScale ?? SCALE;
+
         // Hauteur visuelle reelle du sprite (pour centrer la detection)
-        this.spriteRealH = this.spriteAsset ? (config.spriteH || 16) * SCALE : 16 * SCALE;
+        this.spriteRealH = this.spriteAsset ? (config.spriteH || 16) * this.spriteScale : 16 * SCALE;
 
         // Etat d'interaction
         this.playerInRange = false;
@@ -163,10 +170,13 @@ export class NPC extends Entity {
     }
 
     draw(ctx) {
+        if (this.visible === false) return;
         if (this.spriteAsset && this.spriteSheet) {
             // Dessin via sprite sheet
-            const frame = this.animator ? this.animator.frame : 0;
-            this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, SCALE);
+            const frame = this.staticFrame !== null ? this.staticFrame : (this.animator ? this.animator.frame : 0);
+            const drawH = this.spriteSheet.spriteH * this.spriteScale;
+            const drawY = this.y + this.height * SCALE - drawH;
+            this.spriteSheet.drawFrame(ctx, frame, this.x, drawY, this.spriteScale);
         } else {
             // Dessin procedural (PNJ sans sprite)
             this.drawGenericNPC(ctx);
@@ -205,7 +215,8 @@ export class NPC extends Entity {
      */
     drawIndicator(ctx) {
         const bounceY = Math.sin(this.indicatorBounce * 3) * 3;
-        const cx = this.x + this.width * SCALE / 2;
+        const spriteDisplayW = this.spriteSheet ? this.spriteSheet.spriteW * this.spriteScale : this.width * SCALE;
+        const cx = this.x + spriteDisplayW / 2;
         const cy = this.y - 10 + bounceY;
 
         // Fond

@@ -125,6 +125,7 @@ Assets.load({
     ARROW: "./assets/arrow.png",
     TILESET: "./assets/map.png",
     VENDEUR: "./assets/vendeur.png",
+    VIEUXNPC: "./assets/vieuxnpc.png",
     COFFRE: "./assets/coffre.png",
     CLE: "./assets/clé.png",
     HERBESOL: "./assets/herbesol.png",
@@ -135,6 +136,9 @@ Assets.load({
     CIMETIERE: "./assets/cimetiere.png",
     MARAIS: "./assets/marais.png",
     POTION: "./assets/Potion de soin.png",
+    ARC_LONG: "./assets/Arc Long.png",
+    EPEE_FER: "./assets/EpeeEnFer.png",
+    BOUCLIER: "./assets/bouclier.png",
 }).then(async () => {
     // 1. Attendre le choix du role
     const role = await waitForPlayerSelection();
@@ -216,12 +220,18 @@ Assets.load({
         hero.collider = false;
         window.game.dialogueActive = true; // Bloquer le joueur
 
+        // Cacher les PNJ pendant la cinematique
+        const npcs = engine.entities.filter(e => e.hasTag && e.hasTag('NPC'));
+        npcs.forEach(npc => npc.visible = false);
+
         const intro = new IntroCutscene(() => {
             hero.visible = true;
             hero.collider = true;
             hero.x = 380;
             hero.y = 280;
             window.game.dialogueActive = false;
+            // Rendre les PNJ visibles apres la cinematique
+            npcs.forEach(npc => npc.visible = true);
         });
         engine.add(intro);
     }

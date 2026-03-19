@@ -122,6 +122,7 @@ export class Player extends Entity {
             this.actionAnimation = null;
         }
 
+
         // Tremblement d'écran retro (un peu plus fort pour l'impact)
         window.game.engine.shake(8, 200);
 

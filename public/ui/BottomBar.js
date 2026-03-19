@@ -29,9 +29,9 @@ export class BottomBar extends Entity {
 
         // --- Ligne du haut : coeurs + stamina + emeraudes + fleches ---
         this.heartsUI.draw(ctx, player.hp, 20, this.y + 6);
-        this.drawStamina(ctx, player, 20, this.y + 22);
-        this.drawEmeralds(ctx, player, 140, this.y + 22);
-        this.drawArrows(ctx, player, 250, this.y + 22);
+        this.drawStamina(ctx, player, 130, this.y + 12);
+        this.drawEmeralds(ctx, player, 260, this.y + 18);
+        this.drawArrows(ctx, player, 380, this.y + 18);
 
         // --- Ligne du bas : inventaire ---
         const invY = this.y + 42;
@@ -74,29 +74,32 @@ export class BottomBar extends Entity {
     }
 
     drawEmeralds(ctx, player, x, y) {
+        const iconSize = 18;
         const emeraldImg = Assets.get("EMERALD");
         if (emeraldImg) {
-            ctx.drawImage(emeraldImg, x, y - 12, 20, 20);
+            ctx.drawImage(emeraldImg, x, y - iconSize / 2, iconSize, iconSize);
         }
         ctx.fillStyle = "#fff";
         ctx.font = "bold 16px monospace";
         ctx.textBaseline = "middle";
         ctx.textAlign = "left";
         const emText = player.emeralds === Infinity ? 'INF' : `x${player.emeralds || 0}`;
-        ctx.fillText(emText, x + 24, y);
+        ctx.fillText(emText, x + iconSize + 4, y);
     }
 
     drawArrows(ctx, player, x, y) {
+        const iconSize = 18;
         const arrowImg = Assets.get("ARROW");
         if (arrowImg) {
-            ctx.drawImage(arrowImg, x, y - 12, 20, 20);
+            // Derniere case 16x16 de arrow.png (16x64 => 4 cases, derniere a sy=48)
+            ctx.drawImage(arrowImg, 0, 48, 16, 16, x, y - iconSize / 2, iconSize, iconSize);
         }
         const count = player.arrows || 0;
         ctx.fillStyle = count > 0 ? "#fff" : "#666";
         ctx.font = "bold 16px monospace";
         ctx.textBaseline = "middle";
         ctx.textAlign = "left";
-        ctx.fillText(`x${count}`, x + 24, y);
+        ctx.fillText(`x${count}`, x + iconSize + 4, y);
     }
 
     drawFragments(ctx, x, y) {
@@ -165,23 +168,29 @@ export class BottomBar extends Entity {
 
         // Epee
         if (player.swordLevel > 0) {
-            ctx.fillStyle = '#ccc';
-            ctx.fillText('EP+', x, y + 2);
-            x += 30;
+            const epeeImg = Assets.get("EPEE_FER");
+            if (epeeImg) {
+                ctx.drawImage(epeeImg, x, y - 8, 16, 16);
+            }
+            x += 22;
         }
 
         // Arc
         if (player.bowLevel > 0) {
-            ctx.fillStyle = '#ccc';
-            ctx.fillText('ARC+', x, y + 2);
-            x += 35;
+            const arcImg = Assets.get("ARC_LONG");
+            if (arcImg) {
+                ctx.drawImage(arcImg, x, y - 8, 16, 16);
+            }
+            x += 22;
         }
 
         // Bouclier
         if (player.hasShield) {
-            ctx.fillStyle = '#4488ff';
-            ctx.fillText('BOU', x, y + 2);
-            x += 30;
+            const bouclierImg = Assets.get("BOUCLIER");
+            if (bouclierImg) {
+                ctx.drawImage(bouclierImg, x, y - 8, 16, 16);
+            }
+            x += 22;
         }
 
         return x;
