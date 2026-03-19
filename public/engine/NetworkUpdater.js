@@ -80,9 +80,9 @@ export class NetworkUpdater {
                     if (type === 'OCTOROK') {
                         const { NetworkOctorok } = await import('../entities/Enemies/NetworkOctorok.js');
                         mob = new NetworkOctorok(parseFloat(x), parseFloat(y));
-                    } else if (type === 'MALDEK') {
-                        const { NetworkMaldek } = await import('../entities/Enemies/NetworkMaldek.js');
-                        mob = new NetworkMaldek(parseFloat(x), parseFloat(y));
+                    } else if (type === 'MALDREK') {
+                        const { NetworkMaldrek } = await import('../entities/Enemies/NetworkMaldrek.js');
+                        mob = new NetworkMaldrek(parseFloat(x), parseFloat(y));
                     } else {
                         const { NetworkMoblin } = await import('../entities/Enemies/NetworkMoblin.js');
                         mob = new NetworkMoblin(parseFloat(x), parseFloat(y));
@@ -132,13 +132,15 @@ export class NetworkUpdater {
             if (item) this.engine.remove(item);
         });
 
-        // 6. PROJECTILES OCTOROK
+        // 6. PROJECTILES OCTOROK ET MAGIC
         this.socket.on('network_projectile_spawn', async (data) => {
             if (this.isHost) return;
             try {
-                if (data.type === 'BEAM') {
-                    const { MaldekBeam } = await import('../entities/Enemies/MaldekBeam.js');
-                    const proj = new MaldekBeam(data.x, data.y, data.vx, data.vy, data.ownerId);
+                if (data.type === 'MAGIC') {
+                    const { MagicProjectile } = await import('../entities/Enemies/MagicProjectile.js');
+                    // Compute dirX, dirY and speed from vx, vy
+                    const speed = Math.hypot(data.vx, data.vy) || 1;
+                    const proj = new MagicProjectile(data.x, data.y, data.vx/speed, data.vy/speed, speed, data.ownerId);
                     proj.netId = data.id;
                     proj.collider = false;
                     this.engine.add(proj);

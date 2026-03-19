@@ -9,50 +9,7 @@ import { Explosion } from '../Effects/Explosion.js';
 import { Emerald } from '../Items/Emerald.js';
 import { SCALE } from '../../constants.js';
 import { SpriteSheet } from '../../engine/SpriteSheet.js';
-
-class MagicProjectile extends Entity {
-    constructor(x, y, dirX, dirY, speed) {
-        super(x, y, 12, 12);
-        this.velX = dirX * speed;
-        this.velY = dirY * speed;
-        this.addTag('ENEMY');
-        this.collider = true;
-        this.z = 12;
-        this.lifeTime = 3000;
-        this.time = 0;
-    }
-
-    update(delta) {
-        this.time += delta;
-        this.lifeTime -= delta;
-        if (this.lifeTime <= 0) this.kill();
-        super.update(delta);
-    }
-
-    onCollision(other) {
-        if (other.hasTag('PLAYER') && !other.isDead) {
-            // Le Player gère ses propres dégâts via son onCollision s'il touche l'ennemi.
-            this.kill();
-        }
-        if (other.hasTag('SOLID') && !other.hasTag('ENEMY')) {
-            this.kill();
-        }
-    }
-
-    draw(ctx) {
-        const pulse = Math.sin(this.time * 0.01) * 3 + 8;
-        // Boule magique violette
-        ctx.fillStyle = '#aa44ff';
-        ctx.beginPath();
-        ctx.arc(this.x + 6, this.y + 6, pulse, 0, Math.PI * 2);
-        ctx.fill();
-        // Coeur lumineux
-        ctx.fillStyle = '#ff88ff';
-        ctx.beginPath();
-        ctx.arc(this.x + 6, this.y + 6, pulse * 0.5, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
+import { MagicProjectile } from './MagicProjectile.js';
 
 export class Maldrek extends Entity {
     constructor(x, y) {
@@ -257,7 +214,16 @@ export class Maldrek extends Entity {
             const angle = (Math.PI * 2 * i / count) + this.animTime * 0.001;
             const dx = Math.cos(angle);
             const dy = Math.sin(angle);
-            window.game.engine.add(new MagicProjectile(cx, cy, dx, dy, speed));
+            
+            const proj = new MagicProjectile(cx, cy, dx, dy, speed, this.netId);
+            proj.netId = 'mag_' + Math.random().toString(36).slice(2, 9);
+            window.game.engine.add(proj);
+            
+            if (window.game.network?.socket) {
+                window.game.network.socket.emit('projectile', {
+                    x: cx, y: cy, vx: dx * speed, vy: dy * speed, id: proj.netId, ownerId: this.netId, type: 'MAGIC'
+                });
+            }
         }
     }
 
