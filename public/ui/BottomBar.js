@@ -82,7 +82,12 @@ export class BottomBar extends Entity {
         ctx.font = "bold 16px monospace";
         ctx.textBaseline = "middle";
         ctx.textAlign = "left";
+<<<<<<< HEAD
         ctx.fillText(`x${player.emeralds || 0}`, x + 24, y);
+=======
+        const emText = player.emeralds === Infinity ? 'INF' : `x${player.emeralds || 0}`;
+        ctx.fillText(emText, x + 24, y);
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
     }
 
     drawArrows(ctx, player, x, y) {

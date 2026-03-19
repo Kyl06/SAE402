@@ -169,9 +169,15 @@ export class Octorok extends Entity {
         }
     }
 
+<<<<<<< HEAD
     takeDamage(direction) {
         if (this.painState || this.toRemove) return;
         this.hp--;
+=======
+    takeDamage(direction, damage = 1) {
+        if (this.painState || this.toRemove) return;
+        this.hp -= damage;
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
         if (this.hp <= 0) return this.die();
 
         const force = 200;

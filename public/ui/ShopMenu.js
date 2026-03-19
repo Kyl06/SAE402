@@ -37,6 +37,10 @@ export class ShopMenu extends Entity {
         this.feedbackText = '';
         this.feedbackTimer = 0;
         this.animTimer = 0;
+<<<<<<< HEAD
+=======
+        this.keyEWas = true; // Ignorer le E encore enfonce du dialogue
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
         window.game.dialogueActive = true;
     }
 
@@ -87,9 +91,15 @@ export class ShopMenu extends Entity {
             if (item.id === 'shield' && player.hasShield) { this.showFeedback('Deja achete !'); return; }
         }
 
+<<<<<<< HEAD
         if ((player.emeralds || 0) < item.price) { this.showFeedback('Pas assez d\'emeraudes !'); return; }
 
         player.emeralds -= item.price;
+=======
+        if (!player.adminMode && (player.emeralds || 0) < item.price) { this.showFeedback('Pas assez d\'emeraudes !'); return; }
+
+        if (!player.adminMode) player.emeralds -= item.price;
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
 
         switch (item.id) {
             case 'potion': player.potions++; this.showFeedback('Potion achetee !'); break;
@@ -157,7 +167,12 @@ export class ShopMenu extends Entity {
         ctx.fillStyle = '#44ff44';
         ctx.font = 'bold 11px "Press Start 2P", monospace';
         ctx.textAlign = 'right';
+<<<<<<< HEAD
         ctx.fillText(`${emeralds} em.`, boxX + boxW - 16, boxY + 30);
+=======
+        const emDisplay = emeralds === Infinity ? 'INF' : `${emeralds}`;
+        ctx.fillText(`${emDisplay} em.`, boxX + boxW - 16, boxY + 30);
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
 
         ctx.textAlign = 'left';
         const startY = boxY + 68;

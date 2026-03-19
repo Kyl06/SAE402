@@ -26,12 +26,37 @@ export class NetworkUpdater {
         if (!window.game) window.game = {};
         window.game.network = this;
 
+<<<<<<< HEAD
+=======
+        this._previousSocketIds = new Set();
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
         this.setupListeners();
     }
 
     setupListeners() {
         if (!this.socket) return;
 
+<<<<<<< HEAD
+=======
+        // 0. GESTION RECONNEXION - nettoyer les fantomes
+        this.socket.on('connect', () => {
+            // Supprimer le NetworkPlayer de l'ancien ID (fantome de reconnexion)
+            for (const oldId of this._previousSocketIds) {
+                if (this.remotePlayers[oldId]) {
+                    this.engine.remove(this.remotePlayers[oldId]);
+                    delete this.remotePlayers[oldId];
+                }
+            }
+            this._previousSocketIds.clear();
+        });
+
+        this.socket.on('disconnect', () => {
+            if (this.socket.id) {
+                this._previousSocketIds.add(this.socket.id);
+            }
+        });
+
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
         // 1. INITIALISATION DU SKIN
         this.socket.on('init_player', ({ skin }) => {
             if (this.localPlayer && typeof this.localPlayer.setSkin === 'function') {
@@ -47,6 +72,12 @@ export class NetworkUpdater {
             const parts = data.split('|');
             const [action, x, y, vx, vy, skin] = parts;
 
+<<<<<<< HEAD
+=======
+            // Ignorer les mises a jour du meme skin (fantome de reconnexion)
+            if (skin === this.localPlayer?.skinId) return;
+
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
             if (!this.remotePlayers[id]) {
                 const np = new NetworkPlayer(parseInt(x), parseInt(y), skin);
                 np.socketId = id;

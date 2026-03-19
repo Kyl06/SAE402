@@ -261,9 +261,15 @@ export class Maldrek extends Entity {
         }
     }
 
+<<<<<<< HEAD
     takeDamage(direction) {
         if (this.painState || this.toRemove) return;
         this.hp--;
+=======
+    takeDamage(direction, damage = 1) {
+        if (this.painState || this.toRemove) return;
+        this.hp -= damage;
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
         this.flashTime = 150;
         window.game.engine.shake(5, 120);
 

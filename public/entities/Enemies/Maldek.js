@@ -129,9 +129,15 @@ export class Maldek extends Entity {
         }
     }
 
+<<<<<<< HEAD
     takeDamage(direction) {
         if (this.painState || this.toRemove) return;
         this.hp--;
+=======
+    takeDamage(direction, damage = 1) {
+        if (this.painState || this.toRemove) return;
+        this.hp -= damage;
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
         if (this.hp <= 0) return this.die();
 
         this.painState = { msLeft: 200, velX: 0, velY: 0 }; // Pas de knockback pour le boss, juste un flash

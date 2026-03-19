@@ -28,11 +28,34 @@ export class Floor extends Entity {
 
         // Système de collision : Solide par défaut sauf pour les sols
         const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LEAVES', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL',
+<<<<<<< HEAD
             'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU',
             'CIM_STRUCT_4', 'CIM_SOL_2', 'CIM_SOL_3', 'CIM_SOL_4', 'CIM_SOL_5', 'CIM_SOL_6', 'CIM_SOL_7', 'CIM_SOL_9', 'CIM_SOL_10', 'CIM_SOL_11', 'CIM_SOL_12', 'CIM_SOL_13', 'CIM_SOL_14',
             'CIM_MOSAIQUE_1', 'CIM_MOSAIQUE_2', 'CIM_MOSAIQUE_3', 'CIM_MOSAIQUE_4', 'CIM_MOSAIQUE_5',
             'CIM_SOL_18', 'CIM_SOL_21', 'CIM_SOL_22', 'CIM_SOL_23', 'CIM_SOL_24', 'CIM_SOL_25', 'CIM_SOL_26', 'CIM_SOL_27', 'CIM_SOL_28'];
         this.collider = !walkables.includes(this.type);
+=======
+            'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU'];
+        // Bordures CIM solides (murs, tombes, deco, piliers)
+        const cimSolid = ['CIM_SOL_1', 'CIM_TOMBE_HD', 'CIM_TOMBE_HG', 'CIM_TOMBE_BG', 'CIM_SOL_8', 'CIM_TOMBE_BD',
+            'CIM_MUR_5', 'CIM_MUR_8', 'CIM_DECO_1', 'CIM_DECO_2', 'CIM_DECO_3', 'CIM_DECO_4',
+            'CIM_MUR_9', 'CIM_MUR_12', 'CIM_DECO_5', 'CIM_DECO_6', 'CIM_ROSE_1', 'CIM_ROSE_2', 'CIM_ROSE_3',
+            'CIM_MUR_13', 'CIM_MUR_14', 'CIM_MUR_15', 'CIM_MUR_16', 'CIM_ROSE_8', 'CIM_ROSE_9', 'CIM_ROSE_10',
+            'CIM_MUR_18', 'CIM_PILIER_5', 'CIM_MUR_19', 'CIM_MUR_20',
+            'CIM_SOL_15', 'CIM_SOL_16', 'CIM_SOL_17', 'CIM_SOL_19', 'CIM_SOL_20',
+            'CIM_MUR_22', 'CIM_MUR_23', 'CIM_MUR_24', 'CIM_DECO_7', 'WATER'];
+        // Tous les CIM_ sont traversables sauf ceux dans cimSolid
+        const isCim = this.type.startsWith('CIM_');
+        const isCimWalkable = isCim && !cimSolid.includes(this.type);
+        // MAR_ : sols traversables (marecage, herbe, terre, boue, pont, planches, chemin)
+        const marWalkable = ['MAR_MARECAGE_1', 'MAR_MARECAGE_2', 'MAR_MARECAGE_3', 'MAR_MARECAGE_4', 'MAR_MARECAGE_5', 'MAR_MARECAGE_6', 'MAR_MARECAGE_7', 'MAR_MARECAGE_8', 'MAR_MARECAGE_9', 'MAR_MARECAGE_10',
+            'MAR_HERBE', 'MAR_TERRE_1', 'MAR_TERRE_2', 'MAR_TERRE_3',
+            'MAR_BOUE_1', 'MAR_BOUE_2', 'MAR_BOUE_3', 'MAR_BOUE_4', 'MAR_BOUE_5', 'MAR_BOUE_6', 'MAR_BOUE_7', 'MAR_BOUE_8', 'MAR_BOUE_9', 'MAR_BOUE_10',
+            'MAR_PONT_1', 'MAR_PONT_2', 'MAR_PONT_3', 'MAR_PONT_4',
+            'MAR_PLANCHE_1', 'MAR_PLANCHE_2', 'MAR_PLANCHE_3', 'MAR_PLANCHE_4', 'MAR_PLANCHE_5', 'MAR_PLANCHE_6',
+            'MAR_CHEMIN_HG', 'MAR_CHEMIN_BG', 'MAR_CHEMIN_HD', 'MAR_CHEMIN_BD'];
+        this.collider = !(walkables.includes(this.type) || isCimWalkable || marWalkable.includes(this.type));
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
 
         if (this.collider) {
             this.addTag('SOLID');
@@ -153,6 +176,28 @@ export class Floor extends Entity {
             return;
         }
 
+<<<<<<< HEAD
+=======
+        // Tiles depuis la spritesheet marais.png
+        if (this.type.startsWith('MAR_')) {
+            const marImg = Assets.get("MARAIS");
+            if (!marImg) return;
+            const marMapping = {
+                'MAR_CHEMIN_HG': { sx: 0, sy: 0 }, 'MAR_BUISSON_1': { sx: 16, sy: 0 }, 'MAR_BUISSON_2': { sx: 32, sy: 0 }, 'MAR_EAU_PROF': { sx: 48, sy: 0 }, 'MAR_CHAMPI': { sx: 64, sy: 0 }, 'MAR_TERRE_1': { sx: 80, sy: 0 }, 'MAR_SOMBRE_1': { sx: 96, sy: 0 }, 'MAR_BOUE_1': { sx: 112, sy: 0 }, 'MAR_BOUE_2': { sx: 128, sy: 0 }, 'MAR_HERBE': { sx: 144, sy: 0 },
+                'MAR_CHEMIN_BG': { sx: 0, sy: 16 }, 'MAR_MARECAGE_1': { sx: 16, sy: 16 }, 'MAR_MARECAGE_2': { sx: 32, sy: 16 }, 'MAR_PONT_1': { sx: 48, sy: 16 }, 'MAR_PONT_2': { sx: 64, sy: 16 }, 'MAR_SOUCHE': { sx: 80, sy: 16 }, 'MAR_SOMBRE_2': { sx: 96, sy: 16 }, 'MAR_BOUE_3': { sx: 112, sy: 16 }, 'MAR_EAU_TEAL': { sx: 128, sy: 16 }, 'MAR_SOMBRE_3': { sx: 144, sy: 16 },
+                'MAR_CHEMIN_HD': { sx: 0, sy: 32 }, 'MAR_MARECAGE_3': { sx: 16, sy: 32 }, 'MAR_MARECAGE_4': { sx: 32, sy: 32 }, 'MAR_PONT_3': { sx: 48, sy: 32 }, 'MAR_PONT_4': { sx: 64, sy: 32 }, 'MAR_BOIS_1': { sx: 80, sy: 32 }, 'MAR_SOMBRE_4': { sx: 96, sy: 32 }, 'MAR_BOUE_4': { sx: 112, sy: 32 }, 'MAR_EAU_TEAL_2': { sx: 128, sy: 32 }, 'MAR_SOMBRE_5': { sx: 144, sy: 32 },
+                'MAR_CHEMIN_BD': { sx: 0, sy: 48 }, 'MAR_MARECAGE_5': { sx: 16, sy: 48 }, 'MAR_MARECAGE_6': { sx: 32, sy: 48 }, 'MAR_PLANCHE_1': { sx: 48, sy: 48 }, 'MAR_PLANCHE_2': { sx: 64, sy: 48 }, 'MAR_BOIS_2': { sx: 80, sy: 48 }, 'MAR_SOMBRE_6': { sx: 96, sy: 48 }, 'MAR_BOUE_5': { sx: 112, sy: 48 }, 'MAR_BOUE_6': { sx: 128, sy: 48 }, 'MAR_SOMBRE_7': { sx: 144, sy: 48 },
+                'MAR_TERRE_2': { sx: 0, sy: 64 }, 'MAR_MARECAGE_7': { sx: 16, sy: 64 }, 'MAR_MARECAGE_8': { sx: 32, sy: 64 }, 'MAR_PLANCHE_3': { sx: 48, sy: 64 }, 'MAR_PLANCHE_4': { sx: 64, sy: 64 }, 'MAR_BOIS_3': { sx: 80, sy: 64 }, 'MAR_SOMBRE_8': { sx: 96, sy: 64 }, 'MAR_BOUE_7': { sx: 112, sy: 64 }, 'MAR_BOUE_8': { sx: 128, sy: 64 }, 'MAR_SOMBRE_9': { sx: 144, sy: 64 },
+                'MAR_TERRE_3': { sx: 0, sy: 80 }, 'MAR_MARECAGE_9': { sx: 16, sy: 80 }, 'MAR_MARECAGE_10': { sx: 32, sy: 80 }, 'MAR_PLANCHE_5': { sx: 48, sy: 80 }, 'MAR_PLANCHE_6': { sx: 64, sy: 80 }, 'MAR_BOIS_4': { sx: 80, sy: 80 }, 'MAR_SOMBRE_10': { sx: 96, sy: 80 }, 'MAR_BOUE_9': { sx: 112, sy: 80 }, 'MAR_BOUE_10': { sx: 128, sy: 80 }, 'MAR_SOMBRE_11': { sx: 144, sy: 80 },
+            };
+            const mt = marMapping[this.type];
+            if (mt) {
+                ctx.drawImage(marImg, mt.sx, mt.sy, 16, 16, this.x, this.y, this.width, this.height);
+            }
+            return;
+        }
+
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
         // Tiles depuis la spritesheet cimetiere.png
         if (this.type.startsWith('CIM_')) {
             const cimImg = Assets.get("CIMETIERE");

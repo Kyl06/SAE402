@@ -82,10 +82,17 @@ export class Sword extends Entity {
         if (other.hasTag('ENEMY')) {
             // Degats : 1 de base, 2 avec epee en fer
             const player = window.game.player;
+<<<<<<< HEAD
             const dmg = (player && player.swordLevel > 0) ? 2 : 1;
 
             if (other.takeDamage) {
                 other.takeDamage(this.facing);
+=======
+            const dmg = (player && player.swordLevel > 0) ? 1.5 : 1;
+
+            if (other.takeDamage) {
+                other.takeDamage(this.facing, dmg);
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
             }
 
             if (window.game.network && other.netId) {

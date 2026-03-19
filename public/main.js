@@ -133,6 +133,10 @@ Assets.load({
     BRIQUE: "./assets/brique.png",
     FORTERESSE: "./assets/forteresse.png",
     CIMETIERE: "./assets/cimetiere.png",
+<<<<<<< HEAD
+=======
+    MARAIS: "./assets/marais.png",
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
     POTION: "./assets/Potion de soin.png",
 }).then(async () => {
     // 1. Attendre le choix du role

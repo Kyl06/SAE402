@@ -113,10 +113,17 @@ export class Moblin extends Entity {
         this.velY = this.facing === "UP" ? -this.speed : (this.facing === "DOWN" ? this.speed : 0);
     }
 
+<<<<<<< HEAD
     takeDamage(direction) {
         if (this.painState || this.toRemove) return;
 
         this.hp--;
+=======
+    takeDamage(direction, damage = 1) {
+        if (this.painState || this.toRemove) return;
+
+        this.hp -= damage;
+>>>>>>> d0e8611ba67ebeb154b2d2e7217de151c55a9bca
         if (this.hp <= 0) {
             this.die();
             return;
