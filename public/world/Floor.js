@@ -190,12 +190,19 @@ export class Floor extends Entity {
                 'MAR_TERRE_3': { sx: 0, sy: 80 }, 'MAR_MARECAGE_9': { sx: 16, sy: 80 }, 'MAR_MARECAGE_10': { sx: 32, sy: 80 }, 'MAR_PLANCHE_5': { sx: 48, sy: 80 }, 'MAR_PLANCHE_6': { sx: 64, sy: 80 }, 'MAR_BOIS_4': { sx: 80, sy: 80 }, 'MAR_SOMBRE_10': { sx: 96, sy: 80 }, 'MAR_BOUE_9': { sx: 112, sy: 80 }, 'MAR_BOUE_10': { sx: 128, sy: 80 }, 'MAR_SOMBRE_11': { sx: 144, sy: 80 }, 'MAR_EXTRA_6': { sx: 160, sy: 80 },
             };
 
+            let currentType = this.type;
+            if (['MAR_EXTRA_3', 'MAR_EXTRA_4', 'MAR_EXTRA_5', 'MAR_EXTRA_6'].includes(this.type)) {
+                const anim = ['MAR_EXTRA_3', 'MAR_EXTRA_4', 'MAR_EXTRA_5', 'MAR_EXTRA_6'];
+                const frameIndex = Math.floor(Date.now() / 300) % 4;
+                currentType = anim[frameIndex];
+            }
 
-            const mt = marMapping[this.type];
+            const mt = marMapping[currentType];
             if (mt) {
                 ctx.drawImage(marImg, mt.sx, mt.sy, 16, 16, this.x, this.y, this.width, this.height);
             }
             return;
+
         }
 
 
