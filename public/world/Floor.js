@@ -182,9 +182,14 @@ export class Floor extends Entity {
             const marImg = Assets.get("MARAIS");
             if (!marImg) return;
             const marMapping = {
+                'MAR_CHEMIN_HG': { sx: 0, sy: 0 }, 'MAR_BUISSON_1': { sx: 16, sy: 0 }, 'MAR_BUISSON_2': { sx: 32, sy: 0 }, 'MAR_EAU_PROF': { sx: 48, sy: 0 }, 'MAR_CHAMPI': { sx: 64, sy: 0 }, 'MAR_TERRE_1': { sx: 80, sy: 0 }, 'MAR_SOMBRE_1': { sx: 96, sy: 0 }, 'MAR_BOUE_1': { sx: 112, sy: 0 }, 'MAR_BOUE_2': { sx: 128, sy: 0 }, 'MAR_HERBE': { sx: 144, sy: 0 }, 'MAR_EXTRA_1': { sx: 160, sy: 0 },
+                'MAR_CHEMIN_BG': { sx: 0, sy: 16 }, 'MAR_MARECAGE_1': { sx: 16, sy: 16 }, 'MAR_MARECAGE_2': { sx: 32, sy: 16 }, 'MAR_PONT_1': { sx: 48, sy: 16 }, 'MAR_PONT_2': { sx: 64, sy: 16 }, 'MAR_SOUCHE': { sx: 80, sy: 16 }, 'MAR_SOMBRE_2': { sx: 96, sy: 16 }, 'MAR_BOUE_3': { sx: 112, sy: 16 }, 'MAR_EAU_TEAL': { sx: 128, sy: 16 }, 'MAR_SOMBRE_3': { sx: 144, sy: 16 }, 'MAR_EXTRA_2': { sx: 160, sy: 16 },
+                'MAR_CHEMIN_HD': { sx: 0, sy: 32 }, 'MAR_MARECAGE_3': { sx: 16, sy: 32 }, 'MAR_MARECAGE_4': { sx: 32, sy: 32 }, 'MAR_PONT_3': { sx: 48, sy: 32 }, 'MAR_PONT_4': { sx: 64, sy: 32 }, 'MAR_BOIS_1': { sx: 80, sy: 32 }, 'MAR_SOMBRE_4': { sx: 96, sy: 32 }, 'MAR_BOUE_4': { sx: 112, sy: 32 }, 'MAR_EAU_TEAL_2': { sx: 128, sy: 32 }, 'MAR_SOMBRE_5': { sx: 144, sy: 32 }, 'MAR_EXTRA_3': { sx: 160, sy: 32 },
+                'MAR_CHEMIN_BD': { sx: 0, sy: 48 }, 'MAR_MARECAGE_5': { sx: 16, sy: 48 }, 'MAR_MARECAGE_6': { sx: 32, sy: 48 }, 'MAR_PLANCHE_1': { sx: 48, sy: 48 }, 'MAR_PLANCHE_2': { sx: 64, sy: 48 }, 'MAR_BOIS_2': { sx: 80, sy: 48 }, 'MAR_SOMBRE_6': { sx: 96, sy: 48 }, 'MAR_BOUE_5': { sx: 112, sy: 48 }, 'MAR_BOUE_6': { sx: 128, sy: 48 }, 'MAR_SOMBRE_7': { sx: 144, sy: 48 }, 'MAR_EXTRA_4': { sx: 160, sy: 48 },
                 'MAR_TERRE_2': { sx: 0, sy: 64 }, 'MAR_MARECAGE_7': { sx: 16, sy: 64 }, 'MAR_MARECAGE_8': { sx: 32, sy: 64 }, 'MAR_PLANCHE_3': { sx: 48, sy: 64 }, 'MAR_PLANCHE_4': { sx: 64, sy: 64 }, 'MAR_BOIS_3': { sx: 80, sy: 64 }, 'MAR_SOMBRE_8': { sx: 96, sy: 64 }, 'MAR_BOUE_7': { sx: 112, sy: 64 }, 'MAR_BOUE_8': { sx: 128, sy: 64 }, 'MAR_SOMBRE_9': { sx: 144, sy: 64 }, 'MAR_EXTRA_5': { sx: 160, sy: 64 },
                 'MAR_TERRE_3': { sx: 0, sy: 80 }, 'MAR_MARECAGE_9': { sx: 16, sy: 80 }, 'MAR_MARECAGE_10': { sx: 32, sy: 80 }, 'MAR_PLANCHE_5': { sx: 48, sy: 80 }, 'MAR_PLANCHE_6': { sx: 64, sy: 80 }, 'MAR_BOIS_4': { sx: 80, sy: 80 }, 'MAR_SOMBRE_10': { sx: 96, sy: 80 }, 'MAR_BOUE_9': { sx: 112, sy: 80 }, 'MAR_BOUE_10': { sx: 128, sy: 80 }, 'MAR_SOMBRE_11': { sx: 144, sy: 80 }, 'MAR_EXTRA_6': { sx: 160, sy: 80 },
             };
+
 
             const mt = marMapping[this.type];
             if (mt) {
