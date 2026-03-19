@@ -187,6 +187,7 @@ export class Floor extends Entity {
             return;
         }
 
+
         // Tiles depuis la spritesheet cimetiere.png
         if (this.type.startsWith('CIM_')) {
             const cimImg = Assets.get("CIMETIERE");

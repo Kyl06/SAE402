@@ -51,6 +51,7 @@ export class NetworkUpdater {
             }
         });
 
+
         // 1. INITIALISATION DU SKIN
         this.socket.on('init_player', ({ skin }) => {
             if (this.localPlayer && typeof this.localPlayer.setSkin === 'function') {
@@ -68,6 +69,7 @@ export class NetworkUpdater {
 
             // Ignorer les mises a jour du meme skin (fantome de reconnexion)
             if (skin === this.localPlayer?.skinId) return;
+
 
             if (!this.remotePlayers[id]) {
                 const np = new NetworkPlayer(parseInt(x), parseInt(y), skin);
