@@ -29,7 +29,8 @@ export class Floor extends Entity {
         // Système de collision : Solide par défaut sauf pour les sols
 
         const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL',
-            'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS'];
+            'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS', 'MAR_CHAMPI', "MAR_SOUCHE", 'MAR_EXTRA_1', 'MAR_EXTRA_2', 'MAR_PONT_3', 'MAR_MARECAGE_6',
+        'MAR_BOIS_2', 'MAR_PLANCHE_1', 'MAR_MARECAGE_8', 'MAR_PLANCHE_3', 'MAR_SOMBRE_10', 'MAR_BOIS_4'];
         // Bordures CIM solides (murs, tombes, deco, piliers)
 
         const cimSolid = ['CIM_SOL_1', 'CIM_TOMBE_HD', 'CIM_TOMBE_HG', 'CIM_TOMBE_BG', 'CIM_SOL_8', 'CIM_TOMBE_BD',
