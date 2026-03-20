@@ -30,8 +30,7 @@ export class Floor extends Entity {
         // Système de collision : Solide par défaut sauf pour les sols
 
         const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL', 'SHOP_SOL',
-            'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS', 'MAR_CHAMPI', "MAR_SOUCHE", 'MAR_EXTRA_1', 'MAR_EXTRA_2', 'MAR_PONT_3', 'MAR_MARECAGE_6',
-        'MAR_BOIS_2', 'MAR_PLANCHE_1', 'MAR_MARECAGE_8', 'MAR_PLANCHE_3', 'MAR_SOMBRE_10', 'MAR_BOIS_4'];
+            'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS'];
         // Bordures CIM solides (murs, tombes, deco, piliers)
 
         const cimSolid = ['CIM_SOL_1', 'CIM_TOMBE_HD', 'CIM_TOMBE_HG', 'CIM_TOMBE_BG', 'CIM_SOL_8', 'CIM_TOMBE_BD',
@@ -45,12 +44,7 @@ export class Floor extends Entity {
         const isCim = this.type.startsWith('CIM_');
         const isCimWalkable = isCim && !cimSolid.includes(this.type);
         // MAR_ : sols traversables (marecage, herbe, terre, boue, pont, planches, chemin)
-        const marWalkable = ['MAR_MARECAGE_1', 'MAR_MARECAGE_2', 'MAR_MARECAGE_3', 'MAR_MARECAGE_4', 'MAR_MARECAGE_5', 'MAR_MARECAGE_6', 'MAR_MARECAGE_7', 'MAR_MARECAGE_8', 'MAR_MARECAGE_9', 'MAR_MARECAGE_10',
-            'MAR_HERBE', 'MAR_TERRE_1', 'MAR_TERRE_2', 'MAR_TERRE_3',
-            'MAR_BOUE_1', 'MAR_BOUE_2', 'MAR_BOUE_3', 'MAR_BOUE_4', 'MAR_BOUE_5', 'MAR_BOUE_6', 'MAR_BOUE_7', 'MAR_BOUE_8', 'MAR_BOUE_9', 'MAR_BOUE_10',
-            'MAR_PONT_1', 'MAR_PONT_2', 'MAR_PONT_3', 'MAR_PONT_4',
-            'MAR_PLANCHE_1', 'MAR_PLANCHE_2', 'MAR_PLANCHE_3', 'MAR_PLANCHE_4', 'MAR_PLANCHE_5', 'MAR_PLANCHE_6',
-            'MAR_CHEMIN_HG', 'MAR_CHEMIN_BG', 'MAR_CHEMIN_HD', 'MAR_CHEMIN_BD'];
+        const marWalkable = ['MAR_PONT_2', 'MAR_SOUCHE', 'MAR_CHAMPI', 'MAR_PONT_4', 'MAR_BOIS_3', 'MAR_PLANCHE_3', 'MAR_BOIS_2', 'MAR_MARECAGE_8', 'MAR_EXTRA_1', 'MAR_BOIS_1', 'MAR_MARECAGE_6', 'MAR_PLANCHE_1', 'MAR_BOIS_4'];
         this.collider = !(walkables.includes(this.type) || isCimWalkable || marWalkable.includes(this.type));
 
         if (this.collider) {

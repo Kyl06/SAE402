@@ -48,8 +48,8 @@ export class KeyItem extends Entity {
         const bobY = Math.sin(this.bobTime * 3) * 2;
         const image = Assets.get('CLE');
         if (image) {
-            // Image 1024x1024, affichee en 24x24 sur l'ecran
-            ctx.drawImage(image, Math.floor(this.x), Math.floor(this.y + bobY), 24, 24);
+            // Image 1024x1024, affichee en 32x32 sur l'ecran
+            ctx.drawImage(image, Math.floor(this.x), Math.floor(this.y + bobY), 35, 43);
         }
     }
 }

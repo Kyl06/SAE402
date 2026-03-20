@@ -1,0 +1,83 @@
+/**
+ * @file maison_violette1_interior.js
+ * @description Interieur de la maison violette (en haut a gauche).
+ * Sortie : porte au sud → retour au village
+ */
+
+const mapTiles = [
+    { "x": 256, "y": 128, "type": "WALL_DOWN" },
+    { "x": 288, "y": 128, "type": "WALL_DOWN" },
+    { "x": 320, "y": 128, "type": "WALL_DOWN" },
+    { "x": 352, "y": 128, "type": "WALL_DOWN" },
+    { "x": 384, "y": 128, "type": "WALL_DOWN" },
+    { "x": 416, "y": 128, "type": "WALL_DOWN" },
+    { "x": 448, "y": 128, "type": "WALL_DOWN" },
+    { "x": 480, "y": 128, "type": "WALL_DOWN" },
+    { "x": 256, "y": 160, "type": "WALL_RIGHT" },
+    { "x": 480, "y": 160, "type": "WALL_LEFT" },
+    { "x": 256, "y": 192, "type": "WALL_RIGHT" },
+    { "x": 480, "y": 192, "type": "WALL_LEFT" },
+    { "x": 256, "y": 224, "type": "WALL_RIGHT" },
+    { "x": 480, "y": 224, "type": "WALL_LEFT" },
+    { "x": 256, "y": 256, "type": "WALL_RIGHT" },
+    { "x": 480, "y": 256, "type": "WALL_LEFT" },
+    { "x": 256, "y": 288, "type": "WALL_RIGHT" },
+    { "x": 480, "y": 288, "type": "WALL_LEFT" },
+    { "x": 256, "y": 320, "type": "WALL_RIGHT" },
+    { "x": 480, "y": 320, "type": "WALL_LEFT" },
+    { "x": 256, "y": 352, "type": "WALL_UP" },
+    { "x": 288, "y": 352, "type": "WALL_UP" },
+    { "x": 320, "y": 352, "type": "WALL_UP" },
+    { "x": 416, "y": 352, "type": "WALL_UP" },
+    { "x": 448, "y": 352, "type": "WALL_UP" },
+    { "x": 480, "y": 352, "type": "WALL_UP" },
+    { "x": 288, "y": 160, "type": "SHOP_SOL" },
+    { "x": 320, "y": 160, "type": "SHOP_SOL" },
+    { "x": 352, "y": 160, "type": "SHOP_SOL" },
+    { "x": 384, "y": 160, "type": "SHOP_SOL" },
+    { "x": 416, "y": 160, "type": "SHOP_SOL" },
+    { "x": 448, "y": 160, "type": "SHOP_SOL" },
+    { "x": 288, "y": 192, "type": "SHOP_SOL" },
+    { "x": 320, "y": 192, "type": "SHOP_SOL" },
+    { "x": 352, "y": 192, "type": "SHOP_SOL" },
+    { "x": 384, "y": 192, "type": "SHOP_SOL" },
+    { "x": 416, "y": 192, "type": "SHOP_SOL" },
+    { "x": 448, "y": 192, "type": "SHOP_SOL" },
+    { "x": 288, "y": 224, "type": "SHOP_SOL" },
+    { "x": 320, "y": 224, "type": "SHOP_SOL" },
+    { "x": 352, "y": 224, "type": "SHOP_SOL" },
+    { "x": 384, "y": 224, "type": "SHOP_SOL" },
+    { "x": 416, "y": 224, "type": "SHOP_SOL" },
+    { "x": 448, "y": 224, "type": "SHOP_SOL" },
+    { "x": 288, "y": 256, "type": "SHOP_SOL" },
+    { "x": 320, "y": 256, "type": "SHOP_SOL" },
+    { "x": 352, "y": 256, "type": "SHOP_SOL" },
+    { "x": 384, "y": 256, "type": "SHOP_SOL" },
+    { "x": 416, "y": 256, "type": "SHOP_SOL" },
+    { "x": 448, "y": 256, "type": "SHOP_SOL" },
+    { "x": 288, "y": 288, "type": "SHOP_SOL" },
+    { "x": 320, "y": 288, "type": "SHOP_SOL" },
+    { "x": 352, "y": 288, "type": "SHOP_SOL" },
+    { "x": 384, "y": 288, "type": "SHOP_SOL" },
+    { "x": 416, "y": 288, "type": "SHOP_SOL" },
+    { "x": 448, "y": 288, "type": "SHOP_SOL" },
+    { "x": 288, "y": 320, "type": "SHOP_SOL" },
+    { "x": 320, "y": 320, "type": "SHOP_SOL" },
+    { "x": 352, "y": 320, "type": "SHOP_SOL" },
+    { "x": 384, "y": 320, "type": "SHOP_SOL" },
+    { "x": 416, "y": 320, "type": "SHOP_SOL" },
+    { "x": 448, "y": 320, "type": "SHOP_SOL" }
+];
+
+export const zoneData = {
+    id: 'maison_violette1_interior',
+    name: 'Maison Violette',
+    bgColor: '#1a0a2a',
+    mapData: { walls: mapTiles },
+    enemies: { moblins: 0, octoroks: 0 },
+    connections: {},
+    doors: [
+        { x: 352, y: 352, w: 64, h: 32, target: 'village', spawnX: 96, spawnY: 230 }
+    ],
+    npcs: []
+};

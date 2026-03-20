@@ -21,7 +21,11 @@ const ZONE_MODULES = {
     ruins_east:      () => import('./maps/ruins_east.js?v=' + _v),
     fortress_north:  () => import('./maps/fortress_north.js?v=' + _v),
     shop_interior:   () => import('./maps/shop_interior.js?v=' + _v),
-    Couloir_Forteresse: () => import('./maps/couloir.js?v=' + _v)
+    Couloir_Forteresse: () => import('./maps/couloir.js?v=' + _v),
+    maison_orange_interior:    () => import('./maps/maison_orange_interior.js?v=' + _v),
+    maison_bleu_interior:      () => import('./maps/maison_bleu_interior.js?v=' + _v),
+    maison_violette1_interior: () => import('./maps/maison_violette1_interior.js?v=' + _v),
+    maison_violette2_interior: () => import('./maps/maison_violette2_interior.js?v=' + _v)
 };
 
 const OPPOSITE = { north: 'south', south: 'north', east: 'west', west: 'east' };
@@ -139,12 +143,20 @@ export class ZoneManager {
             this.positionPlayer(entryDir);
         }
 
-        // Si on revient d'un interieur (shop), placer devant la porte
-        if (this.previousZone === 'shop_interior' && zoneId === 'village') {
+        // Si on revient d'un interieur, placer devant la porte
+        const interiorSpawns = {
+            'shop_interior':            { x: 576, y: 230 },
+            'maison_orange_interior':   { x: 256, y: 260 },
+            'maison_violette1_interior':{ x: 96,  y: 260 },
+            'maison_bleu_interior':     { x: 576, y: 420 },
+            'maison_violette2_interior':{ x: 288, y: 420 }
+        };
+        if (zoneId === 'village' && interiorSpawns[this.previousZone]) {
             const player = window.game.player;
             if (player) {
-                player.x = 576;
-                player.y = 230;
+                const spawn = interiorSpawns[this.previousZone];
+                player.x = spawn.x;
+                player.y = spawn.y;
             }
         }
 

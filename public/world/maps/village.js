@@ -2515,7 +2515,11 @@ export const zoneData = {
     enemies: { moblins: 0, octoroks: 0 },
     connections: { north: 'Couloir_Forteresse', south: 'forest_south', west: 'swamp_west', east: 'ruins_east' },
     doors: [
-        { x: 576, y: 160, w: 32, h: 32, target: 'shop_interior', spawnX: 384, spawnY: 310 }
+        { x: 576, y: 160, w: 32, h: 32, target: 'shop_interior', spawnX: 384, spawnY: 310 },
+        { x: 256, y: 224, w: 32, h: 32, target: 'maison_orange_interior', spawnX: 368, spawnY: 310 },
+        { x: 96, y: 224, w: 32, h: 32, target: 'maison_violette1_interior', spawnX: 368, spawnY: 310 },
+        { x: 576, y: 384, w: 32, h: 32, target: 'maison_bleu_interior', spawnX: 368, spawnY: 310 },
+        { x: 288, y: 384, w: 32, h: 32, target: 'maison_violette2_interior', spawnX: 368, spawnY: 310 }
     ],
     npcs: [
         {

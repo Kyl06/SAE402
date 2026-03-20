@@ -122,7 +122,8 @@ Assets.load({
     MAISON_VIOLETTE: "./assets/maisonViolette.png",
     POTEAU_MAISON: "./assets/poteauMaison.png",
     TUILES_VIOLETS: "./assets/tuilesViolets.png",
-    SHOP_SHEET: "./assets/shop.png"
+    SHOP_SHEET: "./assets/shop.png",
+    FEE_MARAIS: "./assets/fee_marais.png",
 }).then(async () => {
     // 1. Attendre le choix du role
     const role = await waitForPlayerSelection();
