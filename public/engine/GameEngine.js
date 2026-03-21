@@ -11,7 +11,8 @@ export class GameEngine {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
-        
+        this.ctx.imageSmoothingEnabled = false;
+
         // Liste active de tous les objets du jeu
         this.entities = [];
         
@@ -98,10 +99,12 @@ export class GameEngine {
      * @returns {boolean}
      */
     rectIntersect(a, b) {
-        return (a.x < b.x + b.width &&
-                a.x + a.width > b.x &&
-                a.y < b.y + b.height &&
-                a.y + a.height > b.y);
+        const ab = a.getCollisionBox ? a.getCollisionBox() : { x: a.x, y: a.y, w: a.width, h: a.height };
+        const bb = b.getCollisionBox ? b.getCollisionBox() : { x: b.x, y: b.y, w: b.width, h: b.height };
+        return (ab.x < bb.x + bb.w &&
+                ab.x + ab.w > bb.x &&
+                ab.y < bb.y + bb.h &&
+                ab.y + ab.h > bb.y);
     }
 
     /**

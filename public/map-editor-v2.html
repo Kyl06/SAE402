@@ -264,6 +264,13 @@
                 <option value="ruins_east">Ruines Est</option>
                 <option value="fortress_north">Forteresse Nord</option>
                 <option value="shop_interior">Interieur Shop</option>
+                <option value="couloir">Couloir</option>
+                <option value="maison_orange_interior">Maison Orange</option>
+                <option value="maison_bleu_interior">Maison Bleue</option>
+                <option value="maison_violette1_interior">Maison Violette 1</option>
+                <option value="maison_violette2_interior">Maison Violette 2</option>
+                <option value="level1">Level 1</option>
+                <option value="level2">Level 2</option>
             </select>
             <button id="btnLoad">Charger</button>
             <div class="sep"></div>
@@ -694,6 +701,58 @@
             'DES_52': { sheet: 'desert', sx: 96, sy: 80, sw: 16, sh: 16, label: 'Desert 52', cat: 'desert' },
             'DES_53': { sheet: 'desert', sx: 112, sy: 80, sw: 16, sh: 16, label: 'Desert 53', cat: 'desert' },
             'DES_54': { sheet: 'desert', sx: 128, sy: 80, sw: 16, sh: 16, label: 'Desert 54', cat: 'desert' },
+
+            // --- Maison interieur (maisonTileset.png, 44 tiles non-vides) ---
+            'MAIS_1':  { sheet: 'maison', sx: 0,   sy: 0,  sw: 16, sh: 16, label: 'Maison 1',  cat: 'maison' },
+            'MAIS_2':  { sheet: 'maison', sx: 16,  sy: 0,  sw: 16, sh: 16, label: 'Maison 2',  cat: 'maison' },
+            'MAIS_3':  { sheet: 'maison', sx: 32,  sy: 0,  sw: 16, sh: 16, label: 'Maison 3',  cat: 'maison' },
+            'MAIS_4':  { sheet: 'maison', sx: 48,  sy: 0,  sw: 16, sh: 16, label: 'Maison 4',  cat: 'maison' },
+            'MAIS_5':  { sheet: 'maison', sx: 64,  sy: 0,  sw: 16, sh: 16, label: 'Maison 5',  cat: 'maison' },
+            'MAIS_6':  { sheet: 'maison', sx: 80,  sy: 0,  sw: 16, sh: 16, label: 'Maison 6',  cat: 'maison' },
+            'MAIS_7':  { sheet: 'maison', sx: 96,  sy: 0,  sw: 16, sh: 16, label: 'Maison 7',  cat: 'maison' },
+
+            'MAIS_13': { sheet: 'maison', sx: 0,   sy: 16, sw: 16, sh: 16, label: 'Maison 13', cat: 'maison' },
+            'MAIS_14': { sheet: 'maison', sx: 16,  sy: 16, sw: 16, sh: 16, label: 'Maison 14', cat: 'maison' },
+            'MAIS_15': { sheet: 'maison', sx: 32,  sy: 16, sw: 16, sh: 16, label: 'Maison 15', cat: 'maison' },
+            'MAIS_16': { sheet: 'maison', sx: 48,  sy: 16, sw: 16, sh: 16, label: 'Maison 16', cat: 'maison' },
+            'MAIS_17': { sheet: 'maison', sx: 64,  sy: 16, sw: 16, sh: 16, label: 'Maison 17', cat: 'maison' },
+            'MAIS_18': { sheet: 'maison', sx: 80,  sy: 16, sw: 16, sh: 16, label: 'Maison 18', cat: 'maison' },
+            'MAIS_19': { sheet: 'maison', sx: 96,  sy: 16, sw: 16, sh: 16, label: 'Maison 19', cat: 'maison' },
+
+            'MAIS_25': { sheet: 'maison', sx: 0,   sy: 32, sw: 16, sh: 16, label: 'Maison 25', cat: 'maison' },
+            'MAIS_26': { sheet: 'maison', sx: 16,  sy: 32, sw: 16, sh: 16, label: 'Maison 26', cat: 'maison' },
+            'MAIS_27': { sheet: 'maison', sx: 32,  sy: 32, sw: 16, sh: 16, label: 'Maison 27', cat: 'maison' },
+            'MAIS_28': { sheet: 'maison', sx: 48,  sy: 32, sw: 16, sh: 16, label: 'Maison 28', cat: 'maison' },
+            'MAIS_29': { sheet: 'maison', sx: 64,  sy: 32, sw: 16, sh: 16, label: 'Maison 29', cat: 'maison' },
+            'MAIS_30': { sheet: 'maison', sx: 80,  sy: 32, sw: 16, sh: 16, label: 'Maison 30', cat: 'maison' },
+
+            'MAIS_37': { sheet: 'maison', sx: 0,   sy: 48, sw: 16, sh: 16, label: 'Maison 37', cat: 'maison' },
+            'MAIS_38': { sheet: 'maison', sx: 16,  sy: 48, sw: 16, sh: 16, label: 'Maison 38', cat: 'maison' },
+            'MAIS_39': { sheet: 'maison', sx: 32,  sy: 48, sw: 16, sh: 16, label: 'Maison 39', cat: 'maison' },
+            'MAIS_40': { sheet: 'maison', sx: 48,  sy: 48, sw: 16, sh: 16, label: 'Maison 40', cat: 'maison' },
+            'MAIS_41': { sheet: 'maison', sx: 64,  sy: 48, sw: 16, sh: 16, label: 'Maison 41', cat: 'maison' },
+            'MAIS_42': { sheet: 'maison', sx: 80,  sy: 48, sw: 16, sh: 16, label: 'Maison 42', cat: 'maison' },
+
+            'MAIS_49': { sheet: 'maison', sx: 0,   sy: 64, sw: 16, sh: 16, label: 'Maison 49', cat: 'maison' },
+            'MAIS_SOL': { sheet: 'maison', sx: 16,  sy: 64, sw: 16, sh: 16, label: 'Sol maison', cat: 'maison' },
+            'MAIS_51': { sheet: 'maison', sx: 32,  sy: 64, sw: 16, sh: 16, label: 'Maison 51', cat: 'maison' },
+            'MAIS_52': { sheet: 'maison', sx: 48,  sy: 64, sw: 16, sh: 16, label: 'Maison 52', cat: 'maison' },
+            'MAIS_HautArmoire': { sheet: 'maison', sx: 64,  sy: 64, sw: 16, sh: 16, label: 'Haut armoire', cat: 'maison' },
+            'MAIS_54': { sheet: 'maison', sx: 80,  sy: 64, sw: 16, sh: 16, label: 'Maison 54', cat: 'maison' },
+
+            'MAIS_61': { sheet: 'maison', sx: 0,   sy: 80, sw: 16, sh: 16, label: 'Maison 61', cat: 'maison' },
+            'MAIS_62': { sheet: 'maison', sx: 16,  sy: 80, sw: 16, sh: 16, label: 'Maison 62', cat: 'maison' },
+            'MAIS_63': { sheet: 'maison', sx: 32,  sy: 80, sw: 16, sh: 16, label: 'Maison 63', cat: 'maison' },
+            'MAIS_64': { sheet: 'maison', sx: 48,  sy: 80, sw: 16, sh: 16, label: 'Maison 64', cat: 'maison' },
+            'MAIS_BasArmoire': { sheet: 'maison', sx: 64,  sy: 80, sw: 16, sh: 16, label: 'Bas armoire', cat: 'maison' },
+            'MAIS_66': { sheet: 'maison', sx: 80,  sy: 80, sw: 16, sh: 16, label: 'Maison 66', cat: 'maison' },
+
+            'MAIS_73': { sheet: 'maison', sx: 0,   sy: 96, sw: 16, sh: 16, label: 'Maison 73', cat: 'maison' },
+            'MAIS_74': { sheet: 'maison', sx: 16,  sy: 96, sw: 16, sh: 16, label: 'Maison 74', cat: 'maison' },
+            'MAIS_75': { sheet: 'maison', sx: 32,  sy: 96, sw: 16, sh: 16, label: 'Maison 75', cat: 'maison' },
+            'MAIS_76': { sheet: 'maison', sx: 48,  sy: 96, sw: 16, sh: 16, label: 'Maison 76', cat: 'maison' },
+            'MAIS_77': { sheet: 'maison', sx: 64,  sy: 96, sw: 16, sh: 16, label: 'Maison 77', cat: 'maison' },
+            'MAIS_78': { sheet: 'maison', sx: 80,  sy: 96, sw: 16, sh: 16, label: 'Maison 78', cat: 'maison' },
         };
 
 
@@ -707,6 +766,7 @@
             cimetiere:  'Cimetiere',
             marais:     'Marais',
             desert:     'Desert',
+            maison:     'Maison',
         };
 
         // Layer classification for visibility toggles
@@ -742,6 +802,7 @@
             'marais':    'assets/marais.png',
             'desert':    'assets/desert.png',
             'shop':      'assets/shop.png',
+            'maison':    'assets/maisonTileset.png',
         };
         let sheetsLoaded = 0;
         const totalSheets = Object.keys(sheetFiles).length;

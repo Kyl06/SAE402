@@ -30,7 +30,7 @@ export class Floor extends Entity {
         // Système de collision : Solide par défaut sauf pour les sols
 
         const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL', 'SHOP_SOL',
-            'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS'];
+            'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS', 'MAIS_SOL'];
         // Bordures CIM solides (murs, tombes, deco, piliers)
 
         const cimSolid = ['CIM_SOL_1', 'CIM_TOMBE_HD', 'CIM_TOMBE_HG', 'CIM_TOMBE_BG', 'CIM_SOL_8', 'CIM_TOMBE_BD',
@@ -46,7 +46,9 @@ export class Floor extends Entity {
         // MAR_ : sols traversables (marecage, herbe, terre, boue, pont, planches, chemin)
         const marWalkable = ['MAR_PONT_2', 'MAR_SOUCHE', 'MAR_CHAMPI', 'MAR_PONT_4', 'MAR_BOIS_3', 'MAR_PLANCHE_3', 'MAR_BOIS_2', 'MAR_MARECAGE_8', 'MAR_EXTRA_1', 'MAR_BOIS_1', 'MAR_MARECAGE_6', 'MAR_PLANCHE_1', 'MAR_BOIS_4'];
         this.collider = !(walkables.includes(this.type) || isCimWalkable || marWalkable.includes(this.type));
-
+        if (this.type === 'MAIS_BasArmoire') {
+            this.halfCollision = 'top';
+        }    
         if (this.collider) {
             this.addTag('SOLID');
         }
@@ -57,6 +59,13 @@ export class Floor extends Entity {
         this.interactKeyWasDown = false;
         this.playerInRange = false;
         this.indicatorBounce = 0;
+    }
+
+    getCollisionBox() {
+        if (this.halfCollision === 'top') {
+            return { x: this.x, y: this.y, w: this.width, h: this.height / 2 };
+        }
+        return { x: this.x, y: this.y, w: this.width, h: this.height };
     }
 
     update(delta) {
@@ -84,6 +93,12 @@ export class Floor extends Entity {
     draw(ctx) {
         const img = Assets.get("TILESET");
         if (!img) return;
+
+        // Arrondir les positions pour éviter les lignes entre les tiles (sub-pixel seams)
+        const dx = Math.round(this.x);
+        const dy = Math.round(this.y);
+        const dw = Math.round(this.width);
+        const dh = Math.round(this.height);
 
         const mapping = {
             'GRASS': { sx: 32, sy: 0, sw: 16, sh: 16 },
@@ -142,11 +157,11 @@ export class Floor extends Entity {
             if (!sImg) return;
             if (this.type === 'PORTAIL') {
                 // Portail : 64x32 source, dessine sur 4x2 tiles (128x64 px)
-                ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, this.x, this.y, 4 * 32, 2 * 32);
-            }else if (this.type === 'MAISON_ORANGE' || this.type === 'MAISON_BLEU' || this.type === 'MAISON_VIOLETTE') {                                                                                           
-                ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, this.x, this.y, 3 * 32, 3 * 32);  
+                ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, dx, dy, 4 * 32, 2 * 32);
+            }else if (this.type === 'MAISON_ORANGE' || this.type === 'MAISON_BLEU' || this.type === 'MAISON_VIOLETTE') {
+                ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, dx, dy, 3 * 32, 3 * 32);
             }else {
-                ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, this.x, this.y, this.width, this.height);
+                ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, dx, dy, dw, dh);
             }
             return;
         }
@@ -162,7 +177,7 @@ export class Floor extends Entity {
             };
             const st = shopMapping[this.type];
             if (st) {
-                ctx.drawImage(shopImg, st.sx, st.sy, st.sw, st.sh, this.x, this.y, this.width, this.height);
+                ctx.drawImage(shopImg, st.sx, st.sy, st.sw, st.sh, dx, dy, dw, dh);
             }
             return;
         }
@@ -188,7 +203,7 @@ export class Floor extends Entity {
 
             const ft = fortMapping[currentType];
             if (ft) {
-                ctx.drawImage(fortImg, ft.sx, ft.sy, 16, 16, this.x, this.y, this.width, this.height);
+                ctx.drawImage(fortImg, ft.sx, ft.sy, 16, 16, dx, dy, dw, dh);
             }
 
             return;
@@ -216,12 +231,39 @@ export class Floor extends Entity {
 
             const mt = marMapping[currentType];
             if (mt) {
-                ctx.drawImage(marImg, mt.sx, mt.sy, 16, 16, this.x, this.y, this.width, this.height);
+                ctx.drawImage(marImg, mt.sx, mt.sy, 16, 16, dx, dy, dw, dh);
             }
             return;
 
         }
 
+
+        // Tiles depuis la spritesheet maisonTileset.png
+        if (this.type.startsWith('MAIS_')) {
+            const maisImg = Assets.get("MAISON_TILESET");
+            if (!maisImg) return;
+            const maisMapping = {
+                // Row 0 (cols 0-6)
+                'MAIS_1': { sx: 0, sy: 0 }, 'MAIS_2': { sx: 16, sy: 0 }, 'MAIS_3': { sx: 32, sy: 0 }, 'MAIS_4': { sx: 48, sy: 0 }, 'MAIS_5': { sx: 64, sy: 0 }, 'MAIS_6': { sx: 80, sy: 0 }, 'MAIS_7': { sx: 96, sy: 0 },
+                // Row 1 (cols 0-6)
+                'MAIS_13': { sx: 0, sy: 16 }, 'MAIS_14': { sx: 16, sy: 16 }, 'MAIS_15': { sx: 32, sy: 16 }, 'MAIS_16': { sx: 48, sy: 16 }, 'MAIS_17': { sx: 64, sy: 16 }, 'MAIS_18': { sx: 80, sy: 16 }, 'MAIS_19': { sx: 96, sy: 16 },
+                // Row 2 (cols 0-5)
+                'MAIS_25': { sx: 0, sy: 32 }, 'MAIS_26': { sx: 16, sy: 32 }, 'MAIS_27': { sx: 32, sy: 32 }, 'MAIS_28': { sx: 48, sy: 32 }, 'MAIS_29': { sx: 64, sy: 32 }, 'MAIS_30': { sx: 80, sy: 32 },
+                // Row 3 (cols 0-5)
+                'MAIS_37': { sx: 0, sy: 48 }, 'MAIS_38': { sx: 16, sy: 48 }, 'MAIS_39': { sx: 32, sy: 48 }, 'MAIS_40': { sx: 48, sy: 48 }, 'MAIS_41': { sx: 64, sy: 48 }, 'MAIS_42': { sx: 80, sy: 48 },
+                // Row 4 (cols 0-5)
+                'MAIS_49': { sx: 0, sy: 64 }, 'MAIS_SOL': { sx: 16, sy: 64 }, 'MAIS_51': { sx: 32, sy: 64 }, 'MAIS_52': { sx: 48, sy: 64 }, 'MAIS_HautArmoire': { sx: 64, sy: 64 }, 'MAIS_54': { sx: 80, sy: 64 },
+                // Row 5 (cols 0-5)
+                'MAIS_61': { sx: 0, sy: 80 }, 'MAIS_62': { sx: 16, sy: 80 }, 'MAIS_63': { sx: 32, sy: 80 }, 'MAIS_64': { sx: 48, sy: 80 }, 'MAIS_BasArmoire': { sx: 64, sy: 80 }, 'MAIS_66': { sx: 80, sy: 80 },
+                // Row 6 (cols 0-5)
+                'MAIS_73': { sx: 0, sy: 96 }, 'MAIS_74': { sx: 16, sy: 96 }, 'MAIS_75': { sx: 32, sy: 96 }, 'MAIS_76': { sx: 48, sy: 96 }, 'MAIS_77': { sx: 64, sy: 96 }, 'MAIS_78': { sx: 80, sy: 96 },
+            };
+            const mst = maisMapping[this.type];
+            if (mst) {
+                ctx.drawImage(maisImg, mst.sx, mst.sy, 16, 16, dx, dy, dw, dh);
+            }
+            return;
+        }
 
         // Tiles depuis la spritesheet cimetiere.png
         if (this.type.startsWith('CIM_')) {
@@ -245,7 +287,7 @@ export class Floor extends Entity {
             };
             const ct = cimMapping[this.type];
             if (ct) {
-                ctx.drawImage(cimImg, ct.sx, ct.sy, 16, 16, this.x, this.y, this.width, this.height);
+                ctx.drawImage(cimImg, ct.sx, ct.sy, 16, 16, dx, dy, dw, dh);
             }
             return;
         }
@@ -253,7 +295,7 @@ export class Floor extends Entity {
         const t = mapping[this.type];
         if (t) {
             // On dessine à la taille calculée dans le constructeur
-            ctx.drawImage(img, t.sx, t.sy, t.sw, t.sh, this.x, this.y, this.width, this.height);
+            ctx.drawImage(img, t.sx, t.sy, t.sw, t.sh, dx, dy, dw, dh);
         }
 
         // Indicateur [E] si panneau et joueur a portee
@@ -286,11 +328,14 @@ export class Floor extends Entity {
     onCollision(other) {
         if (!this.collider || !other.collider || other.hasTag('ITEM')) return;
 
-        const dx = (this.x + this.width / 2) - (other.x + other.width / 2);
-        const dy = (this.y + this.height / 2) - (other.y + other.height / 2);
+        const box = this.getCollisionBox();
+        const otherBox = other.getCollisionBox ? other.getCollisionBox() : { x: other.x, y: other.y, w: other.width, h: other.height };
 
-        const overlapX = (this.width + other.width) / 2 - Math.abs(dx);
-        const overlapY = (this.height + other.height) / 2 - Math.abs(dy);
+        const dx = (box.x + box.w / 2) - (otherBox.x + otherBox.w / 2);
+        const dy = (box.y + box.h / 2) - (otherBox.y + otherBox.h / 2);
+
+        const overlapX = (box.w + otherBox.w) / 2 - Math.abs(dx);
+        const overlapY = (box.h + otherBox.h) / 2 - Math.abs(dy);
 
         if (overlapX > 0 && overlapY > 0) {
             if (overlapX < overlapY) {
