@@ -91,7 +91,7 @@ Assets.load({
     LINK2: "./assets/link2.png",
     MOBLIN: "./assets/moblin.png",
     OCTOROK: "./assets/octorok.png",
-    MALDEK: "./assets/maldek.png",
+    MALDEK: "./assets/maldrekPosition.png",
     HEARTS: "./assets/hearts.png",
     EMERALD: "./assets/emeraude.png",
     EXPLOSION: "./assets/explosion.png",

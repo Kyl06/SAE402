@@ -14,7 +14,7 @@ import { MagicProjectile } from './MagicProjectile.js';
 export class Maldrek extends Entity {
     constructor(x, y) {
         super(x, y, 64, 64);
-        this.spriteSheet = new SpriteSheet("MALDEK", 6, 4, 32, 32);
+        this.spriteSheet = new SpriteSheet("MALDEK", 3, 4, 32, 36);
 
         this.netId = 'maldrek_' + Math.random().toString(36).slice(2, 11);
         this.enemyType = 'MALDREK';
@@ -171,18 +171,56 @@ export class Maldrek extends Entity {
         }
     }
 
+    isBlocked(dirX, dirY) {
+        const step = 16;
+        const testX = this.x + dirX * step;
+        const testY = this.y + dirY * step;
+        const entities = window.game.engine.entities;
+        for (let i = 0; i < entities.length; i++) {
+            const e = entities[i];
+            if (!e.collider || !e.hasTag('SOLID')) continue;
+            const box = e.getCollisionBox();
+            if (testX < box.x + box.w && testX + this.width > box.x &&
+                testY < box.y + box.h && testY + this.height > box.y) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     chase(speedMult) {
         const dx = this.target.x - this.x;
         const dy = this.target.y - this.y;
         const speed = this.chaseSpeed * speedMult;
+
+        let primX, primY, secX, secY;
+
         if (Math.abs(dx) > Math.abs(dy)) {
-            this.velX = dx > 0 ? speed : -speed;
-            this.velY = 0;
-            this.facing = dx > 0 ? 'RIGHT' : 'LEFT';
+            primX = Math.sign(dx); primY = 0;
+            secX = 0; secY = Math.sign(dy) || 1;
+        } else {
+            primX = 0; primY = Math.sign(dy);
+            secX = Math.sign(dx) || 1; secY = 0;
+        }
+
+        if (!this.isBlocked(primX, primY)) {
+            this.velX = primX * speed;
+            this.velY = primY * speed;
+        } else if (!this.isBlocked(secX, secY)) {
+            this.velX = secX * speed;
+            this.velY = secY * speed;
+        } else if (!this.isBlocked(-secX, -secY)) {
+            this.velX = -secX * speed;
+            this.velY = -secY * speed;
         } else {
             this.velX = 0;
-            this.velY = dy > 0 ? speed : -speed;
-            this.facing = dy > 0 ? 'DOWN' : 'UP';
+            this.velY = 0;
+        }
+
+        if (Math.abs(this.velX) > Math.abs(this.velY)) {
+            this.facing = this.velX > 0 ? 'RIGHT' : 'LEFT';
+        } else if (Math.abs(this.velY) > 0) {
+            this.facing = this.velY > 0 ? 'DOWN' : 'UP';
         }
     }
 
@@ -303,15 +341,15 @@ export class Maldrek extends Entity {
         const isWindup = this.state === 'CHARGE_WINDUP';
         const isCasting = this.state === 'CAST';
 
-        // Sprite frame calculation
-        const rowOffset = { 'DOWN': 0, 'UP': 6, 'LEFT': 12, 'RIGHT': 18 }[this.facing];
-        const dmgOffset = this.painState ? 3 : 0;
+        // Sprite frame calculation (3 cols: pas gauche, pas droit, dégât)
+        const rowOffset = { 'DOWN': 0, 'UP': 3, 'LEFT': 6, 'RIGHT': 9 }[this.facing];
         const isMoving = Math.abs(this.velX) > 0.1 || Math.abs(this.velY) > 0.1;
         const walkCycle = isMoving ? (Math.floor(Date.now() / 150) % 2) : 0;
         let col;
-        if (isCharging || isWindup || isCasting) { col = 2; }
+        if (this.painState) { col = 2; }
+        else if (isCharging || isWindup || isCasting) { col = 1; }
         else { col = walkCycle; }
-        const frame = rowOffset + dmgOffset + col;
+        const frame = rowOffset + col;
         this.spriteSheet.drawFrame(ctx, frame, px, py, 2);
 
         // Indicateur de windup

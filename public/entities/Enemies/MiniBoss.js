@@ -143,17 +143,55 @@ export class MiniBoss extends Entity {
         this.stateTimer = 600; // Temps de preparation
     }
 
+    isBlocked(dirX, dirY) {
+        const step = 14;
+        const testX = this.x + dirX * step;
+        const testY = this.y + dirY * step;
+        const entities = window.game.engine.entities;
+        for (let i = 0; i < entities.length; i++) {
+            const e = entities[i];
+            if (!e.collider || !e.hasTag('SOLID')) continue;
+            const box = e.getCollisionBox();
+            if (testX < box.x + box.w && testX + this.width > box.x &&
+                testY < box.y + box.h && testY + this.height > box.y) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     chase() {
         const dx = this.target.x - this.x;
         const dy = this.target.y - this.y;
+
+        let primX, primY, secX, secY;
+
         if (Math.abs(dx) > Math.abs(dy)) {
-            this.velX = dx > 0 ? this.chaseSpeed : -this.chaseSpeed;
-            this.velY = 0;
-            this.facing = dx > 0 ? 'RIGHT' : 'LEFT';
+            primX = Math.sign(dx); primY = 0;
+            secX = 0; secY = Math.sign(dy) || 1;
+        } else {
+            primX = 0; primY = Math.sign(dy);
+            secX = Math.sign(dx) || 1; secY = 0;
+        }
+
+        if (!this.isBlocked(primX, primY)) {
+            this.velX = primX * this.chaseSpeed;
+            this.velY = primY * this.chaseSpeed;
+        } else if (!this.isBlocked(secX, secY)) {
+            this.velX = secX * this.chaseSpeed;
+            this.velY = secY * this.chaseSpeed;
+        } else if (!this.isBlocked(-secX, -secY)) {
+            this.velX = -secX * this.chaseSpeed;
+            this.velY = -secY * this.chaseSpeed;
         } else {
             this.velX = 0;
-            this.velY = dy > 0 ? this.chaseSpeed : -this.chaseSpeed;
-            this.facing = dy > 0 ? 'DOWN' : 'UP';
+            this.velY = 0;
+        }
+
+        if (Math.abs(this.velX) > Math.abs(this.velY)) {
+            this.facing = this.velX > 0 ? 'RIGHT' : 'LEFT';
+        } else if (Math.abs(this.velY) > 0) {
+            this.facing = this.velY > 0 ? 'DOWN' : 'UP';
         }
     }
 

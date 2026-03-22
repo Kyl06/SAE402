@@ -9,8 +9,7 @@ export class NetworkMaldrek extends Entity {
     constructor(x, y) {
         super(x, y, 64, 64);
         
-        // Attention au format du spritesheet de Maldrek : 6 cols, 4 rows, 32x32
-        this.spriteSheet = new SpriteSheet('MALDEK', 6, 4, 32, 32);
+        this.spriteSheet = new SpriteSheet('MALDEK', 3, 4, 32, 36);
         this.facing = 'DOWN';
         this.isAiming = false; // "true" corresponds à CHARGE_WINDUP, CHARGE, ou CAST
         this.isHurt = false;
@@ -57,19 +56,20 @@ export class NetworkMaldrek extends Entity {
     draw(ctx) {
         if (this.flashTime > 0 && Math.floor(this.flashTime / 50) % 2 === 0) return;
 
-        const rowOffset = { 'DOWN': 0, 'UP': 6, 'LEFT': 12, 'RIGHT': 18 }[this.facing] || 0;
-        const dmgOffset = this.isHurt ? 3 : 0;
+        const rowOffset = { 'DOWN': 0, 'UP': 3, 'LEFT': 6, 'RIGHT': 9 }[this.facing] || 0;
         const isMoving = Math.abs(this.velX) > 1 || Math.abs(this.velY) > 1;
         const walkCycle = isMoving ? (Math.floor(Date.now() / 150) % 2) : 0;
-        
+
         let col;
-        if (this.isAiming) { 
-            col = 2; // Frame d'attaque/charge
-        } else { 
-            col = walkCycle; 
+        if (this.isHurt) {
+            col = 2;
+        } else if (this.isAiming) {
+            col = 1;
+        } else {
+            col = walkCycle;
         }
-        
-        const frame = rowOffset + dmgOffset + col;
+
+        const frame = rowOffset + col;
         this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, 2);
     }
 }
