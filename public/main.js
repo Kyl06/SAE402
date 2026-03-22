@@ -125,6 +125,10 @@ Assets.load({
     SHOP_SHEET: "./assets/shop.png",
     FEE_MARAIS: "./assets/fee_marais.png",
     MAISON_TILESET: "./assets/maisonTileset.png",
+    DIAMANT_ROUGE: "./assets/diamantRouge.png",
+    DIAMANT_VERT: "./assets/diamantVert.png",
+    DIAMANT_BLEU: "./assets/diamantBleu.png",
+    DIAMANT_VIDE: "./assets/diamantVide.png",
 }).then(async () => {
     // 1. Attendre le choix du role
     const role = await waitForPlayerSelection();

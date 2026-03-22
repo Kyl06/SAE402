@@ -102,45 +102,25 @@ export class BottomBar extends Entity {
     }
 
     drawFragments(ctx, x, y) {
-        const qm = window.game.questManager;
-        if (!qm) return x;
+      const qm = window.game.questManager;
+      if (!qm) return x;
 
-        ctx.font = "bold 14px monospace";
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "left";
+      const keys = ['DIAMANT_ROUGE', 'DIAMANT_VERT', 'DIAMANT_BLEU'];
+      const iconSize = 20;
 
-        for (let i = 0; i < 3; i++) {
-            const has = qm.fragments[i];
-            const cx = x + 9;
-            const cy = y;
+      for (let i = 0; i < 3; i++) {
+          const has = qm.fragments[i];
+          const img = has ? Assets.get(keys[i]) : Assets.get('DIAMANT_VIDE');
 
-            ctx.beginPath();
-            ctx.moveTo(cx, cy - 9);
-            ctx.lineTo(cx + 7, cy);
-            ctx.lineTo(cx, cy + 9);
-            ctx.lineTo(cx - 7, cy);
-            ctx.closePath();
+          if (img) {
+              ctx.drawImage(img, x, y - iconSize / 2, iconSize, iconSize);
+          }
 
-            if (has) {
-                const colors = ['#ff4444', '#44ff44', '#4488ff'];
-                ctx.fillStyle = colors[i];
-                ctx.fill();
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            } else {
-                ctx.fillStyle = '#333';
-                ctx.fill();
-                ctx.strokeStyle = '#555';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            }
+          x += iconSize + 12;
+      }
 
-            x += 22;
-        }
-
-        return x;
-    }
+      return x;
+  }
 
     drawPotions(ctx, player, x, y) {
         if (player.potions <= 0) return x;

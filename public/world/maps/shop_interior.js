@@ -6,176 +6,6 @@
 
 const mapTiles = [
     {
-      "x": 256,
-      "y": 128,
-      "type": "WALL_DOWN"
-    },
-    {
-      "x": 288,
-      "y": 128,
-      "type": "WALL_DOWN"
-    },
-    {
-      "x": 320,
-      "y": 128,
-      "type": "WALL_DOWN"
-    },
-    {
-      "x": 352,
-      "y": 128,
-      "type": "WALL_DOWN"
-    },
-    {
-      "x": 384,
-      "y": 128,
-      "type": "WALL_DOWN"
-    },
-    {
-      "x": 416,
-      "y": 128,
-      "type": "WALL_DOWN"
-    },
-    {
-      "x": 448,
-      "y": 128,
-      "type": "WALL_DOWN"
-    },
-    {
-      "x": 480,
-      "y": 128,
-      "type": "WALL_DOWN"
-    },
-    {
-      "x": 256,
-      "y": 160,
-      "type": "WALL_RIGHT"
-    },
-    {
-      "x": 480,
-      "y": 160,
-      "type": "WALL_LEFT"
-    },
-    {
-      "x": 256,
-      "y": 192,
-      "type": "WALL_RIGHT"
-    },
-    {
-      "x": 480,
-      "y": 192,
-      "type": "WALL_LEFT"
-    },
-    {
-      "x": 256,
-      "y": 224,
-      "type": "WALL_RIGHT"
-    },
-    {
-      "x": 480,
-      "y": 224,
-      "type": "WALL_LEFT"
-    },
-    {
-      "x": 256,
-      "y": 256,
-      "type": "WALL_RIGHT"
-    },
-    {
-      "x": 480,
-      "y": 256,
-      "type": "WALL_LEFT"
-    },
-    {
-      "x": 256,
-      "y": 288,
-      "type": "WALL_RIGHT"
-    },
-    {
-      "x": 480,
-      "y": 288,
-      "type": "WALL_LEFT"
-    },
-    {
-      "x": 256,
-      "y": 320,
-      "type": "WALL_RIGHT"
-    },
-    {
-      "x": 480,
-      "y": 320,
-      "type": "WALL_LEFT"
-    },
-    {
-      "x": 256,
-      "y": 352,
-      "type": "WALL_UP"
-    },
-    {
-      "x": 288,
-      "y": 352,
-      "type": "WALL_UP"
-    },
-    {
-      "x": 320,
-      "y": 352,
-      "type": "WALL_UP"
-    },
-    {
-      "x": 416,
-      "y": 352,
-      "type": "WALL_UP"
-    },
-    {
-      "x": 448,
-      "y": 352,
-      "type": "WALL_UP"
-    },
-    {
-      "x": 480,
-      "y": 352,
-      "type": "WALL_UP"
-    },
-    {
-      "x": 320,
-      "y": 224,
-      "type": "SAND"
-    },
-    {
-      "x": 352,
-      "y": 224,
-      "type": "SAND"
-    },
-    {
-      "x": 384,
-      "y": 224,
-      "type": "SAND"
-    },
-    {
-      "x": 416,
-      "y": 224,
-      "type": "SAND"
-    },
-    {
-      "x": 320,
-      "y": 224,
-      "type": "ORANGE_BLOCK"
-    },
-    {
-      "x": 352,
-      "y": 224,
-      "type": "ORANGE_BLOCK"
-    },
-    {
-      "x": 384,
-      "y": 224,
-      "type": "ORANGE_BLOCK"
-    },
-    {
-      "x": 416,
-      "y": 224,
-      "type": "ORANGE_BLOCK"
-    },
-    {
       "x": 352,
       "y": 352,
       "type": "SHOP_SOL"
@@ -294,16 +124,6 @@ const mapTiles = [
       "x": 416,
       "y": 288,
       "type": "SHOP_SOL"
-    },
-    {
-      "x": 320,
-      "y": 192,
-      "type": "ORANGE_BLOCK"
-    },
-    {
-      "x": 320,
-      "y": 160,
-      "type": "ORANGE_BLOCK"
     },
     {
       "x": 416,
@@ -318,11 +138,6 @@ const mapTiles = [
     {
       "x": 288,
       "y": 160,
-      "type": "SHOP_VASE"
-    },
-    {
-      "x": 288,
-      "y": 192,
       "type": "SHOP_VASE"
     },
     {
@@ -344,6 +159,171 @@ const mapTiles = [
       "x": 416,
       "y": 320,
       "type": "SHOP_STATUE"
+    },
+    {
+      "x": 480,
+      "y": 128,
+      "type": "MAIS_39"
+    },
+    {
+      "x": 256,
+      "y": 128,
+      "type": "MAIS_37"
+    },
+    {
+      "x": 288,
+      "y": 128,
+      "type": "MAIS_38"
+    },
+    {
+      "x": 320,
+      "y": 128,
+      "type": "MAIS_38"
+    },
+    {
+      "x": 352,
+      "y": 128,
+      "type": "MAIS_38"
+    },
+    {
+      "x": 384,
+      "y": 128,
+      "type": "MAIS_38"
+    },
+    {
+      "x": 416,
+      "y": 128,
+      "type": "MAIS_38"
+    },
+    {
+      "x": 448,
+      "y": 128,
+      "type": "MAIS_38"
+    },
+    {
+      "x": 256,
+      "y": 160,
+      "type": "MAIS_49"
+    },
+    {
+      "x": 256,
+      "y": 192,
+      "type": "MAIS_49"
+    },
+    {
+      "x": 256,
+      "y": 224,
+      "type": "MAIS_49"
+    },
+    {
+      "x": 256,
+      "y": 256,
+      "type": "MAIS_49"
+    },
+    {
+      "x": 256,
+      "y": 288,
+      "type": "MAIS_49"
+    },
+    {
+      "x": 256,
+      "y": 320,
+      "type": "MAIS_49"
+    },
+    {
+      "x": 256,
+      "y": 352,
+      "type": "MAIS_61"
+    },
+    {
+      "x": 288,
+      "y": 352,
+      "type": "MAIS_62"
+    },
+    {
+      "x": 320,
+      "y": 352,
+      "type": "MAIS_62"
+    },
+    {
+      "x": 416,
+      "y": 352,
+      "type": "MAIS_62"
+    },
+    {
+      "x": 448,
+      "y": 352,
+      "type": "MAIS_62"
+    },
+    {
+      "x": 480,
+      "y": 352,
+      "type": "MAIS_63"
+    },
+    {
+      "x": 480,
+      "y": 320,
+      "type": "MAIS_51"
+    },
+    {
+      "x": 384,
+      "y": 224,
+      "type": "MAIS_19"
+    },
+    {
+      "x": 352,
+      "y": 224,
+      "type": "MAIS_19"
+    },
+    {
+      "x": 416,
+      "y": 224,
+      "type": "MAIS_7"
+    },
+    {
+      "x": 320,
+      "y": 224,
+      "type": "MAIS_78"
+    },
+    {
+      "x": 320,
+      "y": 192,
+      "type": "SHOP_SOL"
+    },
+    {
+      "x": 480,
+      "y": 288,
+      "type": "MAIS_51"
+    },
+    {
+      "x": 480,
+      "y": 256,
+      "type": "MAIS_51"
+    },
+    {
+      "x": 480,
+      "y": 224,
+      "type": "MAIS_51"
+    },
+    {
+      "x": 480,
+      "y": 192,
+      "type": "MAIS_51"
+    },
+    {
+      "x": 480,
+      "y": 160,
+      "type": "MAIS_51"
+    },
+    {
+      "x": 288,
+      "y": 192,
+      "type": "SHOP_VASE"
+    },
+    {
+      "x": 320,
+      "y": 160,
+      "type": "MAIS_17"
     }
 ];
 
