@@ -129,6 +129,7 @@ Assets.load({
     DIAMANT_VERT: "./assets/diamantVert.png",
     DIAMANT_BLEU: "./assets/diamantBleu.png",
     DIAMANT_VIDE: "./assets/diamantVide.png",
+    DESERT: "./assets/desert.png",
 }).then(async () => {
     // 1. Attendre le choix du role
     const role = await waitForPlayerSelection();
