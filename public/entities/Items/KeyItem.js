@@ -39,6 +39,14 @@ export class KeyItem extends Entity {
             qm.pickUpKey();
         }
 
+        const db = window.game.dialogueBox;
+        if (db) {
+            db.show('Objet trouvé', [
+                "Tu as trouvé la Clé du Marais !",
+                "Cherche le coffre pour l'ouvrir."
+            ], null);
+        }
+
         this.kill();
     }
 

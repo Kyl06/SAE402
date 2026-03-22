@@ -235,7 +235,7 @@ export class ZoneManager {
             // Cle cachee dans le marais (si pas encore ramassee)
             const swampQuest = qm.getQuest('swamp_chest');
             if (!swampQuest.hasKey) {
-                this.engine.add(new KeyItem(500, 450));
+                this.engine.add(new KeyItem(34, 530));
             }
             // Coffre (si pas encore ouvert)
             if (!swampQuest.chestOpened) {
@@ -369,6 +369,34 @@ export class ZoneManager {
             const px = player.x + player.width / 2;
             if (px > 320 && px < 448 && player.y < 40) {
                 this.transition('north');
+            }
+        }
+
+        // Bloquer les bords sans connexion dans le marais
+        if (this.currentZone === 'swamp_west') {
+            if (player.x < 0) { player.x = 0; player.velX = 0; }
+            if (player.y < 0) { player.y = 0; player.velY = 0; }
+            if (player.y + player.height > 576) { player.y = 576 - player.height; player.velY = 0; }
+        }
+
+        // Teleportation MAR_TROU <-> MAR_SORTIE dans le marais
+        if (this.currentZone === 'swamp_west') {
+            const px = player.x + player.width / 2;
+            const py = player.y + player.height / 2;
+            const trouX = 384, trouY = 512;
+            const sortieX = 32, sortieY = 448;
+            const size = 32;
+
+            if (px > trouX && px < trouX + size && py > trouY && py < trouY + size) {
+                player.x = sortieX;
+                player.y = sortieY + size;
+                player.velX = 0;
+                player.velY = 0;
+            } else if (px > sortieX && px < sortieX + size && py > sortieY && py < sortieY + size) {
+                player.x = trouX + size;
+                player.y = trouY;
+                player.velX = 0;
+                player.velY = 0;
             }
         }
 

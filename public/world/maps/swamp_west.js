@@ -196,21 +196,6 @@ const mapTiles = [
     },
     {
       "x": 32,
-      "y": 480,
-      "type": "MAR_SOMBRE_2"
-    },
-    {
-      "x": 32,
-      "y": 448,
-      "type": "MAR_SOMBRE_1"
-    },
-    {
-      "x": 32,
-      "y": 512,
-      "type": "MAR_SOMBRE_4"
-    },
-    {
-      "x": 32,
       "y": 544,
       "type": "MAR_MARECAGE_10"
     },
@@ -233,16 +218,6 @@ const mapTiles = [
       "x": 64,
       "y": 480,
       "type": "MAR_BOUE_3"
-    },
-    {
-      "x": 0,
-      "y": 448,
-      "type": "MAR_MARECAGE_5"
-    },
-    {
-      "x": 64,
-      "y": 448,
-      "type": "MAR_CHEMIN_BD"
     },
     {
       "x": 0,
@@ -335,27 +310,7 @@ const mapTiles = [
       "type": "MAR_CHEMIN_BD"
     },
     {
-      "x": 64,
-      "y": 416,
-      "type": "MAR_EAU_TEAL"
-    },
-    {
-      "x": 32,
-      "y": 416,
-      "type": "MAR_EAU_TEAL"
-    },
-    {
       "x": 0,
-      "y": 416,
-      "type": "MAR_EAU_TEAL"
-    },
-    {
-      "x": 0,
-      "y": 384,
-      "type": "MAR_EAU_TEAL"
-    },
-    {
-      "x": 32,
       "y": 384,
       "type": "MAR_EAU_TEAL"
     },
@@ -1907,7 +1862,7 @@ const mapTiles = [
     {
       "x": 384,
       "y": 512,
-      "type": "MAR_BOIS_1"
+      "type": "MAR_TROU"
     },
     {
       "x": 672,
@@ -2253,6 +2208,51 @@ const mapTiles = [
       "x": 768,
       "y": 544,
       "type": "MAR_CHEMIN_HD"
+    },
+    {
+      "x": 32,
+      "y": 512,
+      "type": "MAR_MARECAGE_10"
+    },
+    {
+      "x": 64,
+      "y": 448,
+      "type": "MAR_BOUE_3"
+    },
+    {
+      "x": 0,
+      "y": 448,
+      "type": "MAR_SOMBRE_3"
+    },
+    {
+      "x": 32,
+      "y": 384,
+      "type": "MAR_SOMBRE_1"
+    },
+    {
+      "x": 32,
+      "y": 416,
+      "type": "MAR_SOMBRE_2"
+    },
+    {
+      "x": 32,
+      "y": 448,
+      "type": "MAR_SORTIE"
+    },
+    {
+      "x": 32,
+      "y": 480,
+      "type": "MAR_MARECAGE_10"
+    },
+    {
+      "x": 64,
+      "y": 416,
+      "type": "MAR_BOUE_3"
+    },
+    {
+      "x": 0,
+      "y": 416,
+      "type": "MAR_SOMBRE_3"
     }
 ];
 
