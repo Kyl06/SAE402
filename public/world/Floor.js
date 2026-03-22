@@ -30,6 +30,7 @@ export class Floor extends Entity {
         // Système de collision : Solide par défaut sauf pour les sols
 
         const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL', 'SHOP_SOL',
+            'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS', 'DES_23', 'DES_32', 'DES_27', 'DES_36', 'DES_38', 'DES_45'];
             'FORT_SOL_BLEU', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS', 'MAIS_SOL'];
         // Bordures CIM solides (murs, tombes, deco, piliers)
 
@@ -287,6 +288,47 @@ export class Floor extends Entity {
             };
             const ct = cimMapping[this.type];
             if (ct) {
+                ctx.drawImage(cimImg, ct.sx, ct.sy, 16, 16, this.x, this.y, this.width, this.height);
+            }
+            return;
+        }
+
+        // Tiles depuis la spritesheet desert.png
+if (this.type.startsWith('DES_')) {
+    const desImg = Assets.get("DESERT");
+    if (!desImg) return;
+    const desMapping = {
+        // Ligne 0
+        'DES_1':  { sx:   0, sy:  0 }, 'DES_2':  { sx:  16, sy:  0 }, 'DES_3':  { sx:  32, sy:  0 },
+        'DES_4':  { sx:  48, sy:  0 }, 'DES_5':  { sx:  64, sy:  0 }, 'DES_6':  { sx:  80, sy:  0 },
+        'DES_7':  { sx:  96, sy:  0 }, 'DES_8':  { sx: 112, sy:  0 }, 'DES_9':  { sx: 128, sy:  0 },
+        // Ligne 1
+        'DES_10': { sx:   0, sy: 16 }, 'DES_11': { sx:  16, sy: 16 }, 'DES_12': { sx:  32, sy: 16 },
+        'DES_13': { sx:  48, sy: 16 }, 'DES_14': { sx:  64, sy: 16 }, 'DES_15': { sx:  80, sy: 16 },
+        'DES_16': { sx:  96, sy: 16 }, 'DES_17': { sx: 112, sy: 16 }, 'DES_18': { sx: 128, sy: 16 },
+        // Ligne 2
+        'DES_19': { sx:   0, sy: 32 }, 'DES_20': { sx:  16, sy: 32 }, 'DES_21': { sx:  32, sy: 32 },
+        'DES_22': { sx:  48, sy: 32 }, 'DES_23': { sx:  64, sy: 32 }, 'DES_24': { sx:  80, sy: 32 },
+        'DES_25': { sx:  96, sy: 32 }, 'DES_26': { sx: 112, sy: 32 }, 'DES_27': { sx: 128, sy: 32 },
+        // Ligne 3
+        'DES_28': { sx:   0, sy: 48 }, 'DES_29': { sx:  16, sy: 48 }, 'DES_30': { sx:  32, sy: 48 },
+        'DES_31': { sx:  48, sy: 48 }, 'DES_32': { sx:  64, sy: 48 }, 'DES_33': { sx:  80, sy: 48 },
+        'DES_34': { sx:  96, sy: 48 }, 'DES_35': { sx: 112, sy: 48 }, 'DES_36': { sx: 128, sy: 48 },
+        // Ligne 4
+        'DES_37': { sx:   0, sy: 64 }, 'DES_38': { sx:  16, sy: 64 }, 'DES_39': { sx:  32, sy: 64 },
+        'DES_40': { sx:  48, sy: 64 }, 'DES_41': { sx:  64, sy: 64 }, 'DES_42': { sx:  80, sy: 64 },
+        'DES_43': { sx:  96, sy: 64 }, 'DES_44': { sx: 112, sy: 64 }, 'DES_45': { sx: 128, sy: 64 },
+        // Ligne 5
+        'DES_46': { sx:   0, sy: 80 }, 'DES_47': { sx:  16, sy: 80 }, 'DES_48': { sx:  32, sy: 80 },
+        'DES_49': { sx:  48, sy: 80 }, 'DES_50': { sx:  64, sy: 80 }, 'DES_51': { sx:  80, sy: 80 },
+        'DES_52': { sx:  96, sy: 80 }, 'DES_53': { sx: 112, sy: 80 }, 'DES_54': { sx: 128, sy: 80 },
+    };
+    const dt = desMapping[this.type];
+    if (dt) {
+        ctx.drawImage(desImg, dt.sx, dt.sy, 16, 16, this.x, this.y, this.width, this.height);
+    }
+    return;
+}
                 ctx.drawImage(cimImg, ct.sx, ct.sy, 16, 16, dx, dy, dw, dh);
             }
             return;
