@@ -2267,6 +2267,8 @@ export const zoneData = {
         {
             name: 'Fée du Marais',
             x: 700, y: 220,
+            hitboxOffsetX: 16,
+            hitboxW: 32,
             sprite: 'FEE_MARAIS',
             spriteColumns: 2,
             spriteW: 80,

@@ -57,6 +57,12 @@ export class NPC extends Entity {
         // Hauteur visuelle reelle du sprite (pour centrer la detection)
         this.spriteRealH = this.spriteAsset ? (config.spriteH || 16) * this.spriteScale : 16 * SCALE;
 
+        // Offset et taille optionnels de la hitbox
+        this.hitboxOffsetX = config.hitboxOffsetX || 0;
+        this.hitboxOffsetY = config.hitboxOffsetY || 0;
+        this.hitboxW = config.hitboxW || this.width;
+        this.hitboxH = config.hitboxH || this.height;
+
         // Etat d'interaction
         this.playerInRange = false;
         this.isTalking = false;
@@ -66,6 +72,15 @@ export class NPC extends Entity {
         this.indicatorBounce = 0;
     }
 
+    getCollisionBox() {
+        return {
+            x: this.x + this.hitboxOffsetX,
+            y: this.y + this.hitboxOffsetY,
+            w: this.hitboxW,
+            h: this.hitboxH
+        };
+    }
+
     /**
      * Collision AABB simple - empeche le joueur de traverser le PNJ.
      */
@@ -73,10 +88,12 @@ export class NPC extends Entity {
         if (!other.collider || other.hasTag('NPC')) return;
         if (other.hasTag('PLAYER_WEAPON') || other.hasTag('ITEM')) return;
 
-        const dx = (this.x + this.width / 2) - (other.x + other.width / 2);
-        const dy = (this.y + this.height / 2) - (other.y + other.height / 2);
-        const overlapX = (this.width + other.width) / 2 - Math.abs(dx);
-        const overlapY = (this.height + other.height) / 2 - Math.abs(dy);
+        const box = this.getCollisionBox();
+        const otherBox = other.getCollisionBox ? other.getCollisionBox() : { x: other.x, y: other.y, w: other.width, h: other.height };
+        const dx = (box.x + box.w / 2) - (otherBox.x + otherBox.w / 2);
+        const dy = (box.y + box.h / 2) - (otherBox.y + otherBox.h / 2);
+        const overlapX = (box.w + otherBox.w) / 2 - Math.abs(dx);
+        const overlapY = (box.h + otherBox.h) / 2 - Math.abs(dy);
 
         if (overlapX > 0 && overlapY > 0) {
             if (overlapX < overlapY) {
