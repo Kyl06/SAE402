@@ -713,5 +713,10 @@ export const zoneData = {
     bgColor: '#101010',
     mapData: { walls: mapTiles },
     enemies: { moblins: 0, octoroks: 0 },
+    obstacles: [
+        { type: 'SCIE', x: 368, y: 440, range: 48, speed: 120 },
+        { type: 'SCIE', x: 368, y: 280, range: 48, speed: -160 },
+        { type: 'SCIE', x: 368, y: 120, range: 48, speed: 200 }
+    ],
     connections: { north: 'fortress_north', south: 'village'},
 };

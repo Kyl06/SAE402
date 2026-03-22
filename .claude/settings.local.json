@@ -20,7 +20,9 @@
       "Bash(where ffmpeg:*)",
       "Bash(where convert:*)",
       "Bash(npm ls:*)",
-      "Bash(node --check public/world/Floor.js)"
+      "Bash(node --check public/world/Floor.js)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(node -c public/world/Floor.js)"
     ]
   }
 }
