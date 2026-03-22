@@ -130,6 +130,8 @@ Assets.load({
     DIAMANT_BLEU: "./assets/diamantBleu.png",
     DIAMANT_VIDE: "./assets/diamantVide.png",
     DESERT: "./assets/desert.png",
+    SCIE: "./assets/scie.png",
+    CREUSE: "./assets/creuse.png",
 }).then(async () => {
     // 1. Attendre le choix du role
     const role = await waitForPlayerSelection();
@@ -164,8 +166,9 @@ Assets.load({
         hero.swordLevel = saveData.player.swordLevel || 0;
         hero.bowLevel = saveData.player.bowLevel || 0;
         hero.hp = saveData.player.hp || 6;
-        startZone = saveData.zone || 'village';
-        console.log('[Save] Partie chargee');
+        // Force le chargement dans le village pour eviter de spawn au milieu des ennemis
+        startZone = 'village';
+        console.log('[Save] Partie chargee (Apparition forcee au village)');
     }
 
     // Logique spécifique au rôle

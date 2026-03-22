@@ -83,6 +83,12 @@ export class NetworkUpdater {
                     } else if (type === 'MALDREK') {
                         const { NetworkMaldrek } = await import('../entities/Enemies/NetworkMaldrek.js');
                         mob = new NetworkMaldrek(parseFloat(x), parseFloat(y));
+                    } else if (type === 'MINIBOSS') {
+                        const { NetworkMiniBoss } = await import('../entities/Enemies/NetworkMiniBoss.js');
+                        mob = new NetworkMiniBoss(parseFloat(x), parseFloat(y));
+                    } else if (type === 'CREUSE') {
+                        const { NetworkCreuse } = await import('../entities/Enemies/NetworkCreuse.js');
+                        mob = new NetworkCreuse(parseFloat(x), parseFloat(y));
                     } else {
                         const { NetworkMoblin } = await import('../entities/Enemies/NetworkMoblin.js');
                         mob = new NetworkMoblin(parseFloat(x), parseFloat(y));
@@ -97,7 +103,7 @@ export class NetworkUpdater {
                         x, 
                         y, 
                         facing, 
-                        isAiming === 'true', 
+                        type === 'CREUSE' ? parseInt(isAiming) : isAiming === 'true', 
                         isHurt === 'true'
                     );
                 }
@@ -216,16 +222,20 @@ export class NetworkUpdater {
 
         // Si Hôte : diffusion état global des ennemis
         if (this.isHost) {
-            const enemies = this.engine.entities.filter(e => e.hasTag('ENEMY') && !e.toRemove);
+            const enemies = this.engine.entities.filter(e => e.hasTag('ENEMY') && e.enemyType !== 'SCIE' && !e.toRemove);
             const enemiesData = enemies.map(e => {
                 if (!e.netId) e.netId = 'mob_' + Math.random().toString(36).slice(2, 7);
 
                 const type = e.enemyType || 'MOBLIN';
-                // On récupère les états visuels pour le SpriteSheet du P2
-                const isAiming = (e.state === "AIM" || e.state === "CHARGING") ? "true" : "false";
+                let isAimingState = "false";
+                if (type === "CREUSE") isAimingState = e.frame !== undefined ? e.frame.toString() : "0";
+                else if (type === "MINIBOSS") isAimingState = (e.state === "CHARGE_WINDUP" || e.state === "CHARGE") ? "true" : "false";
+                else if (type === "MALDREK") isAimingState = (e.state === "CHARGE_WINDUP" || e.state === "CHARGE" || e.state === "CAST") ? "true" : "false";
+                else isAimingState = (e.state === "AIM" || e.state === "CHARGING") ? "true" : "false";
+
                 const isHurt = e.painState ? "true" : "false"; 
 
-                return `${e.netId}|${Math.round(e.x)}|${Math.round(e.y)}|${e.facing}|${type}|${isAiming}|${isHurt}`;
+                return `${e.netId}|${Math.round(e.x)}|${Math.round(e.y)}|${e.facing}|${type}|${isAimingState}|${isHurt}`;
             });
             this.socket.emit('enemies_update', enemiesData);
         }
