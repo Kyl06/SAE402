@@ -891,11 +891,6 @@ const mapTiles =[
       "type": "HERBESOL2"
     },
     {
-      "x": 160,
-      "y": 352,
-      "type": "HERBESOL2"
-    },
-    {
       "x": 192,
       "y": 352,
       "type": "HERBESOL2"
@@ -2501,6 +2496,11 @@ const mapTiles =[
       "type": "MAISON_VIOLETTE"
     },
     {
+      "x": 160,
+      "y": 352,
+      "type": "PUIT"
+    },
+    {
       "x": 416,
       "y": 224,
       "type": "PANELS", signText: 'Bienvenue au Village Koumbou !'
@@ -2519,7 +2519,8 @@ export const zoneData = {
         { x: 256, y: 224, w: 32, h: 32, target: 'maison_orange_interior', spawnX: 368, spawnY: 310 },
         { x: 96, y: 224, w: 32, h: 32, target: 'maison_violette1_interior', spawnX: 368, spawnY: 310 },
         { x: 576, y: 384, w: 32, h: 32, target: 'maison_bleu_interior', spawnX: 368, spawnY: 310 },
-        { x: 288, y: 384, w: 32, h: 32, target: 'maison_violette2_interior', spawnX: 368, spawnY: 310 }
+        { x: 288, y: 384, w: 32, h: 32, target: 'maison_violette2_interior', spawnX: 368, spawnY: 310 },
+        { x: 128, y: 320, w: 96, h: 96, target: 'puit_koumbou', spawnX: 384, spawnY: 224, interact: true }
     ],
     npcs: [
         {
@@ -2527,16 +2528,33 @@ export const zoneData = {
             x: 322, y: 220,
             sprite: 'VIEUXNPC',
             spriteColumns: 1,
-            spriteW: 170,
-            spriteH: 226,
+            spriteW: 63,
+            spriteH: 66,
             spriteFrame: 0,
-            spriteScale: 0.18,
+            spriteScale: 0.5,
             z: 5,
             dialogues: [
                 "Heros ! Le sorcier Maldrek a vole la Relique Sacree de notre village !",
                 "Il s'est refugie dans sa forteresse au nord, protegee par une barriere magique.",
                 "Pour la briser, tu dois reunir 3 fragments de cristal caches dans les zones voisines.",
                 "Explore la foret au sud, les marais a l'ouest et les ruines a l'est. Bonne chance !"
+            ],
+        },
+        {
+            name: 'Villageois',
+            x: 164, y: 225,
+            sprite: 'PNJPUIT',
+            hitboxOffsetX: 8,
+            spriteColumns: 1,
+            spriteW: 63,
+            spriteH: 86,
+            spriteFrame: 0,
+            spriteScale: 0.5,
+            z: 5,
+            dialogues: [
+                "Tu vois ce vieux puits ? La rumeur dit qu'un trésor y repose tout au fond.",
+                "Mais ne te fie pas à son eau dormante. Des créatures immondes se cachent dans l'obscurité.",
+                "Si tu as le courage d'y descendre pour le récupérer, prends garde à tes arrières !"
             ],
         }
     ]

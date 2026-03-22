@@ -30,7 +30,7 @@ export class Floor extends Entity {
         // Système de collision : Solide par défaut sauf pour les sols
 
         const walkables = ['GRASS', 'SAND', 'ORANGE_GROUND', 'ORANGE_PLANT', 'YELLOW_GROUND', 'BLUE_GROUND', 'TULIP', 'LIGHT_BLUE_GROUND', 'LEAF_GROUND', 'ORANGE_PATH', 'FLOWERS', 'DIRT', 'DIRT_BRIGHT', 'SHOP', 'BRIDGE_H_LEFT', 'BRIDGE_H_RIGHT', 'HERBESOL', 'HERBESOL2', 'PORTAIL', 'SHOP_SOL',
-            'FORT_SOL_BLEU', 'MAIS_SOL', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS', 'DES_23', 'DES_32', 'DES_27', 'DES_36', 'DES_38', 'DES_45'];
+            'FORT_SOL_BLEU', 'MAIS_SOL', 'FORT_SOL_BLEU_2', 'FORT_MUR_BLEU', 'FORT_MUR_GRIS', 'DES_23', 'DES_32', 'DES_27', 'DES_36', 'DES_38', 'DES_45', 'SOL_PUIT'];
         // Bordures CIM solides (murs, tombes, deco, piliers)
 
         const cimSolid = ['CIM_SOL_1', 'CIM_TOMBE_HD', 'CIM_TOMBE_HG', 'CIM_TOMBE_BG', 'CIM_SOL_8', 'CIM_TOMBE_BD',
@@ -48,7 +48,7 @@ export class Floor extends Entity {
         this.collider = !(walkables.includes(this.type) || isCimWalkable || marWalkable.includes(this.type));
         if (this.type === 'MAIS_BasArmoire') {
             this.halfCollision = 'top';
-        }    
+        }
         if (this.collider) {
             this.addTag('SOLID');
         }
@@ -64,6 +64,10 @@ export class Floor extends Entity {
     getCollisionBox() {
         if (this.halfCollision === 'top') {
             return { x: this.x, y: this.y, w: this.width, h: this.height / 2 };
+        }
+        if (this.type === 'CORDE') {
+            // Seules les 2 cases du bas sont solides (à partir de y+64)
+            return { x: this.x, y: this.y + 64, w: 32, h: 64 };
         }
         return { x: this.x, y: this.y, w: this.width, h: this.height };
     }
@@ -145,13 +149,14 @@ export class Floor extends Entity {
             'EGGS': { sx: 176, sy: 32, sw: 16, sh: 16 },
             'SIGN': { sx: 160, sy: 48, sw: 16, sh: 16 },
             'PURPLE_HOLE': { sx: 176, sy: 48, sw: 16, sh: 16 },
+            'PUIT': { sx: 176, sy: 48, sw: 16, sh: 16 },
             'ORANGE_BLOCK':   { sx: 128, sy: 0,  sw: 16, sh: 16 },
 
             'SHOP': { sx: 0, sy: 64, sw: 48, sh: 48 }
         };
 
         // Tiles avec leur propre asset (pas dans le tileset)
-        const standalone = { 'HERBESOL': 'HERBESOL', 'HERBESOL2': 'HERBESOL2', 'PORTAIL': 'PORTAIL', 'BRIQUE': 'BRIQUE', 'MAISON_ORANGE': 'MAISON_ORANGE', 'MAISON_BLEU': 'MAISON_BLEU', 'MAISON_VIOLETTE': 'MAISON_VIOLETTE' };
+        const standalone = { 'HERBESOL': 'HERBESOL', 'HERBESOL2': 'HERBESOL2', 'PORTAIL': 'PORTAIL', 'BRIQUE': 'BRIQUE', 'MAISON_ORANGE': 'MAISON_ORANGE', 'MAISON_BLEU': 'MAISON_BLEU', 'MAISON_VIOLETTE': 'MAISON_VIOLETTE', 'SOL_PUIT': 'SOL_PUIT', 'CORDE': 'CORDE' };
         if (standalone[this.type]) {
             const sImg = Assets.get(standalone[this.type]);
             if (!sImg) return;
@@ -160,6 +165,8 @@ export class Floor extends Entity {
                 ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, dx, dy, 4 * 32, 2 * 32);
             }else if (this.type === 'MAISON_ORANGE' || this.type === 'MAISON_BLEU' || this.type === 'MAISON_VIOLETTE') {
                 ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, dx, dy, 3 * 32, 3 * 32);
+            }else if (this.type === 'CORDE') {
+                ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, dx, dy, 32, 128);
             }else {
                 ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, dx, dy, dw, dh);
             }

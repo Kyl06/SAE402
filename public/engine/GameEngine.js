@@ -129,8 +129,11 @@ export class GameEngine {
 
         this.ctx.restore(); // Annule la translation de tremblement pour la frame suivante
 
-        // Overlay de transition (fondu noir) par-dessus tout
+        // Indicateur [E] sur les portes interactives
         const zm = window.game?.zoneManager;
+        if (zm) zm.drawInteractDoors(this.ctx);
+
+        // Overlay de transition (fondu noir) par-dessus tout
         if (zm) zm.drawFade(this.ctx);
     }
 

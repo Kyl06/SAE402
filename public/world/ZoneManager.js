@@ -25,7 +25,8 @@ const ZONE_MODULES = {
     maison_orange_interior:    () => import('./maps/maison_orange_interior.js?v=' + _v),
     maison_bleu_interior:      () => import('./maps/maison_bleu_interior.js?v=' + _v),
     maison_violette1_interior: () => import('./maps/maison_violette1_interior.js?v=' + _v),
-    maison_violette2_interior: () => import('./maps/maison_violette2_interior.js?v=' + _v)
+    maison_violette2_interior: () => import('./maps/maison_violette2_interior.js?v=' + _v),
+    puit_koumbou:              () => import('./maps/puit_koumbou.js?v=' + _v)
 };
 
 const OPPOSITE = { north: 'south', south: 'north', east: 'west', west: 'east' };
@@ -90,6 +91,38 @@ export class ZoneManager {
     /**
      * Dessine l'overlay de fondu. Appele par le GameEngine apres le draw.
      */
+    drawInteractDoors(ctx) {
+        const doors = this.currentZoneData?.doors;
+        const player = window.game.player;
+        if (!doors || !player) return;
+
+        for (const door of doors) {
+            if (!door.interact) continue;
+            if (player.x + player.width > door.x &&
+                player.x < door.x + door.w &&
+                player.y + player.height > door.y &&
+                player.y < door.y + door.h) {
+                const bounceY = Math.sin(Date.now() * 0.005 * 3) * 3;
+                const cx = door.x + door.w / 2;
+                const cy = door.y + 22 + (door.indicatorOffsetY || 0) + bounceY;
+
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(cx - 12, cy - 12, 24, 16);
+                ctx.strokeStyle = '#ffcc00';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(cx - 12, cy - 12, 24, 16);
+
+                ctx.fillStyle = '#ffcc00';
+                ctx.font = 'bold 11px monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('E', cx, cy - 4);
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'alphabetic';
+            }
+        }
+    }
+
     drawFade(ctx) {
         if (this.fadeAlpha <= 0) return;
         ctx.fillStyle = `rgba(0, 0, 0, ${this.fadeAlpha})`;
@@ -149,7 +182,8 @@ export class ZoneManager {
             'maison_orange_interior':   { x: 256, y: 260 },
             'maison_violette1_interior':{ x: 96,  y: 260 },
             'maison_bleu_interior':     { x: 576, y: 420 },
-            'maison_violette2_interior':{ x: 288, y: 420 }
+            'maison_violette2_interior':{ x: 288, y: 420 },
+            'puit_koumbou':             { x: 160, y: 384 }
         };
         if (zoneId === 'village' && interiorSpawns[this.previousZone]) {
             const player = window.game.player;
@@ -199,14 +233,20 @@ export class ZoneManager {
     spawnEnemies(enemies) {
         if (!enemies) return;
 
+        const area = this.currentZoneData.spawnArea;
+        const sx = area ? area.x : 120;
+        const sy = area ? area.y : 100;
+        const sw = area ? area.w : 560;
+        const sh = area ? area.h : 380;
+
         for (let i = 0; i < (enemies.moblins || 0); i++) {
-            const x = 120 + Math.random() * 560;
-            const y = 100 + Math.random() * 380;
+            const x = sx + Math.random() * sw;
+            const y = sy + Math.random() * sh;
             this.engine.add(new Moblin(x, y, 120));
         }
         for (let i = 0; i < (enemies.octoroks || 0); i++) {
-            const x = 120 + Math.random() * 560;
-            const y = 100 + Math.random() * 380;
+            const x = sx + Math.random() * sw;
+            const y = sy + Math.random() * sh;
             this.engine.add(new Octorok(x, y, 100));
         }
     }
@@ -240,6 +280,18 @@ export class ZoneManager {
             // Coffre (si pas encore ouvert)
             if (!swampQuest.chestOpened) {
                 this.engine.add(new Chest(160, 200));
+            }
+        }
+
+        if (zoneId === 'puit_koumbou') {
+            const puitQuest = qm.getQuest('puit_chest');
+            if (!puitQuest.opened) {
+                this.engine.add(new Chest(384, 320, {
+                    requireKey: false,
+                    emeralds: 5,
+                    messages: ["Le coffre s'ouvre !", "Tu obtiens 5 emeraudes !"],
+                    saveId: 'puit_chest'
+                }));
             }
         }
 
@@ -408,7 +460,13 @@ export class ZoneManager {
                     player.x < door.x + door.w &&
                     player.y + player.height > door.y &&
                     player.y < door.y + door.h) {
-                    this.enterDoor(door);
+                    if (door.interact) {
+                        if (window.game.inputs.isHeld('KeyE')) {
+                            this.enterDoor(door);
+                        }
+                    } else {
+                        this.enterDoor(door);
+                    }
                     return;
                 }
             }

@@ -32,6 +32,13 @@ export class QuestManager {
                 description: 'Vaincs le Gardien Ancien des ruines',
                 bossDefeated: false,
                 reward: 'fragment_3'
+            },
+            puit_chest: {
+                name: 'Tresor du Puit',
+                zone: 'puit_koumbou',
+                state: 'available',
+                description: 'Ouvre le coffre du Puit de Koumbou',
+                opened: false
             }
         };
 

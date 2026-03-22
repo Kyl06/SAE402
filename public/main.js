@@ -112,7 +112,7 @@ Assets.load({
     CIMETIERE: "./assets/cimetiere.png",
     POTION: "./assets/Potion de soin.png",
     MARAIS: "./assets/marais.png",
-    VIEUXNPC: "./assets/vieuxnpc.png",
+    VIEUXNPC: "./assets/villageoisChauve.png",
     ARC_LONG: "./assets/Arc Long.png",
     EPEE_FER: "./assets/EpeeEnFer.png",
     BOUCLIER: "./assets/bouclier.png",
@@ -124,12 +124,16 @@ Assets.load({
     TUILES_VIOLETS: "./assets/tuilesViolets.png",
     SHOP_SHEET: "./assets/shop.png",
     FEE_MARAIS: "./assets/fee_marais.png",
+    PNJDESERT: "./assets/PNJDesert.png",
+    SOL_PUIT: "./assets/solPuit.png",
+    CORDE: "./assets/corde.png",
     MAISON_TILESET: "./assets/maisonTileset.png",
     DIAMANT_ROUGE: "./assets/diamantRouge.png",
     DIAMANT_VERT: "./assets/diamantVert.png",
     DIAMANT_BLEU: "./assets/diamantBleu.png",
     DIAMANT_VIDE: "./assets/diamantVide.png",
     DESERT: "./assets/desert.png",
+    PNJPUIT: "./assets/PNJPuit.png",
 }).then(async () => {
     // 1. Attendre le choix du role
     const role = await waitForPlayerSelection();
