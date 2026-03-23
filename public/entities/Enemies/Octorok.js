@@ -263,40 +263,36 @@ export class Octorok extends Entity {
 
         // Probabilités : 10% Rien, 40% Emeraude, 50% Coeur
         const rand = Math.random();
-        let loot = null;
         let type = '';
 
         if (rand < 0.1) {
             return; // Pas de chance !
         } else if (rand < 0.5) {
-            loot = new Emerald(this.x, this.y);
             type = 'EMERALD';
         } else {
             // Un coeur doit tomber, mais on vérifie si quelqu'un en a besoin
             const players = engine.entities.filter(e => e.hasTag("PLAYER"));
-            const anyoneInjured = players.some(p => p.hp < 6);
+            const anyoneInjured = players.some(p => p.hp < (p.maxHp || 6));
 
             if (anyoneInjured) {
-                loot = new Heart(this.x, this.y);
                 type = 'HEART';
             } else {
-                // Si tout le monde est full vie, on donne une émeraude à la place
-                loot = new Emerald(this.x, this.y);
                 type = 'EMERALD';
             }
         }
 
-        if (loot) {
+        const isPickpocket = window.game.player && window.game.player.bowLevel > 0;
+        const count = (type === 'EMERALD' && isPickpocket) ? 2 : 1;
+
+        for (let i = 0; i < count; i++) {
+            const ItemClass = (type === 'HEART') ? Heart : Emerald;
+            const loot = new ItemClass(this.x + (i*10), this.y);
             loot.netId = 'item_' + Math.random().toString(36).slice(2, 9);
             engine.add(loot);
 
-            // Envoi au serveur pour que le P2 la voie aussi
             if (window.game.network && window.game.network.isHost) {
                 window.game.network.socket.emit('item_spawn', {
-                    id: loot.netId,
-                    x: loot.x,
-                    y: loot.y,
-                    type: type
+                    id: loot.netId, x: loot.x, y: loot.y, type: type
                 });
             }
         }

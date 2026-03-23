@@ -177,17 +177,24 @@ export class Moblin extends Entity {
         if (rand < 0.2) return; 
 
         let type = 'EMERALD';
-        const anyoneInjured = engine.entities.filter(e => e.hasTag("PLAYER")).some(p => p.hp < 6);
+        const anyoneInjured = engine.entities.filter(e => e.hasTag("PLAYER")).some(p => p.hp < (p.maxHp || 6));
 
         if (rand > 0.8 && anyoneInjured) type = 'HEART';
         
+        const isPickpocket = window.game.player && window.game.player.bowLevel > 0;
+        const count = (type === 'EMERALD' && isPickpocket) ? 2 : 1;
+
         const mod = (type === 'HEART') ? import("../Items/Heart.js") : import("../Items/Emerald.js");
         mod.then(m => {
             const ItemClass = m[type.charAt(0) + type.slice(1).toLowerCase()];
-            const loot = new ItemClass(this.x, this.y);
-            loot.netId = 'item_' + Math.random().toString(36).slice(2, 9);
-            engine.add(loot);
-            if (window.game.network?.isHost) window.game.network.socket.emit('item_spawn', { id: loot.netId, x: loot.x, y: loot.y, type });
+            for (let i = 0; i < count; i++) {
+                const loot = new ItemClass(this.x + (i*10), this.y); // Petit offset pour pas qu'elles soient parfaitement superposées
+                loot.netId = 'item_' + Math.random().toString(36).slice(2, 9);
+                engine.add(loot);
+                if (window.game.network?.isHost) {
+                    window.game.network.socket.emit('item_spawn', { id: loot.netId, x: loot.x, y: loot.y, type });
+                }
+            }
         });
     }
 

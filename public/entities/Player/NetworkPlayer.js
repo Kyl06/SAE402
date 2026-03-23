@@ -45,7 +45,7 @@ export class NetworkPlayer extends Entity {
      */
     onNetworkUpdate(data) {
         const parts = data.split('|');
-        const [action, x, y, vx, vy, skin, facing, arrows, isPain] = parts;
+        const [action, x, y, vx, vy, skin, facing, arrows, isPain, swordLevel, bowLevel] = parts;
 
         if (!this.actionAnimation) this.currentAction = action;
 
@@ -56,6 +56,9 @@ export class NetworkPlayer extends Entity {
 
         if (arrows !== undefined) this.arrows = parseInt(arrows);
         if (isPain !== undefined) this.isPainFlashing = (isPain === 'true');
+
+        this.swordLevel = parseInt(swordLevel || 0);
+        this.bowLevel = parseInt(bowLevel || 0);
 
         // Hot-swap de texture si le joueur change de rôle/skin.
         if (skin && this.skinId !== skin) {

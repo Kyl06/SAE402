@@ -150,41 +150,39 @@ export class Creuse extends Entity {
 
     // Probabilités : 20% Rien, 60% Emeraude, 20% Coeur
     const rand = Math.random();
-    let loot = null;
     let type = "";
 
     if (rand < 0.2) {
       return; // Pas de chance !
     } else if (rand < 0.8) {
-      loot = new Emerald(this.x, this.y);
       type = "EMERALD";
     } else {
       // Un coeur doit tomber, mais on vérifie si quelqu'un en a besoin
       const players = engine.entities.filter((e) => e.hasTag("PLAYER"));
-      const anyoneInjured = players.some((p) => p.hp < 6);
+      const anyoneInjured = players.some((p) => p.hp < (p.maxHp || 6));
 
       if (anyoneInjured) {
-        loot = new Heart(this.x, this.y);
         type = "HEART";
       } else {
-        loot = new Emerald(this.x, this.y);
         type = "EMERALD";
       }
     }
 
-    if (loot) {
-      loot.netId = "item_" + Math.random().toString(36).slice(2, 9);
-      engine.add(loot);
+    const isPickpocket = window.game.player && window.game.player.bowLevel > 0;
+    const count = (type === 'EMERALD' && isPickpocket) ? 2 : 1;
 
-      // Envoi au serveur pour que le P2 la voie aussi
-      if (window.game.network && window.game.network.isHost) {
-        window.game.network.socket.emit("item_spawn", {
-          id: loot.netId,
-          x: loot.x,
-          y: loot.y,
-          type: type,
-        });
-      }
+    for (let i = 0; i < count; i++) {
+        const ItemClass = (type === 'HEART') ? Heart : Emerald;
+        const loot = new ItemClass(this.x + (i*10), this.y);
+        loot.netId = "item_" + Math.random().toString(36).slice(2, 9);
+        engine.add(loot);
+
+        // Envoi au serveur pour que le P2 la voie aussi
+        if (window.game.network && window.game.network.isHost) {
+            window.game.network.socket.emit("item_spawn", {
+                id: loot.netId, x: loot.x, y: loot.y, type: type,
+            });
+        }
     }
   }
 

@@ -19,6 +19,32 @@ export class Emerald extends Entity {
     this.netId = null; // Défini lors du spawn réseau
   }
 
+  update(delta) {
+    const players = window.game.engine.entities.filter(e => e.hasTag("PLAYER") && !e.isDead);
+    let target = null;
+    let minDist = 120; // Rayon de magnétisme (pixels)
+    
+    players.forEach(p => {
+        const d = Math.hypot(p.x - this.x, p.y - this.y);
+        if (d < minDist) {
+            minDist = d;
+            target = p;
+        }
+    });
+
+    if (target) {
+        const dx = target.x - this.x;
+        const dy = target.y - this.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        
+        const speed = 150; // Vitesse de déplacement magnétique
+        this.x += (dx / dist) * speed * (delta / 1000);
+        this.y += (dy / dist) * speed * (delta / 1000);
+    }
+
+    super.update(delta);
+  }
+
   onCollision(other) {
     // Seul le joueur LOCAL peut ramasser l'émeraude (évite la double collecte avec le NetworkPlayer)
     if (other.hasTag("PLAYER") && other === window.game.player) {
