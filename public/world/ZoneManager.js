@@ -353,7 +353,7 @@ export class ZoneManager {
 
     if (zoneId === "fortress_north" && isHost) {
       // Boss Maldrek (centre de la salle)
-      this.engine.add(new Maldrek(360, 150));
+      this.engine.add(new Maldrek(360, 200));
     }
   }
 

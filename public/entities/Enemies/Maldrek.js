@@ -71,6 +71,17 @@ export class Maldrek extends Entity {
     super.update(delta);
   }
 
+
+  getCollisionBox() {
+    return {
+      x: this.x + 16, 
+      y: this.y + 16, 
+      w: 32,          
+      h: 48         
+    };
+  }
+
+
   think() {
     const players = window.game.engine.entities.filter(
       (e) => e.hasTag("PLAYER") && !e.isDead,
@@ -175,8 +186,9 @@ export class Maldrek extends Entity {
 
   isBlocked(dirX, dirY) {
     const step = 16;
-    const testX = this.x + dirX * step;
-    const testY = this.y + dirY * step;
+    const myBox = this.getCollisionBox();
+    const testX = myBox.x + dirX * step;
+    const testY = myBox.y + dirY * step;
     const entities = window.game.engine.entities;
     for (let i = 0; i < entities.length; i++) {
       const e = entities[i];
@@ -184,9 +196,9 @@ export class Maldrek extends Entity {
       const box = e.getCollisionBox();
       if (
         testX < box.x + box.w &&
-        testX + this.width > box.x &&
+        testX + myBox.w > box.x &&
         testY < box.y + box.h &&
-        testY + this.height > box.y
+        testY + myBox.h > box.y
       ) {
         return true;
       }
