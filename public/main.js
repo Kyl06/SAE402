@@ -135,6 +135,11 @@ Assets.load({
   SCIE: "./assets/scie.png",
   CREUSE: "./assets/creuse.png",
   CHOMP: "./assets/chomp.png",
+  BARRIERE: "./assets/barriere.png",
+  PNJ1: "./assets/PNJ1.png",
+  PNJ2: "./assets/PNJ2.png",
+  PNJFemme: "./assets/PNJFemme.png",
+  STEEVE: "./assets/steve.png",
 }).then(async () => {
   const role = await waitForPlayerSelection();
   const isHost = role === 1;

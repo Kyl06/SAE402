@@ -269,25 +269,6 @@ export class ZoneManager {
         if (entryDir === "west" && x < 270) isSafe = false;
         if (entryDir === "east" && x > 510) isSafe = false;
 
-        // Eviter de spawner sur une tuile solide (murs, tombes, deco...)
-        if (isSafe) {
-          const spawnW = 32;
-          const spawnH = 32;
-          for (const e of this.engine.entities) {
-            if (!e.collider || !e.hasTag("SOLID")) continue;
-            const box = e.getCollisionBox();
-            if (
-              x < box.x + box.w &&
-              x + spawnW > box.x &&
-              y < box.y + box.h &&
-              y + spawnH > box.y
-            ) {
-              isSafe = false;
-              break;
-            }
-          }
-        }
-
         attempts++;
       }
       return { x, y };
@@ -371,10 +352,8 @@ export class ZoneManager {
     }
 
     if (zoneId === "fortress_north" && isHost) {
-      // Boss Maldrek (si pas encore vaincu)
-      if (!qm.maldrekDefeated) {
-        this.engine.add(new Maldrek(360, 200));
-      }
+      // Boss Maldrek (centre de la salle)
+      this.engine.add(new Maldrek(360, 200));
     }
   }
 
@@ -464,7 +443,7 @@ export class ZoneManager {
         zone: targetZone,
         entryDir: entryDir,
         spawnX: player ? player.x : null,
-        spawnY: player ? player.y : null
+        spawnY: player ? player.y : null,
       });
     }
 
@@ -523,12 +502,7 @@ export class ZoneManager {
         sortieY = 448;
       const size = 32;
 
-      if (
-        px > trouX &&
-        px < trouX + size &&
-        py > trouY &&
-        py < trouY + size
-      ) {
+      if (px > trouX && px < trouX + size && py > trouY && py < trouY + size) {
         player.x = sortieX;
         player.y = sortieY + size;
         player.velX = 0;
@@ -594,7 +568,7 @@ export class ZoneManager {
         zone: door.target,
         entryDir: "south",
         spawnX: player ? player.x : null,
-        spawnY: player ? player.y : null
+        spawnY: player ? player.y : null,
       });
     }
 
