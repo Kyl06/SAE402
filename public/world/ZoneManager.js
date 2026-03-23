@@ -269,6 +269,25 @@ export class ZoneManager {
         if (entryDir === "west" && x < 270) isSafe = false;
         if (entryDir === "east" && x > 510) isSafe = false;
 
+        // Eviter de spawner sur une tuile solide (murs, tombes, deco...)
+        if (isSafe) {
+          const spawnW = 32;
+          const spawnH = 32;
+          for (const e of this.engine.entities) {
+            if (!e.collider || !e.hasTag("SOLID")) continue;
+            const box = e.getCollisionBox();
+            if (
+              x < box.x + box.w &&
+              x + spawnW > box.x &&
+              y < box.y + box.h &&
+              y + spawnH > box.y
+            ) {
+              isSafe = false;
+              break;
+            }
+          }
+        }
+
         attempts++;
       }
       return { x, y };
@@ -352,8 +371,11 @@ export class ZoneManager {
     }
 
     if (zoneId === "fortress_north" && isHost) {
-      // Boss Maldrek (centre de la salle)
-      this.engine.add(new Maldrek(360, 200));
+      // Boss Maldrek (si pas encore vaincu)
+      if (!qm.maldrekDefeated) {
+        this.engine.add(new Maldrek(360, 200));
+      }
+
     }
   }
 
