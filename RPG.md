@@ -1,9 +1,3 @@
-# Prompt de contexte — RPG "La Relique Volée"
-
-Copie-colle ce fichier en entier dans une nouvelle conversation Claude pour reprendre le travail.
-
----
-
 ## Contexte du projet
 
 Ce projet est un jeu multijoueur coop (2 joueurs) de type RPG action rétro-gaming 2D, basé sur une base de code existante (style Zelda). Le moteur de jeu custom est déjà fonctionnel avec : game loop 60 FPS, système d'entités, collision AABB, animation par sprite sheets, multijoueur via Socket.io (architecture host/client), 2 types d'ennemis (Moblin, Octorok), armes (épée/arc), items (coeurs, émeraudes), HUD, et 2 maps.

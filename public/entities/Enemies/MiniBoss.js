@@ -7,11 +7,12 @@
 import { Entity } from "../../engine/Entity.js";
 import { Explosion } from "../Effects/Explosion.js";
 import { Emerald } from "../Items/Emerald.js";
+import { SpriteSheet } from "../../engine/SpriteSheet.js";
 import { SCALE } from "../../constants.js";
 
 export class MiniBoss extends Entity {
   constructor(x, y) {
-    super(x, y, 40, 40);
+    super(x, y, 48, 48);
 
     this.netId = "boss_" + Math.random().toString(36).slice(2, 11);
     this.enemyType = "MINIBOSS";
@@ -23,6 +24,8 @@ export class MiniBoss extends Entity {
     this.chargeSpeed = 180;
     this.addTag("ENEMY");
     this.addTag("MINIBOSS");
+
+    this.spriteSheet = new SpriteSheet("CHOMP", 3, 3, 16, 16);
 
     this.anchor = { x, y };
     this.state = "IDLE"; // IDLE, WALK, CHASE, CHARGE_WINDUP, CHARGE, STUNNED
@@ -326,47 +329,45 @@ export class MiniBoss extends Entity {
     // Ne pas dessiner si flash actif (clignotement)
     if (this.flashTime > 0 && Math.floor(this.flashTime / 50) % 2 === 0) return;
 
-    const s = SCALE;
-    const px = this.x;
-    const py = this.y;
-    const isCharging = this.state === "CHARGE";
-    const isWindup = this.state === "CHARGE_WINDUP";
-    const isStunned = this.state === "STUNNED";
+    let col, row;
+    const isMoving = Math.abs(this.velX) > 0.1 || Math.abs(this.velY) > 0.1;
+    const downCycle = isMoving ? (Math.floor(Date.now() / 150) % 2) : 0;
+    const sideCycle = isMoving ? (Math.floor(Date.now() / 150) % 2) : 0;
 
-    // Corps principal (armure)
-    ctx.fillStyle = isCharging ? "#ff3333" : isStunned ? "#666688" : "#4a2a6a";
-    ctx.fillRect(px + 4 * s, py + 8 * s, 14 * s, 14 * s);
+    switch (this.facing) {
+      case "LEFT":
+        col = sideCycle;
+        row = 1;
+        break;
+      case "RIGHT":
+        col = sideCycle;
+        row = 2;
+        break;
+      case "UP":
+        col = 2;
+        row = 0;
+        break;
+      case "DOWN":
+        col = downCycle;
+        row = 0;
+        break;
+    }
 
-    // Epaulettes
-    ctx.fillStyle = isCharging ? "#cc2222" : "#3a1a5a";
-    ctx.fillRect(px + 1 * s, py + 8 * s, 5 * s, 6 * s);
-    ctx.fillRect(px + 16 * s, py + 8 * s, 5 * s, 6 * s);
-
-    // Tete (casque)
-    ctx.fillStyle = "#555577";
-    ctx.fillRect(px + 5 * s, py + 1 * s, 12 * s, 9 * s);
-
-    // Visiere
-    ctx.fillStyle = "#333355";
-    ctx.fillRect(px + 6 * s, py + 4 * s, 10 * s, 3 * s);
-
-    // Yeux rouges
-    ctx.fillStyle = isStunned ? "#888" : "#ff0000";
-    ctx.fillRect(px + 7 * s, py + 5 * s, 2 * s, 2 * s);
-    ctx.fillRect(px + 13 * s, py + 5 * s, 2 * s, 2 * s);
+    const frame = row * 3 + col;
+    this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, 3);
 
     // Indicateur de windup (tremble)
-    if (isWindup) {
+    if (this.state === "CHARGE_WINDUP") {
       const shake = Math.sin(this.animTime * 0.05) * 2;
       ctx.fillStyle = "#ff6600";
-      ctx.fillRect(px + 2 * s + shake, py - 4, 18 * s, 3);
+      ctx.fillRect(this.x + 2 + shake, this.y - 4, 18, 3);
     }
 
     // Barre de vie au-dessus
-    const barW = 40;
+    const barW = 48;
     const barH = 4;
-    const barX = px + (this.width - barW) / 2;
-    const barY = py - 8;
+    const barX = this.x + (this.width - barW) / 2;
+    const barY = this.y - 8;
     ctx.fillStyle = "#333";
     ctx.fillRect(barX, barY, barW, barH);
     ctx.fillStyle = this.hp > this.maxHp * 0.3 ? "#ff3333" : "#ff0000";
