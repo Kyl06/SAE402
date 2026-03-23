@@ -62,7 +62,7 @@
             position: absolute;
             inset: 0;
             background: url('assets/fondBQ.png') center/cover no-repeat;
-            filter: brightness(0.65);
+            filter: brightness(0.55);
             transform: none;
             z-index: 0;
         }        
@@ -117,6 +117,7 @@
             gap: 70px;
             animation: fade-up 0.7s 0.3s ease both;
             opacity: 0;
+            margin-bottom: 45px;
         }
 
         @keyframes fade-up {
@@ -187,12 +188,13 @@
 
         /* ── STATUS ── */
         #status-text {
-            font-size: 7px;
-            color: rgba(210,195,155,0.5);
-            margin-top: 38px;
+            font-size: 10px;
+            color: rgb(255, 244, 44);
+            margin-top: 2px;
             letter-spacing: 2px;
             animation: blink 1.5s ease-in-out infinite, fade-up 0.7s 0.55s ease both;
             opacity: 0;
+            box-shadow: #000 0px 0px 8px, rgba(224,60,42,0.3) 0px 0px 12px;
         }
 
         @keyframes blink {
@@ -202,31 +204,32 @@
 
         /* ── NOUVELLE PARTIE ── */
         #new-game-btn {
-            background: none;
+            background: rgba(0, 0, 0, 0.75);
             border: 1px solid rgba(150,80,80,0.3);
-            color: rgba(180,100,100,0.55);
+            color: rgb(255, 0, 0);
             padding: 8px 18px;
             font-family: 'Press Start 2P', monospace;
-            font-size: 6px;
+            font-size: 15px;
             cursor: pointer;
             letter-spacing: 1px;
             transition: all 0.2s;
             margin-top: 22px;
         }
+
         #new-game-btn:hover {
-            border-color: var(--red);
-            color: var(--red);
-            background: rgba(224,60,42,0.08);
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(0, 0, 0, 0.9);
         }
 
         /* ── COPYRIGHT ── */
         .copyright {
             position: absolute;
-            bottom: 18px;
+            bottom: 27px;
             left: 0; right: 0;
             text-align: center;
             font-size: 6px;
-            color: rgba(185,170,130,0.4);
+            color: rgba(255, 255, 255, 0.4);
             letter-spacing: 2px;
             z-index: 10;
             pointer-events: none;
