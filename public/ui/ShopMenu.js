@@ -8,11 +8,11 @@ import { Entity } from '../engine/Entity.js';
 import { Assets } from '../engine/Assets.js';
 
 const SHOP_ITEMS = [
-    { id: 'potion',  name: 'Potion de soin',  price: 3,  desc: 'Restaure 2 coeurs',     oneTime: false, icon: 'POTION' },
-    { id: 'sword',   name: 'Epee en fer',      price: 10, desc: 'Double la puissance de l\'epée (plus fort)',      oneTime: true,  icon: 'EPEE_FER' },
-    { id: 'bow',     name: 'Arc long',          price: 8,  desc: '1.3x degats, + rapide',  oneTime: true,  icon: 'ARC_LONG' },
-    { id: 'shield',  name: 'Bouclier',          price: 7,  desc: 'Reduit les degats de 1', oneTime: true,  icon: 'BOUCLIER' },
-    { id: 'arrows',  name: '5 Fleches',         price: 2,  desc: '+5 fleches',             oneTime: false, icon: 'ARROW' },
+    { id: 'potion', name: 'Potion de soin', price: 3, desc: 'Restaure 2 coeurs', oneTime: false, icon: 'POTION' },
+    { id: 'sword', name: 'Epee en fer', price: 10, desc: 'Double la puissance de l\'epée (plus fort)', oneTime: true, icon: 'EPEE_FER' },
+    { id: 'bow', name: 'Arc long', price: 8, desc: '1.3x degats, + rapide', oneTime: true, icon: 'ARC_LONG' },
+    { id: 'shield', name: 'Bouclier', price: 7, desc: 'Reduit les degats de 1', oneTime: true, icon: 'BOUCLIER' },
+    { id: 'arrows', name: '5 Fleches', price: 2, desc: '+5 fleches', oneTime: false, icon: 'ARROW' },
 ];
 
 export class ShopMenu extends Entity {
@@ -39,7 +39,7 @@ export class ShopMenu extends Entity {
         this.feedbackTimer = 0;
         this.animTimer = 0;
         // Empêcher l'achat instantané si la touche E est déjà enfoncée pour parler
-        this.keyEWas = true; 
+        this.keyEWas = true;
         window.game.dialogueActive = true;
     }
 
@@ -90,10 +90,10 @@ export class ShopMenu extends Entity {
             if (item.id === 'shield' && player.hasShield) { this.showFeedback('Deja achete !'); return; }
         }
 
-    // En mode admin, autoriser l'achat sans décrémenter les émeraudes
-    if (!player.adminMode && (player.emeralds || 0) < item.price) { this.showFeedback('Pas assez d\'emeraudes !'); return; }
+        // En mode admin, autoriser l'achat sans décrémenter les émeraudes
+        if (!player.adminMode && (player.emeralds || 0) < item.price) { this.showFeedback('Pas assez d\'emeraudes !'); return; }
 
-    if (!player.adminMode) player.emeralds -= item.price;
+        if (!player.adminMode) player.emeralds -= item.price;
 
         switch (item.id) {
             case 'potion': player.potions++; this.showFeedback('Potion achetee !'); break;
@@ -159,10 +159,10 @@ export class ShopMenu extends Entity {
         ctx.textBaseline = 'middle';
         ctx.fillText('BOUTIQUE', boxX + boxW / 2, boxY + 30);
 
-    ctx.fillStyle = shopIsAdmin ? '#ffd54f' : '#44ff44';
-    ctx.font = 'bold 11px "Press Start 2P", monospace';
-    ctx.textAlign = 'right';
-    ctx.fillText(shopIsAdmin ? 'ILLIMITÉ' : `${emeralds} em.`, boxX + boxW - 16, boxY + 30);
+        ctx.fillStyle = shopIsAdmin ? '#ffd54f' : '#44ff44';
+        ctx.font = 'bold 11px "Press Start 2P", monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(shopIsAdmin ? 'ILLIMITÉ' : `${emeralds} em.`, boxX + boxW - 16, boxY + 30);
 
         ctx.textAlign = 'left';
         const startY = boxY + 68;
