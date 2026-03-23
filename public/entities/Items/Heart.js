@@ -28,10 +28,10 @@ export class Heart extends Entity {
     if (
       other.hasTag("PLAYER") &&
       other === window.game.player &&
-      other.hp < 6
+      other.hp < (other.maxHp || 6)
     ) {
       // Soin de 1 cœur plein (équivaut à 2 points de vie)
-      other.hp = Math.min(6, other.hp + 2);
+      other.hp = Math.min(other.maxHp || 6, other.hp + 2);
 
       // Notifier le réseau pour retirer l'item chez l'autre joueur
       if (window.game.network && this.netId) {
