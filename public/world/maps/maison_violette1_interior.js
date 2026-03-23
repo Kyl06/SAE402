@@ -265,5 +265,22 @@ export const zoneData = {
       spawnY: 280,
     },
   ],
-  npcs: [],
+  npcs: [
+    {
+      name: "Doug",
+      x: 340,
+      y: 230,
+      sprite: "PNJ1",
+      spriteColumns: 2,
+      spriteRows: 1,
+      spriteW: 92,
+      spriteH: 105,
+      spriteScale: 0.43,
+      interactRange: 80,
+      dialogues: ["Maldrek nous a volé la relique sacrée !",
+        "Comment allons nous faire ?",
+        "Nous avons besoin d'héros pour nous aider !"
+      ],
+    },
+  ],
 };

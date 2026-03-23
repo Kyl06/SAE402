@@ -577,5 +577,24 @@ export const zoneData = {
     doors: [
         { x: 352, y: 352, w: 64, h: 32, target: 'village', spawnX: 576, spawnY: 440 }
     ],
-    npcs: []
+    npcs: [
+      {
+            name: 'Steeve',
+            x: 364, y: 190,
+            sprite: 'STEEVE',
+            hitboxOffsetX: 8,
+            spriteColumns: 1,
+            spriteW: 63,
+            spriteH: 86,
+            spriteFrame: 0,
+            spriteScale: 0.48,
+            interactRange: 80,
+            z: 5,
+            dialogues: [
+                "Ah, un héros ! Enfin quelqu'un à qui parler... Mon chat ne m'écoute plus depuis que j'ai raté la quiche de Maldrek.",
+                "Oui oui, j'avais voulu la lui offrir pour la paix... Il a quand même volé la Relique. Apparemment la quiche n'était pas assez salée.",
+                "Bon. Si tu le trouves, dis-lui qu'il me doit des oeufs."
+            ],
+        }
+    ]
 };
