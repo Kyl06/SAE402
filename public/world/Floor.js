@@ -149,6 +149,10 @@ export class Floor extends Entity {
       "MAR_BOIS_4",
       "MAR_SORTIE",
       "MAR_MARECAGE_10",
+      "MAR_PONT_3",
+      "MAR_EXTRA_2",
+      "MAR_MARECAGE_8",
+      "MAR_MARECAGE_6",
     ];
     this.collider = !(
       walkables.includes(this.type) ||
