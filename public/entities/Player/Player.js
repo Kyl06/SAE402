@@ -14,6 +14,7 @@ export class Player extends Entity {
         super(x, y, 32, 32); 
 
         this.hp = 6;                
+        this.maxHp = 6;
         this.addTag(TAG_PLAYER);    
         this.skinId = skinId;       
         this.facing = DOWN;         
@@ -197,9 +198,9 @@ export class Player extends Entity {
     }
 
     usePotion() {
-        if (this.potions <= 0 || this.hp >= 6) return;
+        if (this.potions <= 0 || this.hp >= this.maxHp) return;
         this.potions--;
-        this.hp = Math.min(this.hp + 4, 6);
+        this.hp = Math.min(this.hp + 4, this.maxHp);
     }
 
     draw(ctx) {

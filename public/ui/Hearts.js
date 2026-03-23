@@ -20,8 +20,8 @@ export class Hearts {
      * @param {number} startX - Position X de début de la ligne
      * @param {number} startY - Position Y de début de la ligne
      */
-    draw(ctx, hp, startX, startY) {
-        const maxHearts = 3; // On limite à 3 cœurs max
+    draw(ctx, hp, startX, startY, maxHp = 6) {
+        const maxHearts = Math.ceil(maxHp / 2); 
         
         for (let i = 0; i < maxHearts; i++) {
             let frame = 0; // Par défaut : cœur vide (index 0)

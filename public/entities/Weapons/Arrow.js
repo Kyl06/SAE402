@@ -18,10 +18,11 @@ export class Arrow extends Entity {
     super(x, y, 16, 16);
     this.facing = facing;
     this.owner = owner;
-    // Arc long : vitesse et portee augmentees
+    // L'amélioration "Pickpocket" (bowLevel > 0) permet le drop d'émeraudes.
     const bowLevel = owner?.bowLevel || 0;
-    this.speed = bowLevel > 0 ? 400 : 300;
-    this.damage = bowLevel > 0 ? 1.3 : 1;
+    this.bowLevel = bowLevel;
+    this.speed = 300; 
+    this.damage = 3; 
     this.z = 50;        // Toujours au premier plan
     
     // Spritesheet de la flèche (1 colonne x 4 lignes)

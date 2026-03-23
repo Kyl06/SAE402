@@ -28,10 +28,20 @@ export class BottomBar extends Entity {
         if (!player) return;
 
         // --- Ligne du haut : coeurs + stamina + emeraudes + fleches ---
-        this.heartsUI.draw(ctx, player.hp, 20, this.y + 8);
-        this.drawStamina(ctx, player, 140, this.y + 18);
-        this.drawEmeralds(ctx, player, 280, this.y + 24);
-        this.drawArrows(ctx, player, 420, this.y + 24);
+        const startX = 20;
+        const numHearts = Math.ceil(player.maxHp / 2);
+        const heartsWidth = numHearts * (this.heartsUI.heartSize + 8);
+        
+        this.heartsUI.draw(ctx, player.hp, startX, this.y + 8, player.maxHp);
+        
+        const staminaX = Math.max(140, startX + heartsWidth + 10);
+        this.drawStamina(ctx, player, staminaX, this.y + 18);
+        
+        const emeraldsX = staminaX + 140;
+        this.drawEmeralds(ctx, player, emeraldsX, this.y + 24);
+        
+        const arrowsX = emeraldsX + 140;
+        this.drawArrows(ctx, player, arrowsX, this.y + 24);
 
         // --- Ligne du bas : inventaire ---
         const invY = this.y + 60;

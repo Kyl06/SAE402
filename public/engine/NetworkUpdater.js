@@ -157,7 +157,8 @@ export class NetworkUpdater {
         PICK_UP_KEY: () => { qm.pickUpKey(true); this.engine.entities.find(e => e.hasTag("KEY"))?.kill(); },
         OPEN_CHEST: () => { qm.openChest(true); const c = this.engine.entities.find(e => e.hasTag("CHEST")); if (c) c.opened = true; },
         MOBLIN_KILL: () => qm.registerMoblinKill(true),
-        BOSS_DEFEAT: () => qm.defeatBoss(true)
+        BOSS_DEFEAT: () => qm.defeatBoss(true),
+        MALDREK_DEFEAT: () => qm.defeatMaldrek(true)
       };
       handlers[type]?.();
     });
@@ -191,7 +192,7 @@ export class NetworkUpdater {
     const p = this.localPlayer;
     const action = p.actionAnimation?.type || "IDLE";
 
-    const msg = `${action}|${Math.round(p.x)}|${Math.round(p.y)}|${Math.round(p.velX ?? 0)}|${Math.round(p.velY ?? 0)}|${p.skinId}|${p.facing}|${p.arrows || 0}|${p.isPainFlashing ? "true" : "false"}`;
+    const msg = `${action}|${Math.round(p.x)}|${Math.round(p.y)}|${Math.round(p.velX ?? 0)}|${Math.round(p.velY ?? 0)}|${p.skinId}|${p.facing}|${p.arrows || 0}|${p.isPainFlashing ? "true" : "false"}|${p.swordLevel || 0}|${p.bowLevel || 0}`;
     this.socket.emit("player_update", msg);
 
     if (this.isHost) {

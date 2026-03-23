@@ -44,6 +44,18 @@ export class QuestManager {
 
         // Fragments collectes
         this.fragments = [false, false, false];
+        this.maldrekDefeated = false;
+    }
+
+    /** Marque la défaite de Maldrek. */
+    defeatMaldrek(isRemote = false) {
+        if (this.maldrekDefeated) return;
+        this.maldrekDefeated = true;
+        this.save();
+
+        if (!isRemote && window.game.network) {
+            window.game.network.socket.emit("quest_update", { type: "MALDREK_DEFEAT" });
+        }
     }
 
     /** Retourne l'état d'une quête via son identifiant unique. */
@@ -145,6 +157,7 @@ export class QuestManager {
         const data = {
             quests: this.quests,
             fragments: this.fragments,
+            maldrekDefeated: this.maldrekDefeated,
             player: player ? {
                 emeralds: player.emeralds,
                 arrows: player.arrows,
@@ -153,6 +166,7 @@ export class QuestManager {
                 swordLevel: player.swordLevel,
                 bowLevel: player.bowLevel,
                 hp: player.hp,
+                maxHp: player.maxHp,
             } : null,
             zone: window.game.zoneManager?.currentZone || "village",
         };
@@ -178,6 +192,7 @@ export class QuestManager {
 
             if (data.quests) this.quests = data.quests;
             if (data.fragments) this.fragments = data.fragments;
+            if (data.maldrekDefeated !== undefined) this.maldrekDefeated = data.maldrekDefeated;
 
             return data;
         } catch (e) {

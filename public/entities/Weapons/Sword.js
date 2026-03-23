@@ -28,6 +28,7 @@ export class Sword extends Entity {
         this.spriteSheet = new SpriteSheet('SWORD', 3, 4, 16, 16);
         
         this.useFrame(0);
+        this.hitEnemies = new Set();
     }
 
     /**
@@ -80,6 +81,9 @@ export class Sword extends Entity {
 
     onCollision(other) {
         if (other.hasTag('ENEMY')) {
+            if (this.hitEnemies.has(other)) return;
+            this.hitEnemies.add(other);
+            
             // Dégâts : 3 de base (MiniBoss 12 HP -> 4 coups), 6 avec épée en fer (MiniBoss -> 2 coups)
             const player = window.game.player;
             const dmg = (player && player.swordLevel > 0) ? 6 : 3;

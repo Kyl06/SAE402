@@ -19,8 +19,8 @@ export class Maldrek extends Entity {
     this.netId = "maldrek_" + Math.random().toString(36).slice(2, 11);
     this.enemyType = "MALDREK";
 
-    this.hp = 30;
-    this.maxHp = 30;
+    this.hp = 40;
+    this.maxHp = 40;
     this.speed = 35;
     this.chaseSpeed = 60;
     this.chargeSpeed = 200;
@@ -304,7 +304,7 @@ export class Maldrek extends Entity {
       amount = 1;
     }
     if (this.painState || this.toRemove) return;
-    this.hp -= (amount || 1);
+    this.hp -= amount || 1;
     this.flashTime = 150;
     window.game.engine.shake(5, 120);
 
@@ -351,19 +351,24 @@ export class Maldrek extends Entity {
 
     // Loot (Host génère et diffuse au P2)
     if (network?.isHost || !network) {
-      for (let i = 0; i < 10; i++) {
-        const em = new Emerald(this.x + (i - 5) * 12, this.y + 30);
+      const isPickpocket = window.game.player && window.game.player.bowLevel > 0;
+      const count = isPickpocket ? 20 : 10;
+      for (let i = 0; i < count; i++) {
+        const em = new Emerald(this.x + (i - (count/2)) * 12, this.y + 30);
         em.netId = "it_" + Math.random().toString(36).slice(2, 7);
         window.game.engine.add(em);
         if (network?.socket) {
           network.socket.emit("item_spawn", {
-            id: em.netId,
-            x: em.x,
-            y: em.y,
-            type: "EMERALD",
+            id: em.netId, x: em.x, y: em.y, type: "EMERALD",
           });
         }
       }
+    }
+
+    // Notifier le QuestManager
+    const qm = window.game.questManager;
+    if (qm) {
+      qm.defeatMaldrek();
     }
 
     // Victoire !

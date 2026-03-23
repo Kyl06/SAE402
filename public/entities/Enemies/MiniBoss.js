@@ -303,17 +303,17 @@ export class MiniBoss extends Entity {
 
     // Loot genereux (Host génère et diffuse au P2)
     if (network?.isHost || !network) {
-      for (let i = 0; i < 5; i++) {
-        const em = new Emerald(this.x + (i - 2) * 15, this.y + 20);
+      const isPickpocket = window.game.player && window.game.player.bowLevel > 0;
+      const count = isPickpocket ? 10 : 5;
+
+      for (let i = 0; i < count; i++) {
+        const em = new Emerald(this.x + (i - (count/2)) * 15, this.y + 20);
         em.netId = "it_" + Math.random().toString(36).slice(2, 7);
         engine.add(em);
         // Envoyer l'émeraude au P2
         if (network?.socket) {
           network.socket.emit("item_spawn", {
-            id: em.netId,
-            x: em.x,
-            y: em.y,
-            type: "EMERALD",
+            id: em.netId, x: em.x, y: em.y, type: "EMERALD",
           });
         }
       }

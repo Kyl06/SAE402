@@ -45,7 +45,7 @@ window.respawn = function () {
 
   if (ui) ui.style.display = "none";
   Object.assign(p, {
-    hp: 6, emeralds: 0, arrows: 30, isDead: false,
+    hp: p.maxHp || 6, emeralds: 0, arrows: 30, isDead: false,
     visible: true, collider: true, actionAnimation: null, isPainFlashing: false
   });
 
