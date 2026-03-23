@@ -80,12 +80,20 @@ export class Sword extends Entity {
 
     onCollision(other) {
         if (other.hasTag('ENEMY')) {
-            // Degats : 1 de base, 2 avec epee en fer
+            // Dégâts : 3 de base (MiniBoss 12 HP -> 4 coups), 6 avec épée en fer (MiniBoss -> 2 coups)
             const player = window.game.player;
-            const dmg = (player && player.swordLevel > 0) ? 2 : 1;
+            const dmg = (player && player.swordLevel > 0) ? 6 : 3;
 
+            // Si la méthode takeDamage accepte un montant, on le transmet.
             if (other.takeDamage) {
-                other.takeDamage(this.facing);
+                try {
+                    // Certains ennemis définissent takeDamage(direction) seulement,
+                    // d'autres acceptent (amount, direction). On essaye amount first.
+                    other.takeDamage(dmg, this.facing);
+                } catch (err) {
+                    // Fallback : appeler sans montant si la signature est différente
+                    try { other.takeDamage(this.facing); } catch (e) { /* ignore */ }
+                }
             }
 
             if (window.game.network && other.netId) {

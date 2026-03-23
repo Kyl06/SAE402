@@ -9,7 +9,7 @@ import { Assets } from '../engine/Assets.js';
 
 const SHOP_ITEMS = [
     { id: 'potion',  name: 'Potion de soin',  price: 3,  desc: 'Restaure 2 coeurs',     oneTime: false, icon: 'POTION' },
-    { id: 'sword',   name: 'Epee en fer',      price: 10, desc: '+1 degat par coup',      oneTime: true,  icon: 'EPEE_FER' },
+    { id: 'sword',   name: 'Epee en fer',      price: 10, desc: 'Double la puissance de l\'epée (plus fort)',      oneTime: true,  icon: 'EPEE_FER' },
     { id: 'bow',     name: 'Arc long',          price: 8,  desc: '1.3x degats, + rapide',  oneTime: true,  icon: 'ARC_LONG' },
     { id: 'shield',  name: 'Bouclier',          price: 7,  desc: 'Reduit les degats de 1', oneTime: true,  icon: 'BOUCLIER' },
     { id: 'arrows',  name: '5 Fleches',         price: 2,  desc: '+5 fleches',             oneTime: false, icon: 'ARROW' },
