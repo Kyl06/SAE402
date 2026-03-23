@@ -281,6 +281,11 @@ export const zoneData = {
         "Comment allons nous faire ?",
         "Nous avons besoin d'héros pour nous aider !"
       ],
+      postDefeatDialogues: [
+        "Mon heros ! Tu as vaincu Maldrek et recupere la relique !",
+        "Je savais que tu y arriverais. Je l'ai toujours dit !",
+        "On va pouvoir feter ca toute la nuit !"
+      ]
     },
   ],
 };

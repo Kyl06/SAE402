@@ -595,6 +595,11 @@ export const zoneData = {
                 "Oui oui, j'avais voulu la lui offrir pour la paix... Il a quand même volé la Relique. Apparemment la quiche n'était pas assez salée.",
                 "Bon. Si tu le trouves, dis-lui qu'il me doit des oeufs."
             ],
+            postDefeatDialogues: [
+                "Tu as battu Maldrek ?! Ha !",
+                "Ca lui apprendra a critiquer ma quiche. Mais d'un autre cote... il avait ptetre raison sur le sel.",
+                "Enfin bon, mon chat est content de te revoir vivant !"
+            ],
         }
     ]
 };

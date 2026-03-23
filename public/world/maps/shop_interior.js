@@ -358,6 +358,11 @@ export const zoneData = {
       isShop: true,
       interactRange: 80,
       dialogues: ["Bienvenue ! Que veux-tu acheter ?"],
+      postDefeatDialogues: [
+        "J'ai entendu la nouvelle ! Merci d'avoir vaincu ce sorcier.",
+        "Maldrek faisait fuir les clients. Au fait, tout est a moitie prix aujourd'hui !",
+        "...Non je plaisante. Mais tu as ma gratitude !"
+      ],
     },
   ],
 };

@@ -27,6 +27,7 @@ export class NPC extends Entity {
 
         this.npcName = config.name || 'PNJ';
         this.dialogues = config.dialogues || ['...'];
+        this.postDefeatDialogues = config.postDefeatDialogues || null;
         this.questDialogues = config.questDialogues || null; // { questId, active: [...], completed: [...] }
         this.isShop = config.isShop || false;
         this.interactRange = config.interactRange || 50;
@@ -144,9 +145,14 @@ export class NPC extends Entity {
      * Retourne les lignes de dialogue en fonction de l'etat de la quete associee.
      */
     getCurrentDialogues() {
-        if (!this.questDialogues) return this.dialogues;
-
         const qm = window.game.questManager;
+
+        // Priorité maximale : Maldrek vaincu → dialogues de victoire
+        if (qm?.maldrekDefeated && this.postDefeatDialogues) {
+            return this.postDefeatDialogues;
+        }
+
+        if (!this.questDialogues) return this.dialogues;
         if (!qm) return this.dialogues;
 
         const quest = qm.getQuest(this.questDialogues.questId);

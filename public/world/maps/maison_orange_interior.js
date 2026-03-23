@@ -460,6 +460,9 @@ export const zoneData = {
       dialogues: ["L'ancien du village m'a dit que la relique sacrée se trouvait dans le donjon de Maldrek.",
         "Il faut trouver comment y entrer.",
         "Bonne chance, héros !"],
+      postDefeatDialogues: ["Tu as vaincu le terrible Maldrek ?",
+        "Wow... et moi qui n'osais meme pas sortir de ma maison.",
+        "Tu es une vraie legende !"],
     },
   ],
 };

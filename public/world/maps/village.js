@@ -2539,6 +2539,11 @@ export const zoneData = {
                 "Pour la briser, tu dois reunir 3 fragments de cristal caches dans les zones voisines.",
                 "Explore la foret au sud, les marais a l'ouest et les ruines a l'est. Bonne chance !"
             ],
+            postDefeatDialogues: [
+                "Tu as reussi ! La Relique Sacree est de retour et Maldrek ne nous menacera plus !",
+                "Notre village est de nouveau en securite grace a ton courage.",
+                "Merci, Heros. Tu as tout notre respect."
+            ],
         },
         {
             name: 'Villageois',
@@ -2555,6 +2560,11 @@ export const zoneData = {
                 "Tu vois ce vieux puits ? La rumeur dit qu'un trésor y repose tout au fond.",
                 "Mais ne te fie pas à son eau dormante. Des créatures immondes se cachent dans l'obscurité.",
                 "Si tu as le courage d'y descendre pour le récupérer, prends garde à tes arrières !"
+            ],
+            postDefeatDialogues: [
+                "Incroyable ! Tu as battu Maldrek !",
+                "Sais-tu que sa magie noire fuyait parfois dans ce puits ? C'est surement pour ca qu'il y a des monstres...",
+                "Maintenant qu'il est vaincu, peut-etre que l'eau va s'eclaircir."
             ],
         }
     ]

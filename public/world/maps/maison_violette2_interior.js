@@ -395,11 +395,16 @@ export const zoneData = {
       spriteRows: 1,
       spriteW: 92,
       spriteH: 105,
-      spriteScale: 0.4,
+      spriteScale: 0.35,
       interactRange: 80,
       dialogues: ["Bienvenue dans l'auberge de la ville.",
         "Elle est pleine en ce moment, reviens plus tard !"
       ],
+      postDefeatDialogues: [
+        "J'ai entendu que ce cauchemar avec Maldrek est enfin termine.",
+        "Plus de sorcier diabolique = plus de clients a l'auberge !",
+        "Merci infiniment, he he."
+      ]
     },
   ],
 };

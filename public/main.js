@@ -128,6 +128,7 @@ Assets.load({
   PNJ2: "./assets/PNJ2.png",
   PNJFemme: "./assets/PNJFemme.png",
   STEEVE: "./assets/steve.png",
+  RELIQUE: "./assets/relique.png",
 
 
 

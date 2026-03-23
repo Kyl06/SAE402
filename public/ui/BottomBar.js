@@ -50,6 +50,9 @@ export class BottomBar extends Entity {
         // Fragments de cristal
         cursorX = this.drawFragments(ctx, cursorX, invY);
 
+        // Relique (si Maldrek vaincu)
+        cursorX = this.drawRelic(ctx, cursorX, invY);
+
         // Separateur
         cursorX += 15;
 
@@ -236,6 +239,34 @@ export class BottomBar extends Entity {
             }
 
             x += iconSize + 12;
+        }
+
+        return x;
+    }
+
+    drawRelic(ctx, x, y) {
+        const qm = window.game.questManager;
+        if (!qm || !qm.maldrekDefeated) return x;
+
+        // Draw 1px gap animated relic
+        const rImg = Assets.get('RELIQUE');
+        if (rImg) {
+            const frameW = 32;
+            const frameH = 34;
+            const frameIdx = Math.floor(Date.now() / 80) % 16;
+            const sx = frameIdx * (frameW + 1);
+
+            const dw = 20;
+            const dh = 20;
+
+            // Halo jaune derrière la relique
+            ctx.save();
+            ctx.shadowColor = '#ffdd44';
+            ctx.shadowBlur = 10;
+            ctx.drawImage(rImg, sx, 0, frameW, frameH, x + 5, y - dh / 2 - 2, dw, dh);
+            ctx.restore();
+
+            x += dw + 15;
         }
 
         return x;

@@ -5,6 +5,8 @@
 
 import { Entity } from '../engine/Entity.js';
 import { SCALE } from '../constants.js';
+import { SpriteSheet } from '../engine/SpriteSheet.js';
+import { Assets } from '../engine/Assets.js';
 
 export class IntroCutscene extends Entity {
     constructor(onComplete) {
@@ -19,7 +21,7 @@ export class IntroCutscene extends Entity {
         this.done = false;
 
         // Positions
-        this.relicX = 400;
+        this.relicX = 382;
         this.relicY = 240;
         this.relicAlpha = 1;
         this.relicScale = 1;
@@ -28,16 +30,29 @@ export class IntroCutscene extends Entity {
         this.maldrekY = -60;
         this.maldrekAlpha = 0;
         this.hasRelic = false;
+        this.maldrekSheet = new SpriteSheet('MALDEK', 3, 4, 32, 36);
 
         // Villageois (positions autour de la relique)
         this.villagers = [
-            { x: 320, y: 280, color: '#6633aa' },
-            { x: 480, y: 280, color: '#2266aa' },
-            { x: 350, y: 310, color: '#aa6633' },
-            { x: 450, y: 310, color: '#33aa66' },
-            { x: 300, y: 260, color: '#aa3366' },
-            { x: 500, y: 260, color: '#3366aa' },
+            { x: 320, y: 280, sheet: new SpriteSheet('VIEUXNPC', 1, 1, 63, 66), frame: 0, scale: 0.58 },
+            { x: 450, y: 270, sheet: new SpriteSheet('PNJ1', 2, 1, 92, 105), frame: 0, scale: 0.4 },
+            { x: 350, y: 310, sheet: new SpriteSheet('PNJ2', 2, 1, 92, 105), frame: 0, scale: 0.4 },
+            { x: 450, y: 310, sheet: new SpriteSheet('PNJFemme', 2, 1, 92, 105), frame: 0, scale: 0.35 },
+            { x: 270, y: 260, sheet: new SpriteSheet('PNJPUIT', 1, 1, 63, 86), frame: 0, scale: 0.5 },
+            { x: 500, y: 260, sheet: new SpriteSheet('VENDEUR', 2, 1, 16, 32), frame: 0, scale: 1.8 },
+            { x: 210, y: 280, sheet: new SpriteSheet('STEEVE', 1, 1, 63, 86), frame: 0, scale: 0.48 },
         ];
+
+        // Déplacer les villageois sur des cases marchables si nécessaire
+        this.villagers = this.villagers.map(v => {
+            const pos = this._snapToWalkable(v.x, v.y);
+            return { ...v, x: pos.x, y: pos.y };
+        });
+
+        // Déplacer Maldrek aussi
+        const maldrekPos = this._snapToWalkable(this.maldrekX, 160);
+        this.maldrekX = maldrekPos.x;
+
         this.villagersScatter = false;
         this.scatterTime = 0;
 
@@ -51,6 +66,13 @@ export class IntroCutscene extends Entity {
         // Flash d'eclat
         this.flashAlpha = 0;
 
+        // Relique animée (16 frames de 32x34, séparées de 1px → pas de 33px)
+        this.relicSheet = null; // chargé depuis Assets au premier draw
+        this.relicFrameCount = 16;
+        this.relicFrameW = 32;
+        this.relicFrameH = 34;
+        this.relicFrameGap = 1;
+
         // Ecouteur pour passer la cinematique
         this._skipHandler = (e) => {
             if (e.code === 'Escape' || e.code === 'Space' || e.code === 'Enter') {
@@ -58,6 +80,30 @@ export class IntroCutscene extends Entity {
             }
         };
         window.addEventListener('keydown', this._skipHandler);
+    }
+
+    // Cherche la position libre la plus proche (par pas de 16px, en spirale)
+    _snapToWalkable(x, y, w = 32, h = 32) {
+        const isBlocked = (tx, ty) => {
+            const entities = window.game?.engine?.entities || [];
+            for (const e of entities) {
+                if (!e.collider || !e.hasTag('SOLID')) continue;
+                const box = e.getCollisionBox();
+                if (tx < box.x + box.w && tx + w > box.x && ty < box.y + box.h && ty + h > box.y) return true;
+            }
+            return false;
+        };
+        if (!isBlocked(x, y)) return { x, y };
+        for (let r = 16; r <= 128; r += 16) {
+            const steps = Math.max(4, Math.round((2 * Math.PI * r) / 16));
+            for (let s = 0; s < steps; s++) {
+                const angle = (s / steps) * Math.PI * 2;
+                const tx = Math.round(x + Math.cos(angle) * r);
+                const ty = Math.round(y + Math.sin(angle) * r);
+                if (!isBlocked(tx, ty)) return { x: tx, y: ty };
+            }
+        }
+        return { x, y }; // fallback : position originale
     }
 
     skip() {
@@ -91,7 +137,7 @@ export class IntroCutscene extends Entity {
             case 2: // Maldrek apparait (teleportation)
                 this.subtitleText = '';
                 this.maldrekAlpha = Math.min(1, this.phaseTimer / 800);
-                this.maldrekX = 400;
+                this.maldrekX = 382;
                 this.maldrekY = 160;
                 // Tremblement
                 if (this.phaseTimer > 400) {
@@ -116,6 +162,16 @@ export class IntroCutscene extends Entity {
                     this.hasRelic = true;
                     this.villagersScatter = true;
                     this.scatterTime = 0;
+
+                    // Précalculer des destinations de fuite sur cases walkables
+                    this.villagers.forEach((v, i) => {
+                        const angle = (i / this.villagers.length) * Math.PI * 2 + 0.5;
+                        const targetX = v.x + Math.cos(angle) * 80;
+                        const targetY = v.y + Math.sin(angle) * 80;
+                        const safe = this._snapToWalkable(targetX, targetY);
+                        v.scatterTargetX = safe.x;
+                        v.scatterTargetY = safe.y;
+                    });
                 }
                 this.relicAlpha = Math.max(0, 1 - this.phaseTimer / 200);
                 this.subtitleText = 'Maldrek  -  Personne ne peut m\'arreter ! Ha ha ha !';
@@ -161,24 +217,13 @@ export class IntroCutscene extends Entity {
 
         // Le vrai village est deja dessine en dessous (map chargee)
 
-        // Piedestal de la relique (cercle de pierres)
-        ctx.strokeStyle = '#554433';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(this.relicX, this.relicY + 10, 30, 0, Math.PI * 2);
-        ctx.stroke();
 
-        ctx.fillStyle = '#3a3025';
-        ctx.beginPath();
-        ctx.arc(this.relicX, this.relicY + 10, 28, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Relique sacree (cristal lumineux)
+        // Relique sacree (sprite anime)
         if (this.relicAlpha > 0) {
             ctx.save();
             ctx.globalAlpha = this.relicAlpha;
 
-            // Halo
+            // Halo lumineux
             const haloSize = 20 * this.relicScale;
             const gradient = ctx.createRadialGradient(
                 this.relicX, this.relicY, 0,
@@ -189,40 +234,32 @@ export class IntroCutscene extends Entity {
             ctx.fillStyle = gradient;
             ctx.fillRect(this.relicX - haloSize, this.relicY - haloSize, haloSize * 2, haloSize * 2);
 
-            // Cristal (losange)
-            const s = 10 * this.relicScale;
-            ctx.fillStyle = '#ffdd44';
-            ctx.beginPath();
-            ctx.moveTo(this.relicX, this.relicY - s);
-            ctx.lineTo(this.relicX + s * 0.6, this.relicY);
-            ctx.lineTo(this.relicX, this.relicY + s);
-            ctx.lineTo(this.relicX - s * 0.6, this.relicY);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.fillStyle = '#fff8cc';
-            ctx.beginPath();
-            ctx.moveTo(this.relicX, this.relicY - s * 0.5);
-            ctx.lineTo(this.relicX + s * 0.3, this.relicY);
-            ctx.lineTo(this.relicX, this.relicY + s * 0.5);
-            ctx.lineTo(this.relicX - s * 0.3, this.relicY);
-            ctx.closePath();
-            ctx.fill();
+            // Sprite animé (16 frames, 32x34, gap 1px → step de 33px)
+            const rImg = Assets.get('RELIQUE');
+            if (rImg) {
+                const frameIdx = Math.floor(this.time / 80) % this.relicFrameCount;
+                const sx = frameIdx * (this.relicFrameW + this.relicFrameGap);
+                const scale = this.relicScale;
+                const dw = this.relicFrameW * scale;
+                const dh = this.relicFrameH * scale;
+                ctx.drawImage(rImg, sx, 0, this.relicFrameW, this.relicFrameH,
+                    this.relicX - dw / 2, this.relicY - dh / 2, dw, dh);
+            }
 
             ctx.restore();
         }
 
+
         // Villageois
-        this.villagers.forEach((v, i) => {
+        this.villagers.forEach((v) => {
             let vx = v.x;
             let vy = v.y;
-            if (this.villagersScatter) {
-                const angle = (i / this.villagers.length) * Math.PI * 2 + 0.5;
-                const dist = Math.min(this.scatterTime * 0.08, 80);
-                vx += Math.cos(angle) * dist;
-                vy += Math.sin(angle) * dist;
+            if (this.villagersScatter && v.scatterTargetX !== undefined) {
+                const t = Math.min(this.scatterTime / 1000, 1); // 0→1 en 1s
+                vx = v.x + (v.scatterTargetX - v.x) * t;
+                vy = v.y + (v.scatterTargetY - v.y) * t;
             }
-            this.drawVillager(ctx, vx, vy, v.color);
+            this.drawVillager(ctx, vx, vy, v);
         });
 
         // Maldrek
@@ -235,15 +272,15 @@ export class IntroCutscene extends Entity {
             if (this.hasRelic && this.relicAlpha <= 0) {
                 const bobY = Math.sin(this.time * 0.005) * 3;
                 const rx = this.maldrekX;
-                const ry = this.maldrekY - 20 + bobY;
-                ctx.fillStyle = '#ffdd44';
-                ctx.beginPath();
-                ctx.moveTo(rx, ry - 6);
-                ctx.lineTo(rx + 4, ry);
-                ctx.lineTo(rx, ry + 6);
-                ctx.lineTo(rx - 4, ry);
-                ctx.closePath();
-                ctx.fill();
+                const ry = this.maldrekY - 24 + bobY;
+                const rImg = Assets.get('RELIQUE');
+                if (rImg) {
+                    const frameIdx = Math.floor(this.time / 80) % this.relicFrameCount;
+                    const sx = frameIdx * (this.relicFrameW + this.relicFrameGap);
+                    ctx.drawImage(rImg, sx, 0, this.relicFrameW, this.relicFrameH,
+                        rx - this.relicFrameW / 2, ry - this.relicFrameH / 2,
+                        this.relicFrameW, this.relicFrameH);
+                }
             }
             ctx.restore();
         }
@@ -294,22 +331,13 @@ export class IntroCutscene extends Entity {
         }
     }
 
-    drawVillager(ctx, x, y, color) {
-        const s = SCALE;
-        // Corps
-        ctx.fillStyle = color;
-        ctx.fillRect(x - 6 * s, y, 12 * s, 10 * s);
-        // Tete
-        ctx.fillStyle = '#e8c090';
-        ctx.fillRect(x - 4 * s, y - 6 * s, 8 * s, 7 * s);
-        // Yeux
-        ctx.fillStyle = '#000';
-        ctx.fillRect(x - 3 * s, y - 3 * s, 2 * s, 2 * s);
-        ctx.fillRect(x + 1 * s, y - 3 * s, 2 * s, 2 * s);
+    drawVillager(ctx, x, y, villager) {
+        if (villager.sheet) {
+            villager.sheet.drawFrame(ctx, villager.frame, x, y, villager.scale);
+        }
     }
 
     drawMaldrek(ctx, x, y) {
-        const s = SCALE;
         // Particules de teleportation
         if (this.phase === 2) {
             for (let i = 0; i < 5; i++) {
@@ -319,32 +347,14 @@ export class IntroCutscene extends Entity {
                 ctx.fillRect(px, py, 3, 3);
             }
         }
-
-        // Cape / robe
-        ctx.fillStyle = '#3a0a5a';
-        ctx.fillRect(x - 8 * s, y + 5 * s, 16 * s, 16 * s);
-        // Epaules
-        ctx.fillStyle = '#2a0a3a';
-        ctx.fillRect(x - 10 * s, y + 5 * s, 5 * s, 7 * s);
-        ctx.fillRect(x + 5 * s, y + 5 * s, 5 * s, 7 * s);
-        // Tete (capuche)
-        ctx.fillStyle = '#2a1a3a';
-        ctx.fillRect(x - 6 * s, y - 3 * s, 12 * s, 10 * s);
-        // Visage
-        ctx.fillStyle = '#1a0a2a';
-        ctx.fillRect(x - 5 * s, y, 10 * s, 5 * s);
-        // Yeux rouges
-        ctx.fillStyle = '#ff4400';
-        const pulse = Math.sin(this.time * 0.008) * 0.5 + 1.5;
-        ctx.fillRect(x - 4 * s, y + 1 * s, pulse * s, 2 * s);
-        ctx.fillRect(x + 2 * s, y + 1 * s, pulse * s, 2 * s);
-        // Baton
-        ctx.fillStyle = '#6a4a2a';
-        ctx.fillRect(x - 12 * s, y - 1 * s, 2 * s, 16 * s);
-        // Orbe
-        ctx.fillStyle = '#aa44ff';
-        ctx.beginPath();
-        ctx.arc(x - 11 * s, y - 3 * s, 5, 0, Math.PI * 2);
-        ctx.fill();
+        // Phase 4 = fuite vers le nord → de dos (UP = frames 3,4)
+        // Autres phases → de face (DOWN = frame 0)
+        let frame;
+        if (this.phase === 4) {
+            frame = 3 + (Math.floor(Date.now() / 150) % 2); // marche dos (3 ou 4)
+        } else {
+            frame = 0; // face
+        }
+        this.maldrekSheet.drawFrame(ctx, frame, x - 32, y - 36, 2);
     }
 }
