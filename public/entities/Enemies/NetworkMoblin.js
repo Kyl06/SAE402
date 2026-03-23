@@ -1,34 +1,25 @@
 /**
- * @file NetworkMoblin.js
- * @description Version "fantôme" ou "clone" d'un Moblin sur le client Joueur 2.
- * Contrairement au Moblin réel, il n'a pas d'IA. Il se contente de suivre les 
- * coordonnées envoyées par l'Hôte via le réseau.
+ * Proxy Réseau du Moblin (Slave). 
+ * Réplique l'état d'un Moblin distant sans exécuter de logique d'IA.
  */
 
 import { Entity } from '../../engine/Entity.js';
 import { SpriteSheet } from '../../engine/SpriteSheet.js';
 
 export class NetworkMoblin extends Entity {
-    /**
-     * @param {number} x, y - Position initiale
-     */
     constructor(x, y) {
         super(x, y, 32, 32);
         
-        // Spritesheet identique au Moblin original
         this.spriteSheet = new SpriteSheet('MOBLIN', 4, 4, 16, 16);
         this.facing = 'DOWN';
         this.isAiming = false;
         this.isHurt = false;
         
-        // Le collider doit être actif pour que l'épée du Joueur 2 puisse "toucher" ce clone
-        this.collider = true;  
+        this.collider = true; // Actif pour permettre la détection locale des attaques du client.
         this.addTag('ENEMY'); 
     }
 
-    /**
-     * Reçoit les nouvelles coordonnées de la part de l'Hôte.
-     */
+    /** Synchro Snapshot-to-Entity. */
     updateFromNetwork(targetX, targetY, facing, isAiming = false, isHurt = false) {
         this.targetX = parseFloat(targetX);
         this.targetY = parseFloat(targetY);
@@ -37,25 +28,25 @@ export class NetworkMoblin extends Entity {
         this.isHurt = isHurt;
     }
 
-    /**
-     * Met à jour la position locale pour se rapprocher de la position réseau.
+    /** 
+     * Interpolation Linéaire (Lerp) locale.
+     * Réduit le jitter (saccades) lié à la latence réseau en se rapprochant de la cible par incréments.
      */
     update(delta) {
         if (this.targetX !== undefined) {
-            this.x += (this.targetX - this.x) * 0.2;
+            this.x += (this.targetX - this.x) * 0.2; // Lerp factor (20% par frame)
             this.y += (this.targetY - this.y) * 0.2;
         }
         super.update(delta);
     }
 
-    /** Rendu graphique */
     draw(ctx) {
         const row = { DOWN: 0, UP: 4, LEFT: 8, RIGHT: 12 }[this.facing] || 0;
         
         let frame;
         if (this.isHurt) {
             frame = row + 2 + (Math.floor(Date.now() / 50) % 2);
-            ctx.filter = "brightness(2.5)"; // Flash blanc prononcé
+            ctx.filter = "brightness(2.5)"; // Feedback visuel de dommage répliqué via les filtres Canvas.
         } else {
             const walkCycle = (Math.floor(Date.now() / 150) % 2);
             frame = row + walkCycle;
@@ -64,4 +55,4 @@ export class NetworkMoblin extends Entity {
         this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, 2);
         ctx.filter = "none";
     }
-}
+}

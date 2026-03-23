@@ -10,7 +10,13 @@ export class MagicProjectile extends Entity {
         super(x, y, 12, 12);
         this.velX = dirX * speed;
         this.velY = dirY * speed;
-        this.addTag('ENEMY');
+
+        // On s'assure qu'il n'a PAS le tag ENEMY pour éviter d'apparaître
+        // comme un Moblin chez P2 via enemies_update.
+        this.tags = this.tags.filter(t => t !== 'ENEMY');
+        this.addTag('MAGIC_PROJECTILE');
+        
+        this.enemyType = 'MAGIC_PROJECTILE'; // Backup pour éviter fallback Moblin
         this.collider = true;
         this.z = 12;
         this.lifeTime = 3000;
@@ -30,7 +36,7 @@ export class MagicProjectile extends Entity {
             // Le Player gère ses propres dégâts
             this.kill();
         }
-        if (other.hasTag('SOLID') && !other.hasTag('ENEMY')) {
+        if (other.hasTag('SOLID') && !other.hasTag('ENEMY') && !other.hasTag('MAGIC_PROJECTILE')) {
             this.kill();
         }
     }

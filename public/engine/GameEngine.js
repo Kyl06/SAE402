@@ -1,82 +1,55 @@
 /**
- * @file GameEngine.js
- * @description Le "cerveau" du jeu. 
- * Responsable de la boucle principale, de la gestion des entités, du rendu et des collisions.
+ * Kernel de rendu et de physique 2D. 
+ * Orchestre le cycle de vie (Update/Draw) des entités et la résolution des collisions.
  */
 
 export class GameEngine {
-    /**
-     * @param {string} canvasId - L'ID de l'élément HTML <canvas>
-     */
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
-        this.ctx.imageSmoothingEnabled = false;
-
-        // Liste active de tous les objets du jeu
+        this.ctx.imageSmoothingEnabled = false; // Pixel-art : désactive l'interpolation bilinéaire.
         this.entities = [];
-        
-        // Timestamp de la frame précédente pour le calcul du Delta Time
         this.lastTime = 0;
         
-        // Paramètres pour l'effet de tremblement d'écran (impact/explosion)
         this._shakeTimer = 0;
         this._shakeIntensity = 0;
     }
 
     /**
-     * Ajoute une entité au jeu et trie la liste par profondeur d'affichage (Z-index).
-     * @param {Entity} entity 
+     * Enregistre une entité et réordonne le buffer de rendu selon la profondeur Z.
      */
     add(entity) {
         this.entities.push(entity);
-        // On trie pour que les entités avec un Z plus élevé soient dessinées par-dessus
         this.entities.sort((a, b) => (a.z || 0) - (b.z || 0));
     }
 
-    /**
-     * Marque une entité pour destruction.
-     * @param {Entity} entity 
-     */
-    remove(entity) {
-        entity.kill();
-    }
+    remove(entity) { entity.kill(); }
 
-    /**
-     * Déclenche un effet visuel de vibration de l'écran.
-     * @param {number} intensity - Force de la vibration en pixels
-     * @param {number} duration - Durée en millisecondes
-     */
+    /** Trigger un traumatisme temporaire du contexte de rendu (Screen Shake). */
     shake(intensity, duration) {
         this._shakeIntensity = intensity;
         this._shakeTimer = duration;
     }
 
     /**
-     * Étape de mise à jour logique (Physique, IA, État).
-     * @param {number} delta - Temps écoulé en ms
+     * Mise à jour globale basée sur le Delta Time (indépendance du framerate).
      */
     update(delta) {
-        // Décompte du tremblement
         if (this._shakeTimer > 0) this._shakeTimer -= delta;
 
-        // Mise a jour du fondu de transition
         const zm = window.game?.zoneManager;
         if (zm) zm.updateFade(delta);
 
-        // On demande à chaque entité de se mettre à jour
-        this.entities.forEach(entity => entity.update?.(delta));
-
-        // Résolution des collisions (Dégâts, Obstacles)
+        this.entities.forEach(e => e.update?.(delta));
         this.checkCollisions();
 
-        // Nettoyage : On ne garde que les entités qui ne sont PAS marquées 'toRemove'
-        this.entities = this.entities.filter(entity => !entity.toRemove);
+        // Garbage collection : suppression atomique des entités périmées.
+        this.entities = this.entities.filter(e => !e.toRemove);
     }
 
     /**
-     * Détection des collisions entre tous les objets actifs.
-     * Optimisée par une double boucle (Compare A avec B sans doublons).
+     * Détection naïve AABB en O(n^2). 
+     * Note : Pour des scènes > 500 entités, envisager un Quadtree ou un Spatial Hash.
      */
     checkCollisions() {
         for (let i = 0; i < this.entities.length; i++) {
@@ -84,9 +57,7 @@ export class GameEngine {
                 const a = this.entities[i];
                 const b = this.entities[j];
 
-                // On ne teste que si les deux possèdent un moteur de collision actif
                 if (a.collider && b.collider && this.rectIntersect(a, b)) {
-                    // Si ça touche, on avertit les deux objets
                     a.onCollision?.(b);
                     b.onCollision?.(a);
                 }
@@ -94,67 +65,45 @@ export class GameEngine {
         }
     }
 
-    /**
-     * Test géométrique d'intersection entre deux rectangles (AABB).
-     * @returns {boolean}
-     */
+    /** Intersection de rectangles alignés (AABB). */
     rectIntersect(a, b) {
         const ab = a.getCollisionBox ? a.getCollisionBox() : { x: a.x, y: a.y, w: a.width, h: a.height };
         const bb = b.getCollisionBox ? b.getCollisionBox() : { x: b.x, y: b.y, w: b.width, h: b.height };
-        return (ab.x < bb.x + bb.w &&
-                ab.x + ab.w > bb.x &&
-                ab.y < bb.y + bb.h &&
-                ab.y + ab.h > bb.y);
+        return (ab.x < bb.x + bb.w && ab.x + ab.w > bb.x &&
+                ab.y < bb.y + bb.h && ab.y + ab.h > bb.y);
     }
 
-    /**
-     * Étape de rendu graphique (Dessin).
-     */
+    /** Rendu graphique sur le buffer principal. */
     draw() {
-        // Efface l'écran avant de redessiner
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // Sauvegarde l'état du canvas pour restaurer après d'éventuels tremblements/rotations
-        this.ctx.save();
+        this.ctx.save(); // Sauvegarde l'état (Transform, Clip, Alpha)
 
-        // Simulation du tremblement par translation aléatoire du contexte
         if (this._shakeTimer > 0) {
             const dx = (Math.random() - 0.5) * this._shakeIntensity;
             const dy = (Math.random() - 0.5) * this._shakeIntensity;
             this.ctx.translate(dx, dy);
         }
 
-        // On demande à chaque entité de s'afficher
-        this.entities.forEach(entity => entity.draw?.(this.ctx));
+        this.entities.forEach(e => e.draw?.(this.ctx));
+        this.ctx.restore(); // Restaure le contexte pour isoler les transformations
 
-        this.ctx.restore(); // Annule la translation de tremblement pour la frame suivante
-
-        // Overlay de transition (fondu noir) par-dessus tout
         const zm = window.game?.zoneManager;
         if (zm) zm.drawFade(this.ctx);
     }
 
-    /**
-     * Boucle principale infinie.
-     * Tentative de tourner à 60 FPS via RequestAnimationFrame.
-     * @param {number} now - Temps actuel fourni par le navigateur
-     */
+    /** Game loop cadencée par le rafraîchissement d'écran via window.requestAnimationFrame. */
     loop(now) {
         const delta = now - this.lastTime;
         this.lastTime = now;
-
         this.update(delta);
         this.draw();
-
-        // Rappelle la boucle au prochain rafraîchissement d'écran
         requestAnimationFrame((n) => this.loop(n));
     }
 
-    /** Lance l'exécution du moteur. */
     start() {
         requestAnimationFrame((n) => {
             this.lastTime = n;
             this.loop(n);
         });
     }
-}
+}

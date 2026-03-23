@@ -1,7 +1,6 @@
 /**
- * @file PlayerActions.js
- * @description Gère les actions complexes du joueur qui nécessitent des séquences d'animations
- * ou des déclenchements synchronisés (épée, flèches, flash de douleur).
+ * State Machine d'actions complexes. 
+ * Orchestre les séquences d'animation verrouillées (épée, tir à l'arc) et la consommation de stamina.
  */
 
 import { Sword } from '../Weapons/Sword.js';
@@ -10,43 +9,41 @@ import { SpriteSequence } from '../../engine/SpriteSequence.js';
 import { UP, DOWN, LEFT, RIGHT } from '../../constants.js';
 
 export class PlayerActions {
-    /**
-     * @param {Player} player - Référence au joueur local
-     */
     constructor(player) {
         this.player = player;
     }
 
     /**
-     * Déclenche un coup d'épée.
-     * Crée une entité Sword et suit une séquence de frames pour l'animation.
+     * Exécute un coup d'épée (Melee Attack). 
+     * Verrouille le mouvement et instancie une hitbox temporaire (Sword).
      */
     actionSwingSword() {
         const p = this.player;
         if (p.actionAnimation) return;
-        // Verifier la stamina
+
+        // Stamina Tax : Coût binaire avec seuil de tolérance.
         if (p.staminaDepleted || p.stamina < 20) {
             if (p.stamina < 20) p.staminaDepleted = true;
             return;
         }
+        
         p.stamina -= 20;
-        p.staminaRegenDelay = 500;
+        p.staminaRegenDelay = 500; // Freeze de la régénération pendant l'action + buffer.
         if (p.stamina <= 0) { p.stamina = 0; p.staminaDepleted = true; }
 
         const sword = new Sword(p.x, p.y, p.facing);
         window.game.engine.add(sword);
-
         window.game.network?.sendPlayerAction('SWORD', p.facing);
 
         /**
-         * Séquence d'attaque en 3 temps (Start, Swing, End)
+         * Animation asservie par SpriteSequence (Frames: Start -> Impact -> Recovery).
          */
         p.actionAnimation = new SpriteSequence('SWORD_ACTION', [
             { frame: 2, duration: 60, callback: () => { sword.updateFollow(p.x, p.y); sword.useFrame(0); } },
             { frame: 3, duration: 60, callback: () => { sword.updateFollow(p.x, p.y); sword.useFrame(1); } },
             { frame: 3, duration: 60, callback: () => { sword.updateFollow(p.x, p.y); sword.useFrame(2); } }
         ], () => {
-            p.actionAnimation = null;
+            p.actionAnimation = null; // Libération de l'état "Action Locked"
             sword.kill();
         });
 
@@ -54,50 +51,40 @@ export class PlayerActions {
     }
 
     /**
-     * Déclenche un tir à l'arc.
+     * Exécute un tir de projectile (Ranged Attack).
      */
     actionShootArrow() {
         const p = this.player;
-        if (p.actionAnimation) return;
-        // Verifier les fleches
-        if ((p.arrows || 0) <= 0) return;
-        // Verifier la stamina
+        if (p.actionAnimation || (p.arrows || 0) <= 0) return;
+
         if (p.staminaDepleted || p.stamina < 15) {
             if (p.stamina < 15) p.staminaDepleted = true;
             return;
         }
+        
         p.arrows--;
         p.stamina -= 15;
         p.staminaRegenDelay = 500;
         if (p.stamina <= 0) { p.stamina = 0; p.staminaDepleted = true; }
 
-        // Frame fixe de Link pendant le tir (Frame d'attaque 2)
-        p.actionAnimation = { frameIdx: 2 };
+        p.actionAnimation = { frameIdx: 2 }; // Frame d'attaque fixe
 
-        // Création du projectile
         const arrow = new Arrow(p.x, p.y, p.facing, p);
         window.game.engine.add(arrow);
-
-        // DIFFUSION RÉSEAU : On informe les autres qu'on tire une flèche
         window.game.network?.sendPlayerAction('ARROW', p.facing);
 
-        /**
-         * Délai de récupération (Cooldown). 
-         * bloque les contrôles de Link pendant 500ms après le tir.
-         */
+        // Désactivation différée du verrouillage d'action (Cooldown de tir)
         setTimeout(() => p.actionAnimation = null, 500);
     }
 
     /**
-     * Effet visuel de clignotement lors d'un dégât.
-     * Utilise async/await pour gérer les timers de visibilité facilement.
+     * @deprecated Remplacé par le mécanisme de clignotement dans Player.takeDamage
+     * pour une meilleure synchronisation avec le recul physique.
      */
     async flashSeries() {
         const p = this.player;
         if (p.isPainFlashing) return;
-
         p.isPainFlashing = true;
-        // 5 cycles de "caché -> visible" pour simuler un clignotement rapide
         for (let i = 0; i < 5; i++) {
             p.visible = false;
             await new Promise(r => setTimeout(r, 80));
@@ -106,4 +93,4 @@ export class PlayerActions {
         }
         p.isPainFlashing = false;
     }
-}
+}
