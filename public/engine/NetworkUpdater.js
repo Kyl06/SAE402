@@ -172,7 +172,7 @@ export class NetworkUpdater {
     // Autorité Hôte : Reçoit les demandes de dégâts des clients et les valide localement
     this.socket.on("network_enemy_hit", ({ enemyNetId, damage, direction }) => {
       if (!this.isHost) return;
-      this.engine.entities.find((e) => e.netId === enemyNetId)?.takeDamage?.(direction);
+      this.engine.entities.find((e) => e.netId === enemyNetId)?.takeDamage?.(damage, direction);
     });
   }
 

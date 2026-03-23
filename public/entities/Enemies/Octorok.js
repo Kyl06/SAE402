@@ -18,7 +18,7 @@ export class Octorok extends Entity {
         
         this.netId = 'octo_' + Math.random().toString(36).slice(2, 11);
         this.enemyType = 'OCTOROK'; 
-        this.hp = 2;
+        this.hp = 4;
         this.speed = 35;
         this.chaseSpeed = 60;
         this.addTag("ENEMY");
@@ -206,9 +206,13 @@ export class Octorok extends Entity {
         }
     }
 
-    takeDamage(direction) {
+    takeDamage(amount, direction) {
+        if (typeof amount === "string") {
+            direction = amount;
+            amount = 1;
+        }
         if (this.painState || this.toRemove) return;
-        this.hp--;
+        this.hp -= (amount || 1);
         if (this.hp <= 0) return this.die();
 
         const force = 200;

@@ -53,7 +53,7 @@ export class Arrow extends Entity {
     // Hit sur un MONSTRE
     if (other.hasTag("ENEMY")) {
       // Feedback local (recul du monstre)
-      if (other.takeDamage) other.takeDamage(this.facing, this.damage);
+      if (other.takeDamage) other.takeDamage(this.damage, this.facing);
 
       // SIGNAL RÉSEAU : Prévient l'Hôte pour valider les dégâts réels
       if (window.game.network && other.netId) {

@@ -86,14 +86,7 @@ export class Sword extends Entity {
 
             // Si la méthode takeDamage accepte un montant, on le transmet.
             if (other.takeDamage) {
-                try {
-                    // Certains ennemis définissent takeDamage(direction) seulement,
-                    // d'autres acceptent (amount, direction). On essaye amount first.
-                    other.takeDamage(dmg, this.facing);
-                } catch (err) {
-                    // Fallback : appeler sans montant si la signature est différente
-                    try { other.takeDamage(this.facing); } catch (e) { /* ignore */ }
-                }
+                other.takeDamage(dmg, this.facing);
             }
 
             if (window.game.network && other.netId) {

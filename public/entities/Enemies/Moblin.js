@@ -16,7 +16,7 @@ export class Moblin extends Entity {
         this.netId = 'mob_' + Math.random().toString(36).slice(2, 11);
         this.enemyType = 'MOBLIN'; 
 
-        this.hp = 3;
+        this.hp = 7;
         this.speed = 40;
         this.chaseSpeed = 70;
         this.addTag("ENEMY");
@@ -120,13 +120,20 @@ export class Moblin extends Entity {
         }
     }
 
-    takeDamage(direction) {
+    takeDamage(amount, direction) {
+        if (typeof amount === "string") {
+            direction = amount;
+            amount = 1;
+        }
         if (this.painState || this.toRemove) return;
-        this.hp--;
+        this.hp -= (amount || 1);
         if (this.hp <= 0) return this.die();
 
         const force = 250;
-        const [kx, ky] = [direction === "LEFT" ? -force : (direction === "RIGHT" ? force : 0), direction === "UP" ? -force : (direction === "DOWN" ? force : 0)];
+        const [kx, ky] = [
+            direction === "LEFT" ? -force : (direction === "RIGHT" ? force : 0),
+            direction === "UP" ? -force : (direction === "DOWN" ? force : 0)
+        ];
         this.painState = { msLeft: 150, velX: kx, velY: ky };
     }
 

@@ -24,6 +24,15 @@ export class Creuse extends Entity {
   update(delta) {
     if (this.toRemove) return;
 
+    if (this.painState) {
+      this.x += this.painState.velX * (delta / 1000);
+      this.y += this.painState.velY * (delta / 1000);
+      this.painState.msLeft -= delta;
+      if (this.painState.msLeft <= 0) this.painState = null;
+      super.update(delta);
+      return;
+    }
+
     const players = window.game.engine.entities.filter(
       (e) => e.hasTag("PLAYER") && !e.isDead,
     );
@@ -101,14 +110,26 @@ export class Creuse extends Entity {
     super.update(delta);
   }
 
-  takeDamage(direction) {
+  takeDamage(amount, direction) {
+    if (typeof amount === "string") {
+      direction = amount;
+      amount = 1;
+    }
     // Ne prends des dégâts que s'il est sorti
-    if (this.state !== "ACTIVE" || this.toRemove) return;
+    if (this.state !== "ACTIVE" || this.toRemove || this.painState) return;
 
-    this.hp--;
+    this.hp -= (amount || 1);
     if (this.hp <= 0) {
       this.die();
+      return;
     }
+
+    const force = 150;
+    this.painState = {
+      msLeft: 120,
+      velX: direction === "LEFT" ? -force : direction === "RIGHT" ? force : 0,
+      velY: direction === "UP" ? -force : direction === "DOWN" ? force : 0,
+    };
   }
 
   onCollision(other) {}

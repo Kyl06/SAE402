@@ -240,9 +240,13 @@ export class MiniBoss extends Entity {
     }
   }
 
-  takeDamage(direction) {
+  takeDamage(amount, direction) {
+    if (typeof amount === "string") {
+      direction = amount;
+      amount = 1;
+    }
     if (this.painState || this.toRemove) return;
-    this.hp--;
+    this.hp -= (amount || 1);
     this.flashTime = 150;
     window.game.engine.shake(4, 100);
 
