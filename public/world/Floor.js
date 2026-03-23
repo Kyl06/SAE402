@@ -186,6 +186,22 @@ export class Floor extends Entity {
   }
 
   update(delta) {
+    // Si c'est une barrière et que tous les fragments sont collectés, on la transforme
+    if (this.type.startsWith("BAR_")) {
+      const qm = window.game.questManager;
+      if (qm && qm.allFragmentsCollected()) {
+        // Transformation : seul un point précis devient le portail, le reste devient de l'herbe
+        if (this.x === 352 && this.y === 0) {
+          this.type = "PORTAIL";
+        } else {
+          this.type = "HERBESOL";
+        }
+        this.collider = false;
+        this.removeTag?.("SOLID");
+        return;
+      }
+    }
+
     if (!this.signText) return;
     const player = window.game.player;
     if (!player) return;
@@ -270,6 +286,11 @@ export class Floor extends Entity {
       PUIT: { sx: 176, sy: 48, sw: 16, sh: 16 },
       ORANGE_BLOCK: { sx: 128, sy: 0, sw: 16, sh: 16 },
 
+      DUNGEON_WALL_1: { sx: 32, sy: 32, sw: 16, sh: 16 },
+      DUNGEON_WALL_2: { sx: 48, sy: 32, sw: 16, sh: 16 },
+      DUNGEON_WALL_3: { sx: 32, sy: 48, sw: 16, sh: 16 },
+      DUNGEON_WALL_4: { sx: 48, sy: 48, sw: 16, sh: 16 },
+
       SHOP: { sx: 0, sy: 64, sw: 48, sh: 48 },
     };
 
@@ -284,6 +305,10 @@ export class Floor extends Entity {
       MAISON_VIOLETTE: "MAISON_VIOLETTE",
       SOL_PUIT: "SOL_PUIT",
       CORDE: "CORDE",
+      BAR_1: "BARRIERE",
+      BAR_2: "BARRIERE",
+      BAR_3: "BARRIERE",
+      BAR_4: "BARRIERE",
     };
     if (standalone[this.type]) {
       const sImg = Assets.get(standalone[this.type]);
@@ -319,6 +344,20 @@ export class Floor extends Entity {
         );
       } else if (this.type === "CORDE") {
         ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, dx, dy, 32, 128);
+      } else if (this.type.startsWith("BAR_")) {
+        const barMapping = {
+          BAR_1: { sx: 0, sy: 0 },
+          BAR_2: { sx: 16, sy: 0 },
+          BAR_3: { sx: 32, sy: 0 },
+          BAR_4: { sx: 48, sy: 0 },
+        };
+        const anim = ["BAR_1", "BAR_2", "BAR_3", "BAR_4"];
+        const frameIndex = Math.floor(Date.now() / 300) % 4;
+        const currentType = anim[frameIndex];
+        const bt = barMapping[currentType];
+        if (bt) {
+          ctx.drawImage(sImg, bt.sx, bt.sy, 16, 16, dx, dy, dw, dh);
+        }
       } else {
         ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, dx, dy, dw, dh);
       }
@@ -818,7 +857,13 @@ export class Floor extends Entity {
 
   // Système de collision AABB simple
   onCollision(other) {
-    if (!this.collider || !other.collider || other.hasTag("ITEM") || other.hasTag("NOCLIP")) return;
+    if (
+      !this.collider ||
+      !other.collider ||
+      other.hasTag("ITEM") ||
+      other.hasTag("NOCLIP")
+    )
+      return;
 
     const box = this.getCollisionBox();
     const otherBox = other.getCollisionBox
@@ -832,11 +877,32 @@ export class Floor extends Entity {
     const overlapY = (box.h + otherBox.h) / 2 - Math.abs(dy);
 
     if (overlapX > 0 && overlapY > 0) {
+      // Message de blocage si barrière et joueur
+      if (this.type.startsWith("BAR_") && other.hasTag("PLAYER")) {
+        this.triggerBarrierDialogue();
+      }
+
       if (overlapX < overlapY) {
         other.x += dx > 0 ? -overlapX : overlapX;
       } else {
         other.y += dy > 0 ? -overlapY : overlapY;
       }
+    }
+  }
+
+  /** Affiche le dialogue de la barrière avec cooldown. */
+  triggerBarrierDialogue() {
+    if (window.game.dialogueActive) return;
+    const now = Date.now();
+    if (this.lastDialogueTime && now - this.lastDialogueTime < 3000) return;
+    this.lastDialogueTime = now;
+
+    const db = window.game.dialogueBox;
+    if (db) {
+      db.show("Barriere Magique", [
+        "Une puissante aura magique vous bloque le passage.",
+        "Il semblerait que vous ayez besoin des 3 joyaux sacres pour dissiper ce sortilege.",
+      ]);
     }
   }
 }

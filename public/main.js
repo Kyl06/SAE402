@@ -1,5 +1,5 @@
 /**
- * Point d'entrée principal. Orchestre le chargement des ressources, 
+ * Point d'entrée principal. Orchestre le chargement des ressources,
  * l'initialisation des singletons (moteur, réseau, quêtes) et le cycle de vie du jeu.
  */
 
@@ -35,7 +35,7 @@ window.game = {
 };
 
 /**
- * Logique de Respawn. 
+ * Logique de Respawn.
  * Note : Le rechargement de zone est évité si on est déjà au village pour préserver l'état des entités.
  */
 window.respawn = function () {
@@ -45,19 +45,30 @@ window.respawn = function () {
 
   if (ui) ui.style.display = "none";
   Object.assign(p, {
-    hp: p.maxHp || 6, emeralds: 0, arrows: 30, isDead: false,
-    visible: true, collider: true, actionAnimation: null, isPainFlashing: false
+    hp: p.maxHp || 6,
+    emeralds: 0,
+    arrows: 30,
+    isDead: false,
+    visible: true,
+    collider: true,
+    actionAnimation: null,
+    isPainFlashing: false,
   });
 
   const zm = window.game.zoneManager;
   if (zm) {
     if (zm.currentZone === "village") {
-      p.x = 380; p.y = 280;
+      p.x = 380;
+      p.y = 280;
     } else {
-      zm.loadZone("village").then(() => { p.x = 380; p.y = 280; });
+      zm.loadZone("village").then(() => {
+        p.x = 380;
+        p.y = 280;
+      });
     }
   } else {
-    p.x = 100; p.y = 100;
+    p.x = 100;
+    p.y = 100;
   }
 };
 
@@ -124,6 +135,7 @@ Assets.load({
   SCIE: "./assets/scie.png",
   CREUSE: "./assets/creuse.png",
   CHOMP: "./assets/chomp.png",
+  BARRIERE: "./assets/barriere.png",
   PNJ1: "./assets/PNJ1.png",
   PNJ2: "./assets/PNJ2.png",
   PNJFemme: "./assets/PNJFemme.png",
@@ -140,7 +152,7 @@ Assets.load({
   const hero = new Player(380, 280, isHost ? "LINK" : "LINK2");
   window.game.player = hero;
   engine.add(hero);
-  
+
   const network = new NetworkUpdater(hero, engine, isHost);
   window.game.network = network;
 
@@ -157,10 +169,15 @@ Assets.load({
     console.log("[Save] État restauré au village.");
   }
 
-  console.log(isHost ? "[Net] Mode Hôte : Autorité sur l'état du monde." : "[Net] Mode Client : Réplication de l'Hôte.");
+  console.log(
+    isHost
+      ? "[Net] Mode Hôte : Autorité sur l'état du monde."
+      : "[Net] Mode Client : Réplication de l'Hôte.",
+  );
 
   await zoneManager.loadZone("village");
-  hero.x = 380; hero.y = 280;
+  hero.x = 380;
+  hero.y = 280;
 
   // Injection des couches UI (HUD, Dialogues, Boutique)
   engine.add(new BottomBar());
@@ -187,10 +204,12 @@ Assets.load({
     const npcs = engine.entities.filter((e) => e.hasTag?.("NPC"));
     npcs.forEach((npc) => (npc.visible = false));
 
-    engine.add(new IntroCutscene(() => {
-      Object.assign(hero, { visible: true, collider: true, x: 380, y: 280 });
-      window.game.dialogueActive = false;
-      npcs.forEach((npc) => (npc.visible = true));
-    }));
+    engine.add(
+      new IntroCutscene(() => {
+        Object.assign(hero, { visible: true, collider: true, x: 380, y: 280 });
+        window.game.dialogueActive = false;
+        npcs.forEach((npc) => (npc.visible = true));
+      }),
+    );
   }
 });

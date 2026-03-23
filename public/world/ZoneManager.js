@@ -375,6 +375,7 @@ export class ZoneManager {
       if (!qm.maldrekDefeated) {
         this.engine.add(new Maldrek(360, 200));
       }
+
     }
   }
 
@@ -464,7 +465,7 @@ export class ZoneManager {
         zone: targetZone,
         entryDir: entryDir,
         spawnX: player ? player.x : null,
-        spawnY: player ? player.y : null
+        spawnY: player ? player.y : null,
       });
     }
 
@@ -523,12 +524,7 @@ export class ZoneManager {
         sortieY = 448;
       const size = 32;
 
-      if (
-        px > trouX &&
-        px < trouX + size &&
-        py > trouY &&
-        py < trouY + size
-      ) {
+      if (px > trouX && px < trouX + size && py > trouY && py < trouY + size) {
         player.x = sortieX;
         player.y = sortieY + size;
         player.velX = 0;
@@ -594,7 +590,7 @@ export class ZoneManager {
         zone: door.target,
         entryDir: "south",
         spawnX: player ? player.x : null,
-        spawnY: player ? player.y : null
+        spawnY: player ? player.y : null,
       });
     }
 
