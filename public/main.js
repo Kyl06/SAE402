@@ -77,23 +77,52 @@ function waitForPlayerSelection() {
 
 // Configuration des Assets : centralisation du chargement différé.
 Assets.load({
-  LINK: "./assets/link1.png", LINK2: "./assets/link2.png", MOBLIN: "./assets/moblin.png",
-  OCTOROK: "./assets/octorok.png", MALDEK: "./assets/maldrekPosition.png", HEARTS: "./assets/hearts.png",
-  EMERALD: "./assets/emeraude.png", EXPLOSION: "./assets/explosion.png", SWORD: "./assets/sword.png",
-  ARROW: "./assets/arrow.png", TILESET: "./assets/map.png", VENDEUR: "./assets/vendeur.png",
-  COFFRE: "./assets/coffre.png", CLE: "./assets/clé.png", HERBESOL: "./assets/herbesol.png",
-  HERBESOL2: "./assets/herbesol2.png", PORTAIL: "./assets/Portail.png", BRIQUE: "./assets/brique.png",
-  MAISON_ORANGE: "./assets/maisonOrange.png", MAISON_BLEU: "./assets/maisonBleu.png",
-  MAISON_VIOLETTE: "./assets/maisonViolette.png", FORTERESSE: "./assets/forteresse.png",
-  CIMETIERE: "./assets/cimetiere.png", POTION: "./assets/Potion de soin.png",
-  MARAIS: "./assets/marais.png", VIEUXNPC: "./assets/vieuxnpc.png", ARC_LONG: "./assets/Arc Long.png",
-  EPEE_FER: "./assets/EpeeEnFer.png", BOUCLIER: "./assets/bouclier.png", VILLAGEOIS_BLEU: "./assets/villageoisBleu.png",
-  POTEAU_MAISON: "./assets/poteauMaison.png", TUILES_VIOLETS: "./assets/tuilesViolets.png",
-  SHOP_SHEET: "./assets/shop.png", FEE_MARAIS: "./assets/fee_marais.png",
-  MAISON_TILESET: "./assets/maisonTileset.png", DIAMANT_ROUGE: "./assets/diamantRouge.png",
-  DIAMANT_VERT: "./assets/diamantVert.png", DIAMANT_BLEU: "./assets/diamantBleu.png",
-  DIAMANT_VIDE: "./assets/diamantVide.png", DESERT: "./assets/desert.png",
-  SCIE: "./assets/scie.png", CREUSE: "./assets/creuse.png",
+  LINK: "./assets/link1.png",
+  LINK2: "./assets/link2.png",
+  MOBLIN: "./assets/moblin.png",
+  OCTOROK: "./assets/octorok.png",
+  MALDEK: "./assets/maldrekPosition.png",
+  HEARTS: "./assets/hearts.png",
+  EMERALD: "./assets/emeraude.png",
+  EXPLOSION: "./assets/explosion.png",
+  SWORD: "./assets/sword.png",
+  ARROW: "./assets/arrow.png",
+  TILESET: "./assets/map.png",
+  VENDEUR: "./assets/vendeur.png",
+  COFFRE: "./assets/coffre.png",
+  CLE: "./assets/clé.png",
+  HERBESOL: "./assets/herbesol.png",
+  HERBESOL2: "./assets/herbesol2.png",
+  PORTAIL: "./assets/Portail.png",
+  BRIQUE: "./assets/brique.png",
+  MAISON_ORANGE: "./assets/maisonOrange.png",
+  MAISON_BLEU: "./assets/maisonBleu.png",
+  MAISON_VIOLETTE: "./assets/maisonViolette.png",
+  FORTERESSE: "./assets/forteresse.png",
+  CIMETIERE: "./assets/cimetiere.png",
+  POTION: "./assets/Potion de soin.png",
+  MARAIS: "./assets/marais.png",
+  VIEUXNPC: "./assets/villageoisChauve.png",
+  ARC_LONG: "./assets/Arc Long.png",
+  EPEE_FER: "./assets/EpeeEnFer.png",
+  BOUCLIER: "./assets/bouclier.png",
+  VILLAGEOIS_BLEU: "./assets/villageoisBleu.png",
+  POTEAU_MAISON: "./assets/poteauMaison.png",
+  TUILES_VIOLETS: "./assets/tuilesViolets.png",
+  SHOP_SHEET: "./assets/shop.png",
+  FEE_MARAIS: "./assets/fee_marais.png",
+  PNJDESERT: "./assets/PNJDesert.png",
+  SOL_PUIT: "./assets/solPuit.png",
+  CORDE: "./assets/corde.png",
+  MAISON_TILESET: "./assets/maisonTileset.png",
+  DIAMANT_ROUGE: "./assets/diamantRouge.png",
+  DIAMANT_VERT: "./assets/diamantVert.png",
+  DIAMANT_BLEU: "./assets/diamantBleu.png",
+  DIAMANT_VIDE: "./assets/diamantVide.png",
+  DESERT: "./assets/desert.png",
+  PNJPUIT: "./assets/PNJPuit.png",
+  SCIE: "./assets/scie.png",
+  CREUSE: "./assets/creuse.png",
 }).then(async () => {
   const role = await waitForPlayerSelection();
   const isHost = role === 1;
@@ -112,7 +141,7 @@ Assets.load({
   const zoneManager = new ZoneManager(engine);
   window.game.zoneManager = zoneManager;
 
-  // Hydratation de l'état via sauvegarde (toujours respawn au village pour la sécurité du spawn)
+  // Hydratation de l'état via sauvegarde
   const saveData = await questManager.load();
   if (saveData?.player) {
     Object.assign(hero, saveData.player);
@@ -156,4 +185,3 @@ Assets.load({
     }));
   }
 });
-

@@ -83,6 +83,7 @@ export class Floor extends Entity {
       "DES_36",
       "DES_38",
       "DES_45",
+      "SOL_PUIT",
     ];
     // Bordures CIM solides (murs, tombes, deco, piliers)
 
@@ -173,6 +174,10 @@ export class Floor extends Entity {
     if (this.halfCollision === "top") {
       return { x: this.x, y: this.y, w: this.width, h: this.height / 2 };
     }
+    if (this.type === "CORDE") {
+      // Seules les 2 cases du bas sont solides (a partir de y+64)
+      return { x: this.x, y: this.y + 64, w: 32, h: 64 };
+    }
     return { x: this.x, y: this.y, w: this.width, h: this.height };
   }
 
@@ -258,6 +263,7 @@ export class Floor extends Entity {
       EGGS: { sx: 176, sy: 32, sw: 16, sh: 16 },
       SIGN: { sx: 160, sy: 48, sw: 16, sh: 16 },
       PURPLE_HOLE: { sx: 176, sy: 48, sw: 16, sh: 16 },
+      PUIT: { sx: 176, sy: 48, sw: 16, sh: 16 },
       ORANGE_BLOCK: { sx: 128, sy: 0, sw: 16, sh: 16 },
 
       SHOP: { sx: 0, sy: 64, sw: 48, sh: 48 },
@@ -272,6 +278,8 @@ export class Floor extends Entity {
       MAISON_ORANGE: "MAISON_ORANGE",
       MAISON_BLEU: "MAISON_BLEU",
       MAISON_VIOLETTE: "MAISON_VIOLETTE",
+      SOL_PUIT: "SOL_PUIT",
+      CORDE: "CORDE",
     };
     if (standalone[this.type]) {
       const sImg = Assets.get(standalone[this.type]);
@@ -305,6 +313,8 @@ export class Floor extends Entity {
           3 * 32,
           3 * 32,
         );
+      } else if (this.type === "CORDE") {
+        ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, dx, dy, 32, 128);
       } else {
         ctx.drawImage(sImg, 0, 0, sImg.width, sImg.height, dx, dy, dw, dh);
       }

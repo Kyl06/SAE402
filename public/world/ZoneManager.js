@@ -29,6 +29,7 @@ const ZONE_MODULES = {
     import("./maps/maison_violette1_interior.js?v=" + _v),
   maison_violette2_interior: () =>
     import("./maps/maison_violette2_interior.js?v=" + _v),
+  puit_koumbou: () => import("./maps/puit_koumbou.js?v=" + _v),
 };
 
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" };
@@ -89,6 +90,42 @@ export class ZoneManager {
       if (this._fadeResolve) {
         this._fadeResolve();
         this._fadeResolve = null;
+      }
+    }
+  }
+
+  // Dessine l'indicateur [E] au-dessus des portes interactives.
+
+  drawInteractDoors(ctx) {
+    const doors = this.currentZoneData?.doors;
+    const player = window.game.player;
+    if (!doors || !player) return;
+
+    for (const door of doors) {
+      if (!door.interact) continue;
+      if (
+        player.x + player.width > door.x &&
+        player.x < door.x + door.w &&
+        player.y + player.height > door.y &&
+        player.y < door.y + door.h
+      ) {
+        const bounceY = Math.sin(Date.now() * 0.005 * 3) * 3;
+        const cx = door.x + door.w / 2;
+        const cy = door.y + 22 + (door.indicatorOffsetY || 0) + bounceY;
+
+        ctx.fillStyle = "rgba(0,0,0,0.7)";
+        ctx.fillRect(cx - 12, cy - 12, 24, 16);
+        ctx.strokeStyle = "#ffcc00";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cx - 12, cy - 12, 24, 16);
+
+        ctx.fillStyle = "#ffcc00";
+        ctx.font = "bold 11px monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("E", cx, cy - 4);
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
       }
     }
   }
@@ -154,6 +191,7 @@ export class ZoneManager {
       maison_violette1_interior: { x: 96, y: 260 },
       maison_bleu_interior: { x: 576, y: 420 },
       maison_violette2_interior: { x: 288, y: 420 },
+      puit_koumbou: { x: 160, y: 384 },
     };
     if (zoneId === "village" && interiorSpawns[this.previousZone]) {
       const player = window.game.player;
@@ -201,20 +239,26 @@ export class ZoneManager {
   spawnEnemies(enemies, entryDir = null) {
     if (!enemies) return;
 
+    const area = this.currentZoneData.spawnArea;
+    const baseX = area ? area.x : 120;
+    const baseY = area ? area.y : 100;
+    const baseW = area ? area.w : 560;
+    const baseH = area ? area.h : 380;
+
     const getSafeSpawn = () => {
       let x, y;
       let isSafe = false;
       let attempts = 0;
       while (!isSafe && attempts < 50) {
-        x = 120 + Math.random() * 560; // 120 to 680
-        y = 100 + Math.random() * 380; // 100 to 480
+        x = baseX + Math.random() * baseW;
+        y = baseY + Math.random() * baseH;
         isSafe = true;
 
         // Eviter de spawner trop pres de la porte d'entree
-        if (entryDir === "north" && y < 250) isSafe = false; // Le joueur arrive du haut (y=40)
-        if (entryDir === "south" && y > 330) isSafe = false; // Le joueur arrive du bas (y=520)
-        if (entryDir === "west" && x < 270) isSafe = false; // Le joueur arrive de la gauche (x=40)
-        if (entryDir === "east" && x > 510) isSafe = false; // Le joueur arrive de la droite (x=740)
+        if (entryDir === "north" && y < 250) isSafe = false;
+        if (entryDir === "south" && y > 330) isSafe = false;
+        if (entryDir === "west" && x < 270) isSafe = false;
+        if (entryDir === "east" && x > 510) isSafe = false;
 
         attempts++;
       }
@@ -273,6 +317,20 @@ export class ZoneManager {
       // Coffre (si pas encore ouvert)
       if (!swampQuest.chestOpened) {
         this.engine.add(new Chest(160, 200));
+      }
+    }
+
+    if (zoneId === "puit_koumbou") {
+      const puitQuest = qm.getQuest("puit_chest");
+      if (!puitQuest.opened) {
+        this.engine.add(
+          new Chest(384, 320, {
+            requireKey: false,
+            emeralds: 5,
+            messages: ["Le coffre s'ouvre !", "Tu obtiens 5 emeraudes !"],
+            saveId: "puit_chest",
+          }),
+        );
       }
     }
 
@@ -432,7 +490,12 @@ export class ZoneManager {
         sortieY = 448;
       const size = 32;
 
-      if (px > trouX && px < trouX + size && py > trouY && py < trouY + size) {
+      if (
+        px > trouX &&
+        px < trouX + size &&
+        py > trouY &&
+        py < trouY + size
+      ) {
         player.x = sortieX;
         player.y = sortieY + size;
         player.velX = 0;
@@ -460,7 +523,13 @@ export class ZoneManager {
           player.y + player.height > door.y &&
           player.y < door.y + door.h
         ) {
-          this.enterDoor(door);
+          if (door.interact) {
+            if (window.game.inputs.isHeld("KeyE")) {
+              this.enterDoor(door);
+            }
+          } else {
+            this.enterDoor(door);
+          }
           return;
         }
       }

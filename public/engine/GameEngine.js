@@ -23,6 +23,7 @@ export class GameEngine {
         this.entities.sort((a, b) => (a.z || 0) - (b.z || 0));
     }
 
+    /** Marque une entité pour destruction au prochain cycle. */
     remove(entity) { entity.kill(); }
 
     /** Trigger un traumatisme temporaire du contexte de rendu (Screen Shake). */
@@ -87,8 +88,12 @@ export class GameEngine {
         this.entities.forEach(e => e.draw?.(this.ctx));
         this.ctx.restore(); // Restaure le contexte pour isoler les transformations
 
+        // Overlays et Indicateurs UI (Couche supérieure)
         const zm = window.game?.zoneManager;
-        if (zm) zm.drawFade(this.ctx);
+        if (zm) {
+            zm.drawInteractDoors(this.ctx); // Indicateur [E] sur les portes
+            zm.drawFade(this.ctx);          // Transition de zone
+        }
     }
 
     /** Game loop cadencée par le rafraîchissement d'écran via window.requestAnimationFrame. */
@@ -100,10 +105,11 @@ export class GameEngine {
         requestAnimationFrame((n) => this.loop(n));
     }
 
+    /** Initialise la boucle de jeu. */
     start() {
         requestAnimationFrame((n) => {
             this.lastTime = n;
             this.loop(n);
         });
     }
-}
+}

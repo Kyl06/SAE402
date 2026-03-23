@@ -2261,35 +2261,39 @@ const interior = [
 ];
 
 export const zoneData = {
-  id: "forest_south",
-  name: "Foret Sombre",
-  bgColor: "#0f1f0f",
-  mapData: { walls: [...interior] },
-  enemies: { moblins: 4, octoroks: 1, creuses: 3 },
-  connections: { north: "village" },
-  npcs: [
-    {
-      name: "Garde Forestier",
-      x: 384,
-      y: 96,
-      color: "#2d6a2d",
-      skinColor: "#e8c090",
-      dialogues: [
-        "Cette foret est infestee de moblins depuis que Maldrek a pris le pouvoir.",
-        "Elimine-les tous et je te donnerai le Fragment de Cristal que je garde.",
-        "Sois prudent, ils rodent parmi les arbres !",
-      ],
-      questDialogues: {
-        questId: "forest_moblins",
-        active: [
-          "Continue ! Il reste encore des moblins dans cette foret.",
-          "Ne baisse pas ta garde !",
-        ],
-        completed: [
-          "Bravo, heros ! Tu as elimine tous les moblins !",
-          "Voici le Fragment de Cristal comme promis. Un de moins pour Maldrek !",
-        ],
-      },
-    },
-  ],
+    id: 'forest_south',
+    name: 'Foret Sombre',
+    bgColor: '#0f1f0f',
+    mapData: { walls: [...interior] },
+    enemies: { moblins: 4, octoroks: 1, creuses: 3 },
+    connections: { north: 'village' },
+    npcs: [
+        {
+            name: 'Voyageur du désert',
+            x: 384, y: 96,
+            sprite: 'PNJDESERT',
+            spriteColumns: 2,
+            spriteW: 92,
+            spriteH: 105,
+            spriteScale: 0.35,
+            hitboxOffsetX: 8,
+            z: 5,
+            dialogues: [
+                "Ce désert est infesté de moblins depuis que Maldrek a pris le pouvoir.",
+                "Élimine-les tous et je te confierai le Fragment de Cristal que je protège.",
+                "Sois prudent, ils rôdent derrière les dunes et se fondent dans les tempêtes de sable !"
+            ],
+            questDialogues: {
+                questId: 'forest_moblins',
+                active: [
+                    "Continue ! Il reste encore des moblins dans ces terres arides.",
+                    "Ne laisse pas la chaleur et les mirages tromper ta vigilance !"
+                ],
+                completed: [
+                    "Bravo, héros ! Tu as purgé les sables de tous ces moblins !",
+                    "Voici le Fragment de Cristal comme promis. Un de moins pour Maldrek !"
+                ]
+            }
+        }
+    ]
 };

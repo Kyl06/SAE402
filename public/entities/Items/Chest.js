@@ -8,7 +8,16 @@ import { Assets } from '../../engine/Assets.js';
 import { SCALE } from '../../constants.js';
 
 export class Chest extends Entity {
-    constructor(x, y) {
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {object} [config] - Configuration optionnelle
+     * @param {boolean} [config.requireKey] - Necessite une cle (defaut: true)
+     * @param {number} [config.emeralds] - Nombre d'emeraudes a donner
+     * @param {string[]} [config.messages] - Messages a afficher a l'ouverture
+     * @param {string} [config.saveId] - Identifiant pour sauvegarder l'etat ouvert
+     */
+    constructor(x, y, config = {}) {
         super(x, y, 20, 16);
         this.z = 5;
         this.collider = true;
@@ -20,6 +29,19 @@ export class Chest extends Entity {
         this.keyWasDown = false;
         this.indicatorBounce = 0;
         this.playerInRange = false;
+
+        this.requireKey = config.requireKey !== undefined ? config.requireKey : true;
+        this.emeralds = config.emeralds || 0;
+        this.customMessages = config.messages || null;
+        this.saveId = config.saveId || null;
+
+        // Verifier si deja ouvert via saveId
+        if (this.saveId) {
+            const qm = window.game.questManager;
+            if (qm && qm.getQuest(this.saveId) && qm.getQuest(this.saveId).opened) {
+                this.opened = true;
+            }
+        }
 
         // Taille d'affichage sur l'ecran
         this.drawSize = 32;
@@ -71,25 +93,50 @@ export class Chest extends Entity {
         const qm = window.game.questManager;
         if (!qm) return;
 
-        const quest = qm.getQuest('swamp_chest');
-        if (!quest.hasKey) {
-            // Pas de cle → dialogue
-            const db = window.game.dialogueBox;
-            if (db && !window.game.dialogueActive) {
-                db.show('Coffre', ["Ce coffre est verrouille. Il faut trouver la cle..."], null);
+        if (this.requireKey) {
+            // Mode cle (comportement original)
+            const quest = qm.getQuest('swamp_chest');
+            if (!quest.hasKey) {
+                const db = window.game.dialogueBox;
+                if (db && !window.game.dialogueActive) {
+                    db.show('Coffre', ["Ce coffre est verrouille. Il faut trouver la cle..."], null);
+                }
+                return;
             }
-            return;
-        }
 
-        // Ouvrir le coffre
-        if (qm.openChest()) {
+            if (qm.openChest()) {
+                this.opened = true;
+                const db = window.game.dialogueBox;
+                if (db) {
+                    db.show('Coffre', [
+                        "Le coffre s'ouvre !",
+                        "Tu obtiens le Fragment de Cristal !"
+                    ], null);
+                }
+            }
+        } else {
+            // Mode sans cle
             this.opened = true;
+
+            // Donner les emeraudes
+            if (this.emeralds > 0) {
+                const player = window.game.player;
+                if (player) {
+                    player.emeralds = (player.emeralds || 0) + this.emeralds;
+                }
+            }
+
+            // Sauvegarder l'etat
+            if (this.saveId) {
+                const quest = qm.getQuest(this.saveId);
+                quest.opened = true;
+            }
+
+            // Afficher le message
             const db = window.game.dialogueBox;
             if (db) {
-                db.show('Coffre', [
-                    "Le coffre s'ouvre !",
-                    "Tu obtiens le Fragment de Cristal !"
-                ], null);
+                const msgs = this.customMessages || ["Le coffre s'ouvre !"];
+                db.show('Coffre', msgs, null);
             }
         }
     }
