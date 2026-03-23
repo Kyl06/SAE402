@@ -18,7 +18,7 @@ export class Player extends Entity {
         this.skinId = skinId;       
         this.facing = DOWN;         
         this.speed = 160;           
-        this.z = 10;                
+        this.z = 20;                
 
         this.visible = true;        
         this.isDead = false;        

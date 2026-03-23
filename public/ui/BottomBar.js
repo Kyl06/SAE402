@@ -63,7 +63,6 @@ export class BottomBar extends Entity {
             { label: "W", action: "Épée" },
             { label: "X", action: "Arc" },
             { label: "E", action: "Interagir" },
-            { label: "ECHAP", action: "Quitter" },
             { label: "P", action: "Potion" }
         ];
 
@@ -212,25 +211,25 @@ export class BottomBar extends Entity {
     }
 
     drawFragments(ctx, x, y) {
-      const qm = window.game.questManager;
-      if (!qm) return x;
+        const qm = window.game.questManager;
+        if (!qm) return x;
 
-      const keys = ['DIAMANT_ROUGE', 'DIAMANT_VERT', 'DIAMANT_BLEU'];
-      const iconSize = 20;
+        const keys = ['DIAMANT_ROUGE', 'DIAMANT_VERT', 'DIAMANT_BLEU'];
+        const iconSize = 20;
 
-      for (let i = 0; i < 3; i++) {
-          const has = qm.fragments[i];
-          const img = has ? Assets.get(keys[i]) : Assets.get('DIAMANT_VIDE');
+        for (let i = 0; i < 3; i++) {
+            const has = qm.fragments[i];
+            const img = has ? Assets.get(keys[i]) : Assets.get('DIAMANT_VIDE');
 
-          if (img) {
-              ctx.drawImage(img, x, y - iconSize / 2, iconSize, iconSize);
-          }
+            if (img) {
+                ctx.drawImage(img, x, y - iconSize / 2, iconSize, iconSize);
+            }
 
-          x += iconSize + 12;
-      }
+            x += iconSize + 12;
+        }
 
-      return x;
-  }
+        return x;
+    }
 
     drawPotions(ctx, player, x, y) {
         if (player.potions <= 0) return x;

@@ -21,6 +21,24 @@ export class Map extends Entity {
 
         mapData.walls.forEach(tile => {
             const block = new Floor(tile.x, tile.y, tile.type, tile);
+            
+            if (["MAISON_ORANGE", "MAISON_BLEU", "MAISON_VIOLETTE"].includes(tile.type)) {
+                block.collider = false;
+                block.removeTag?.("SOLID");
+
+                const top = new Floor(tile.x, tile.y, "INVISIBLE_WALL");
+                top.width = 96; top.height = 64; 
+                this.floorEntities.push(top); this.engine.add(top);
+
+                const bl = new Floor(tile.x, tile.y + 64, "INVISIBLE_WALL");
+                bl.width = 32; bl.height = 32; 
+                this.floorEntities.push(bl); this.engine.add(bl);
+
+                const br = new Floor(tile.x + 64, tile.y + 64, "INVISIBLE_WALL");
+                br.width = 32; br.height = 32; 
+                this.floorEntities.push(br); this.engine.add(br);
+            }
+
             this.floorEntities.push(block);
             this.engine.add(block);
         });

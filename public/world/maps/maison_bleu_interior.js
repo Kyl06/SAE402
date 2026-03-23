@@ -575,7 +575,7 @@ export const zoneData = {
     enemies: { moblins: 0, octoroks: 0 },
     connections: {},
     doors: [
-        { x: 352, y: 352, w: 64, h: 32, target: 'village', spawnX: 576, spawnY: 390 }
+        { x: 352, y: 352, w: 64, h: 32, target: 'village', spawnX: 576, spawnY: 440 }
     ],
     npcs: []
 };

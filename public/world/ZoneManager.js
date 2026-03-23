@@ -140,11 +140,11 @@ export class ZoneManager {
 
   // Charge une zone par son identifiant (appel public, ex: spawn initial).
 
-  async loadZone(zoneId, entryDir = null) {
+  async loadZone(zoneId, entryDir = null, spawnX = null, spawnY = null) {
     if (this.transitioning) return;
     this.transitioning = true;
     try {
-      await this._doLoadZone(zoneId, entryDir);
+      await this._doLoadZone(zoneId, entryDir, spawnX, spawnY);
     } finally {
       this.transitioning = false;
     }
@@ -152,7 +152,7 @@ export class ZoneManager {
 
   // Chargement interne (sans toucher a transitioning).
 
-  async _doLoadZone(zoneId, entryDir = null) {
+  async _doLoadZone(zoneId, entryDir = null, spawnX = null, spawnY = null) {
     // 1. Nettoyer la zone actuelle
     this.clearZoneEntities();
 
@@ -180,25 +180,34 @@ export class ZoneManager {
     this.spawnQuestEntities(zoneId);
 
     // 6. Repositionner le joueur
-    if (entryDir) {
-      this.positionPlayer(entryDir);
-    }
+    const player = window.game.player;
+    if (spawnX !== null && spawnY !== null && player) {
+      player.x = spawnX;
+      player.y = spawnY;
+      player.velX = 0;
+      player.velY = 0;
+    } else {
+      if (entryDir) {
+        this.positionPlayer(entryDir);
+      }
 
-    // Si on revient d'un interieur, placer devant la porte
-    const interiorSpawns = {
-      shop_interior: { x: 576, y: 230 },
-      maison_orange_interior: { x: 256, y: 260 },
-      maison_violette1_interior: { x: 96, y: 260 },
-      maison_bleu_interior: { x: 576, y: 420 },
-      maison_violette2_interior: { x: 288, y: 420 },
-      puit_koumbou: { x: 160, y: 384 },
-    };
-    if (zoneId === "village" && interiorSpawns[this.previousZone]) {
-      const player = window.game.player;
-      if (player) {
-        const spawn = interiorSpawns[this.previousZone];
-        player.x = spawn.x;
-        player.y = spawn.y;
+      // Si on revient d'un interieur, placer devant la porte
+      const interiorSpawns = {
+        shop_interior: { x: 576, y: 250 },
+        maison_orange_interior: { x: 256, y: 280 },
+        maison_violette1_interior: { x: 96, y: 280 },
+        maison_bleu_interior: { x: 576, y: 440 },
+        maison_violette2_interior: { x: 288, y: 440 },
+        puit_koumbou: { x: 160, y: 384 },
+      };
+      if (zoneId === "village" && interiorSpawns[this.previousZone]) {
+        if (player) {
+          const spawn = interiorSpawns[this.previousZone];
+          player.x = spawn.x;
+          player.y = spawn.y;
+          player.velX = 0;
+          player.velY = 0;
+        }
       }
     }
 
@@ -424,16 +433,19 @@ export class ZoneManager {
     // Fondu vers le noir
     await this.fadeOut(250);
 
+    // Charger la zone (sans re-setter transitioning via loadZone)
+    await this._doLoadZone(targetZone, entryDir);
+
     // Notifier le reseau
     if (window.game.network?.socket) {
+      const player = window.game.player;
       window.game.network.socket.emit("zone_change", {
         zone: targetZone,
         entryDir: entryDir,
+        spawnX: player ? player.x : null,
+        spawnY: player ? player.y : null
       });
     }
-
-    // Charger la zone (sans re-setter transitioning via loadZone)
-    await this._doLoadZone(targetZone, entryDir);
 
     // Fondu depuis le noir
     await this.fadeIn(250);
@@ -545,13 +557,6 @@ export class ZoneManager {
     // Fondu vers le noir
     await this.fadeOut(250);
 
-    if (window.game.network?.socket) {
-      window.game.network.socket.emit("zone_change", {
-        zone: door.target,
-        entryDir: "south",
-      });
-    }
-
     await this._doLoadZone(door.target, null);
 
     // Positionner le joueur a l'entree de la zone interieure
@@ -561,6 +566,15 @@ export class ZoneManager {
       player.y = door.spawnY || 500;
       player.velX = 0;
       player.velY = 0;
+    }
+
+    if (window.game.network?.socket) {
+      window.game.network.socket.emit("zone_change", {
+        zone: door.target,
+        entryDir: "south",
+        spawnX: player ? player.x : null,
+        spawnY: player ? player.y : null
+      });
     }
 
     // Fondu depuis le noir

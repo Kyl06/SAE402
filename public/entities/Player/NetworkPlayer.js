@@ -21,7 +21,7 @@ export class NetworkPlayer extends Entity {
         this.currentAction = 'IDLE'; 
         this.isWalking = false;      
         this.collider  = false; // Le client distant ne doit pas bloquer ou heurter le monde localement.
-        this.z = 10;
+        this.z = 20;
         this.actionAnimation = null;
 
         this._buildSheets();
