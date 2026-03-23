@@ -385,5 +385,21 @@ export const zoneData = {
       spawnY: 440,
     },
   ],
-  npcs: [],
+  npcs: [
+    {
+      name: "Bérangère",
+      x: 368,
+      y: 230,
+      sprite: "PNJFemme",
+      spriteColumns: 2,
+      spriteRows: 1,
+      spriteW: 92,
+      spriteH: 105,
+      spriteScale: 0.4,
+      interactRange: 80,
+      dialogues: ["Bienvenue dans l'auberge de la ville.",
+        "Elle est pleine en ce moment, reviens plus tard !"
+      ],
+    },
+  ],
 };

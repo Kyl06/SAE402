@@ -2525,13 +2525,13 @@ export const zoneData = {
     npcs: [
         {
             name: 'Ancien du Village',
-            x: 322, y: 220,
+            x: 320, y: 223,
             sprite: 'VIEUXNPC',
             spriteColumns: 1,
             spriteW: 63,
             spriteH: 66,
             spriteFrame: 0,
-            spriteScale: 0.5,
+            spriteScale: 0.58,
             z: 5,
             dialogues: [
                 "Heros ! Le sorcier Maldrek a vole la Relique Sacree de notre village !",
@@ -2549,7 +2549,7 @@ export const zoneData = {
             spriteW: 63,
             spriteH: 86,
             spriteFrame: 0,
-            spriteScale: 0.5,
+            spriteScale: 0.48,
             z: 5,
             dialogues: [
                 "Tu vois ce vieux puits ? La rumeur dit qu'un trésor y repose tout au fond.",

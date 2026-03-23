@@ -445,5 +445,21 @@ export const zoneData = {
       spawnY: 280,
     },
   ],
-  npcs: [],
+  npcs: [
+    {
+      name: "Rodolphe",
+      x: 364,
+      y: 240,
+      sprite: "PNJ2",
+      spriteColumns: 2,
+      spriteRows: 1,
+      spriteW: 92,
+      spriteH: 105,
+      spriteScale: 0.43,
+      interactRange: 80,
+      dialogues: ["L'ancien du village m'a dit que la relique sacrée se trouvait dans le donjon de Maldrek.",
+        "Il faut trouver comment y entrer.",
+        "Bonne chance, héros !"],
+    },
+  ],
 };
