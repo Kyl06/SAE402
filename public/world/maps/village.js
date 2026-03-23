@@ -2523,54 +2523,64 @@ const mapTiles = [
 ];
 
 export const zoneData = {
-    id: 'village',
-    name: 'Village Koumbou',
-    bgColor: '#1a3a1e',
-    mapData: { walls: mapTiles },
-    enemies: { moblins: 0, octoroks: 0 },
-    connections: { north: 'Couloir_Forteresse', south: 'forest_south', west: 'swamp_west', east: 'ruins_east' },
-    doors: [
-        { x: 576, y: 155, w: 32, h: 32, target: 'shop_interior', spawnX: 384, spawnY: 310 },
-        { x: 256, y: 219, w: 32, h: 32, target: 'maison_orange_interior', spawnX: 368, spawnY: 310 },
-        { x: 96, y: 219, w: 32, h: 32, target: 'maison_violette1_interior', spawnX: 368, spawnY: 310 },
-        { x: 576, y: 379, w: 32, h: 32, target: 'maison_bleu_interior', spawnX: 368, spawnY: 310 },
-        { x: 288, y: 379, w: 32, h: 32, target: 'maison_violette2_interior', spawnX: 368, spawnY: 310 },
-        { x: 128, y: 320, w: 96, h: 96, target: 'puit_koumbou', spawnX: 384, spawnY: 224, interact: true }
-    ],
-    npcs: [
-        {
-            name: 'Ancien du Village',
-            x: 320, y: 223,
-            sprite: 'VIEUXNPC',
-            spriteColumns: 1,
-            spriteW: 63,
-            spriteH: 66,
-            spriteFrame: 0,
-            spriteScale: 0.58,
-            z: 5,
-            dialogues: [
-                "Heros ! Le sorcier Maldrek a vole la Relique Sacree de notre village !",
-                "Il s'est refugie dans sa forteresse au nord, protegee par une barriere magique.",
-                "Pour la briser, tu dois reunir 3 fragments de cristal caches dans les zones voisines.",
-                "Explore la foret au sud, les marais a l'ouest et les ruines a l'est. Bonne chance !"
-            ],
-        },
-        {
-            name: 'Villageois',
-            x: 164, y: 225,
-            sprite: 'PNJPUIT',
-            hitboxOffsetX: 8,
-            spriteColumns: 1,
-            spriteW: 63,
-            spriteH: 86,
-            spriteFrame: 0,
-            spriteScale: 0.48,
-            z: 5,
-            dialogues: [
-                "Tu vois ce vieux puits ? La rumeur dit qu'un trésor y repose tout au fond.",
-                "Mais ne te fie pas à son eau dormante. Des créatures immondes se cachent dans l'obscurité.",
-                "Si tu as le courage d'y descendre pour le récupérer, prends garde à tes arrières !"
-            ],
-        }
-    ]
+  id: 'village',
+  name: 'Village Koumbou',
+  bgColor: '#1a3a1e',
+  mapData: { walls: mapTiles },
+  enemies: { moblins: 0, octoroks: 0 },
+  connections: { north: 'Couloir_Forteresse', south: 'forest_south', west: 'swamp_west', east: 'ruins_east' },
+  doors: [
+    { x: 576, y: 155, w: 32, h: 32, target: 'shop_interior', spawnX: 384, spawnY: 310 },
+    { x: 256, y: 219, w: 32, h: 32, target: 'maison_orange_interior', spawnX: 368, spawnY: 310 },
+    { x: 96, y: 219, w: 32, h: 32, target: 'maison_violette1_interior', spawnX: 368, spawnY: 310 },
+    { x: 576, y: 379, w: 32, h: 32, target: 'maison_bleu_interior', spawnX: 368, spawnY: 310 },
+    { x: 288, y: 379, w: 32, h: 32, target: 'maison_violette2_interior', spawnX: 368, spawnY: 310 },
+    { x: 128, y: 320, w: 96, h: 96, target: 'puit_koumbou', spawnX: 384, spawnY: 224, interact: true }
+  ],
+  npcs: [
+    {
+      name: 'Ancien du Village',
+      x: 320, y: 223,
+      sprite: 'VIEUXNPC',
+      spriteColumns: 1,
+      spriteW: 63,
+      spriteH: 66,
+      spriteFrame: 0,
+      spriteScale: 0.58,
+      z: 5,
+      dialogues: [
+        "Heros ! Le sorcier Maldrek a vole la Relique Sacree de notre village !",
+        "Il s'est refugie dans sa forteresse au nord, protegee par une barriere magique.",
+        "Pour la briser, tu dois reunir 3 fragments de cristal caches dans les zones voisines.",
+        "Explore le désert au sud, les marais a l'ouest et les ruines a l'est. Bonne chance !"
+      ],
+      postDefeatDialogues: [
+        "Tu as reussi ! La Relique Sacree est de retour et Maldrek ne nous menacera plus !",
+        "Notre village est de nouveau en securite grace a ton courage.",
+        "Merci, Heros. Tu as tout notre respect."
+      ],
+    },
+    {
+      name: 'Villageois',
+      x: 164, y: 225,
+      sprite: 'PNJPUIT',
+      hitboxOffsetX: 8,
+      spriteColumns: 1,
+      spriteW: 63,
+      spriteH: 86,
+      spriteFrame: 0,
+      spriteScale: 0.48,
+      z: 5,
+      dialogues: [
+        "Tu vois ce vieux puits ? La rumeur dit qu'un trésor y repose tout au fond.",
+        "Mais ne te fie pas à son eau dormante. Des créatures immondes se cachent dans l'obscurité.",
+        "Si tu as le courage d'y descendre pour le récupérer, prends garde à tes arrières !"
+      ],
+      postDefeatDialogues: [
+        "Incroyable ! Tu as battu Maldrek !",
+        "Sais-tu que sa magie noire fuyait parfois dans ce puits ? C'est surement pour ca qu'il y a des monstres...",
+        "Maintenant qu'il est vaincu, peut-etre que l'eau va s'eclaircir."
+      ],
+    }
+  ]
 };
