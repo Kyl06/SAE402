@@ -34,7 +34,7 @@ export class BottomBar extends Entity {
         this.drawArrows(ctx, player, 420, this.y + 24);
 
         // --- Ligne du bas : inventaire ---
-        const invY = this.y + 58;
+        const invY = this.y + 60;
         let cursorX = 20;
 
         // Fragments de cristal
@@ -52,6 +52,106 @@ export class BottomBar extends Entity {
 
         // Zone courante (affichee a droite)
         this.drawZoneName(ctx, this.y + 24);
+
+        // Contrôles affichés à droite au-dessus de la zone
+        this.drawControls(ctx, this.y + 39);
+    }
+
+    drawControls(ctx, y) {
+        const controls = [
+            { label: "← → ↑ ↓", action: "Mouvement" },
+            { label: "W", action: "Épée" },
+            { label: "X", action: "Arc" },
+            { label: "E", action: "Interagir" },
+            { label: "ECHAP", action: "Quitter" },
+            { label: "P", action: "Potion" }
+        ];
+
+        ctx.font = "11px monospace";
+        ctx.textBaseline = "top";
+        ctx.textAlign = "left";
+
+        const canvasWidth = 800;
+        const verticalSpacing = 14; // Espacement entre les lignes
+
+        // Position fixe pour la deuxième colonne (action de droite)
+        const rightColumnX = 350; // Position horizontale fixe pour la deuxième colonne
+
+        // Grouper les contrôles par 2 pour former les lignes
+        const rows = [];
+        for (let i = 0; i < controls.length; i += 2) {
+            rows.push(controls.slice(i, i + 2));
+        }
+
+        // Pour chaque ligne
+        for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+            const row = rows[rowIndex];
+            const rowY = y + rowIndex * verticalSpacing;
+
+            // Premier contrôle (toujours présent)
+            const firstControl = row[0];
+            const firstLabelText = `[${firstControl.label}]`;
+            const firstActionText = ` ${firstControl.action}`;
+
+            // Position du premier contrôle (centré ou à gauche)
+            const firstX = 500; // Position fixe pour la première colonne
+
+            // Dessiner le premier label en jaune
+            ctx.fillStyle = "#ffdd00";
+            ctx.fillText(firstLabelText, firstX, rowY);
+
+            // Position de la première action
+            const firstLabelWidth = ctx.measureText(firstLabelText).width;
+            const firstActionX = firstX + firstLabelWidth;
+
+            // Dessiner la première action en gris
+            ctx.fillStyle = "#aaa";
+            ctx.fillText(firstActionText, firstActionX, rowY);
+
+            // Deuxième contrôle (si présent)
+            if (row.length > 1) {
+                const secondControl = row[1];
+                const secondLabelText = `[${secondControl.label}]`;
+                const secondActionText = ` ${secondControl.action}`;
+
+                // Dessiner le deuxième label en jaune à la position fixe
+                ctx.fillStyle = "#ffdd00";
+                ctx.fillText(secondLabelText, rightColumnX, rowY);
+
+                // Position de la deuxième action
+                const secondLabelWidth = ctx.measureText(secondLabelText).width;
+                const secondActionX = rightColumnX + secondLabelWidth;
+
+                // Dessiner la deuxième action en gris
+                ctx.fillStyle = "#aaa";
+                ctx.fillText(secondActionText, secondActionX, rowY);
+            }
+        }
+    }
+
+    drawSecondaryControls(ctx, y) {
+        const secondaryControls = [
+            { label: "E", action: "Interagir" },
+            { label: "ECHAP", action: "Quitter" }
+        ];
+
+        let x = 20;
+        ctx.fillStyle = "#aaa";
+        ctx.font = "11px monospace";
+        ctx.textBaseline = "top";
+        ctx.textAlign = "left";
+
+        for (const { label, action } of secondaryControls) {
+            // Label de la touche (blanc/jaune pour faire ressortir)
+            ctx.fillStyle = "#ffdd00";
+            ctx.fillText(`[${label}]`, x, y);
+
+            // Action (gris)
+            ctx.fillStyle = "#aaa";
+            ctx.fillText(` ${action}`, x + (label.length * 6) + 20, y);
+
+            x += 140;
+        }
     }
 
     drawStamina(ctx, player, x, y) {
