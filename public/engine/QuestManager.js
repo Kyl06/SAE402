@@ -153,6 +153,7 @@ export class QuestManager {
                 swordLevel: player.swordLevel,
                 bowLevel: player.bowLevel,
                 hp: player.hp,
+                maxHp: player.maxHp,
             } : null,
             zone: window.game.zoneManager?.currentZone || "village",
         };

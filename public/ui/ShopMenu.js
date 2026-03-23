@@ -9,9 +9,9 @@ import { Assets } from '../engine/Assets.js';
 
 const SHOP_ITEMS = [
     { id: 'potion', name: 'Potion de soin', price: 3, desc: 'Restaure 2 coeurs', oneTime: false, icon: 'POTION' },
-    { id: 'sword', name: 'Epee en fer', price: 10, desc: 'Double la puissance de l\'epée (plus fort)', oneTime: true, icon: 'EPEE_FER' },
+    { id: 'sword', name: 'Epee en fer', price: 7, desc: 'Double la puissance de l\'epée (plus fort)', oneTime: true, icon: 'EPEE_FER' },
     { id: 'bow', name: 'Arc long', price: 8, desc: '1.3x degats, + rapide', oneTime: true, icon: 'ARC_LONG' },
-    { id: 'shield', name: 'Bouclier', price: 7, desc: 'Reduit les degats de 1', oneTime: true, icon: 'BOUCLIER' },
+    { id: 'heart', name: 'Coeur extra', price: 10, desc: 'Augmente votre vie max', oneTime: true, icon: 'HEARTS' },
     { id: 'arrows', name: '5 Fleches', price: 2, desc: '+5 fleches', oneTime: false, icon: 'ARROW' },
 ];
 
@@ -87,7 +87,7 @@ export class ShopMenu extends Entity {
         if (item.oneTime) {
             if (item.id === 'sword' && player.swordLevel > 0) { this.showFeedback('Deja achete !'); return; }
             if (item.id === 'bow' && player.bowLevel > 0) { this.showFeedback('Deja achete !'); return; }
-            if (item.id === 'shield' && player.hasShield) { this.showFeedback('Deja achete !'); return; }
+            if (item.id === 'heart' && (player.maxHp || 6) > 6) { this.showFeedback('Deja achete !'); return; }
         }
 
         // En mode admin, autoriser l'achat sans décrémenter les émeraudes
@@ -99,7 +99,11 @@ export class ShopMenu extends Entity {
             case 'potion': player.potions++; this.showFeedback('Potion achetee !'); break;
             case 'sword': player.swordLevel = 1; this.showFeedback('Epee en fer equipee !'); break;
             case 'bow': player.bowLevel = 1; this.showFeedback('Arc long equipe !'); break;
-            case 'shield': player.hasShield = true; this.showFeedback('Bouclier equipe !'); break;
+            case 'heart': 
+                player.maxHp = (player.maxHp || 6) + 2; 
+                player.hp = player.maxHp; 
+                this.showFeedback('Plus de coeurs !'); 
+                break;
             case 'arrows': player.arrows = (player.arrows || 0) + 5; this.showFeedback('+5 fleches !'); break;
         }
 
@@ -192,7 +196,7 @@ export class ShopMenu extends Entity {
             if (item.oneTime && player) {
                 if (item.id === 'sword' && player.swordLevel > 0) alreadyBought = true;
                 if (item.id === 'bow' && player.bowLevel > 0) alreadyBought = true;
-                if (item.id === 'shield' && player.hasShield) alreadyBought = true;
+                if (item.id === 'heart' && player.maxHp > 6) alreadyBought = true;
             }
 
             // Icon
@@ -201,6 +205,9 @@ export class ShopMenu extends Entity {
                 if (iconImg) {
                     if (item.icon === 'ARROW') {
                         ctx.drawImage(iconImg, 0, 48, 16, 16, boxX + 38, y - 4, 20, 20);
+                    } else if (item.icon === 'HEARTS') {
+                        // On prend le coeur plein de la spritesheet
+                        ctx.drawImage(iconImg, 16, 0, 8, 8, boxX + 38, y - 4, 20, 20);
                     } else {
                         ctx.drawImage(iconImg, boxX + 38, y - 4, 20, 20);
                     }

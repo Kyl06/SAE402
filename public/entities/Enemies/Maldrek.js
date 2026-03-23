@@ -19,8 +19,8 @@ export class Maldrek extends Entity {
     this.netId = "maldrek_" + Math.random().toString(36).slice(2, 11);
     this.enemyType = "MALDREK";
 
-    this.hp = 30;
-    this.maxHp = 30;
+    this.hp = 40;
+    this.maxHp = 40;
     this.speed = 35;
     this.chaseSpeed = 60;
     this.chargeSpeed = 200;
@@ -292,7 +292,7 @@ export class Maldrek extends Entity {
       amount = 1;
     }
     if (this.painState || this.toRemove) return;
-    this.hp -= (amount || 1);
+    this.hp -= amount || 1;
     this.flashTime = 150;
     window.game.engine.shake(5, 120);
 
