@@ -88,9 +88,10 @@ export class ShopMenu extends Entity {
             if (item.id === 'shield' && player.hasShield) { this.showFeedback('Deja achete !'); return; }
         }
 
-        if ((player.emeralds || 0) < item.price) { this.showFeedback('Pas assez d\'emeraudes !'); return; }
+    // En mode admin, autoriser l'achat sans décrémenter les émeraudes
+    if (!player.adminMode && (player.emeralds || 0) < item.price) { this.showFeedback('Pas assez d\'emeraudes !'); return; }
 
-        player.emeralds -= item.price;
+    if (!player.adminMode) player.emeralds -= item.price;
 
         switch (item.id) {
             case 'potion': player.potions++; this.showFeedback('Potion achetee !'); break;
@@ -131,6 +132,7 @@ export class ShopMenu extends Entity {
 
         const player = window.game.player;
         const emeralds = player ? (player.emeralds || 0) : 0;
+        const shopIsAdmin = player && player.adminMode;
 
         const boxW = 480;
         const boxH = 360;
@@ -155,10 +157,10 @@ export class ShopMenu extends Entity {
         ctx.textBaseline = 'middle';
         ctx.fillText('BOUTIQUE', boxX + boxW / 2, boxY + 30);
 
-        ctx.fillStyle = '#44ff44';
-        ctx.font = 'bold 11px "Press Start 2P", monospace';
-        ctx.textAlign = 'right';
-        ctx.fillText(`${emeralds} em.`, boxX + boxW - 16, boxY + 30);
+    ctx.fillStyle = shopIsAdmin ? '#ffd54f' : '#44ff44';
+    ctx.font = 'bold 11px "Press Start 2P", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(shopIsAdmin ? 'ILLIMITÉ' : `${emeralds} em.`, boxX + boxW - 16, boxY + 30);
 
         ctx.textAlign = 'left';
         const startY = boxY + 68;
@@ -207,7 +209,7 @@ export class ShopMenu extends Entity {
             ctx.font = 'bold 11px "Press Start 2P", monospace';
             ctx.fillText(item.name, boxX + 64, y + 8);
 
-            const canAfford = emeralds >= item.price;
+            const canAfford = shopIsAdmin || (emeralds >= item.price);
             ctx.fillStyle = alreadyBought ? '#555566' : (canAfford ? '#44ff44' : '#ff4444');
             ctx.font = 'bold 11px "Press Start 2P", monospace';
             ctx.textAlign = 'right';

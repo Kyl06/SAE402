@@ -79,11 +79,21 @@ export class BottomBar extends Entity {
         if (emeraldImg) {
             ctx.drawImage(emeraldImg, x, y - iconSize / 2, iconSize, iconSize);
         }
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 18px monospace";
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "left";
-        ctx.fillText(`x${player.emeralds || 0}`, x + iconSize + 6, y);
+        // Si en mode admin, afficher une étiquette compréhensible
+        if (player.adminMode) {
+            ctx.fillStyle = '#ffffffff'; // doré pour indiquer l'état spécial
+            ctx.font = "bold 14px monospace";
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "left";
+            ctx.fillText('INF', x + iconSize + 6, y);
+        } else {
+            const emeraldText = `x${player.emeralds || 0}`;
+            ctx.fillStyle = '#fff';
+            ctx.font = "bold 18px monospace";
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "left";
+            ctx.fillText(emeraldText, x + iconSize + 6, y);
+        }
     }
 
     drawArrows(ctx, player, x, y) {
