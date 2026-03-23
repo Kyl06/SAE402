@@ -23,6 +23,10 @@ export class Entity {
     
     addTag(tag) { if (!this.hasTag(tag)) this.tags.push(tag); }
     hasTag(tag) { return this.tags.includes(tag); }
+    removeTag(tag) {
+        const index = this.tags.indexOf(tag);
+        if (index > -1) this.tags.splice(index, 1);
+    }
 
     /** Rectangle de collision axis-aligned (Hitbox). Surcharger pour les décalages visuels. */
     getCollisionBox() {

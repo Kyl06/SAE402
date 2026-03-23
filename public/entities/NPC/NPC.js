@@ -43,6 +43,7 @@ export class NPC extends Entity {
         // Sprite (optionnel)
         this.spriteAsset = config.sprite || null;
         this.staticFrame = config.spriteFrame ?? null;
+        this.invisibleBody = config.invisibleBody || false;
         if (this.spriteAsset) {
             const cols = config.spriteColumns || 2;
             const rows = config.spriteRows || 1;
@@ -192,15 +193,18 @@ export class NPC extends Entity {
 
     draw(ctx) {
         if (this.visible === false) return;
-        if (this.spriteAsset && this.spriteSheet) {
-            // Dessin via sprite sheet
-            const frame = this.staticFrame !== null ? this.staticFrame : (this.animator ? this.animator.frame : 0);
-            const drawH = this.spriteSheet.spriteH * this.spriteScale;
-            const drawY = this.y + this.height * SCALE - drawH;
-            this.spriteSheet.drawFrame(ctx, frame, this.x, drawY, this.spriteScale);
-        } else {
-            // Dessin procedural (PNJ sans sprite)
-            this.drawGenericNPC(ctx);
+        
+        if (!this.invisibleBody) {
+            if (this.spriteAsset && this.spriteSheet) {
+                // Dessin via sprite sheet
+                const frame = this.staticFrame !== null ? this.staticFrame : (this.animator ? this.animator.frame : 0);
+                const drawH = this.spriteSheet.spriteH * this.spriteScale;
+                const drawY = this.y + this.height * SCALE - drawH;
+                this.spriteSheet.drawFrame(ctx, frame, this.x, drawY, this.spriteScale);
+            } else {
+                // Dessin procedural (PNJ sans sprite)
+                this.drawGenericNPC(ctx);
+            }
         }
 
         // Indicateur "!" quand le joueur est a portee

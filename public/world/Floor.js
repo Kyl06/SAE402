@@ -172,6 +172,10 @@ export class Floor extends Entity {
     this.interactKeyWasDown = false;
     this.playerInRange = false;
     this.indicatorBounce = 0;
+
+    if (this.type === "PORTAIL") {
+      this.visible = false;
+    }
   }
 
   getCollisionBox() {
@@ -186,19 +190,36 @@ export class Floor extends Entity {
   }
 
   update(delta) {
-    // Si c'est une barrière et que tous les fragments sont collectés, on la transforme
+    const qm = window.game.questManager;
+    const hasAll = qm && qm.allFragmentsCollected();
+
+    // Si c'est une barrière, elle disparaît quand on a tous les fragments
     if (this.type.startsWith("BAR_")) {
-      const qm = window.game.questManager;
-      if (qm && qm.allFragmentsCollected()) {
-        // Transformation : seul un point précis devient le portail, le reste devient de l'herbe
-        if (this.x === 352 && this.y === 0) {
-          this.type = "PORTAIL";
-        } else {
-          this.type = "HERBESOL";
-        }
+      if (hasAll) {
+        this.visible = false;
         this.collider = false;
         this.removeTag?.("SOLID");
-        return;
+      } else {
+        this.visible = true;
+        this.collider = true;
+        this.addTag?.("SOLID");
+      }
+    }
+
+    // Le portail n'est affiché que si on a tous les cristaux
+    if (this.type === "PORTAIL") {
+      this.visible = !!hasAll;
+      this.collider = false; 
+    }
+
+    // Retirer la collision des murs derrière le portail quand il est ouvert
+    if ((this.type === "DUNGEON_WALL_2" || this.type === "BRIQUE") && this.y <= 32 && this.x >= 320 && this.x <= 416) {
+      if (hasAll) {
+        this.collider = false;
+        if (this.hasTag?.("SOLID")) this.removeTag("SOLID");
+      } else {
+        this.collider = true;
+        if (!this.hasTag?.("SOLID")) this.addTag("SOLID");
       }
     }
 
@@ -229,6 +250,7 @@ export class Floor extends Entity {
   }
 
   draw(ctx) {
+    if (this.visible === false) return;
     const img = Assets.get("TILESET");
     if (!img) return;
 
