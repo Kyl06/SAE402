@@ -442,7 +442,7 @@ export const zoneData = {
       h: 32,
       target: "village",
       spawnX: 256,
-      spawnY: 230,
+      spawnY: 280,
     },
   ],
   npcs: [],

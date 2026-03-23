@@ -13,7 +13,7 @@ export class NetworkUpdater {
     this.remotePlayers = {};
     this.remoteEnemies = {};
     this.isHost = isHost;
-    
+
     this.socket = window.menuSocket || (typeof io !== "undefined" ? io() : null);
     if (!window.game) window.game = {};
     window.game.network = this;
@@ -73,13 +73,13 @@ export class NetworkUpdater {
         if (!this.remoteEnemies[netId]) {
           let mob;
           const config = {
-             OCTOROK: "../entities/Enemies/NetworkOctorok.js",
-             MALDREK: "../entities/Enemies/NetworkMaldrek.js",
-             MINIBOSS: "../entities/Enemies/NetworkMiniBoss.js",
-             CREUSE: "../entities/Enemies/NetworkCreuse.js",
-             MOBLIN: "../entities/Enemies/NetworkMoblin.js"
+            OCTOROK: "../entities/Enemies/NetworkOctorok.js",
+            MALDREK: "../entities/Enemies/NetworkMaldrek.js",
+            MINIBOSS: "../entities/Enemies/NetworkMiniBoss.js",
+            CREUSE: "../entities/Enemies/NetworkCreuse.js",
+            MOBLIN: "../entities/Enemies/NetworkMoblin.js"
           };
-          
+
           if (config[type]) {
             const module = await import(config[type]);
             const ClassName = Object.keys(module)[0];
@@ -125,12 +125,12 @@ export class NetworkUpdater {
       const path = isMagic ? "../entities/Enemies/MagicProjectile.js" : "../entities/Enemies/OctorokProjectile.js";
       const mod = await import(path);
       const Class = isMagic ? mod.MagicProjectile : mod.OctorokProjectile;
-      
+
       const speed = isMagic ? (Math.hypot(data.vx, data.vy) || 1) : 1;
-      const proj = isMagic 
-        ? new Class(data.x, data.y, data.vx/speed, data.vy/speed, speed, data.ownerId)
+      const proj = isMagic
+        ? new Class(data.x, data.y, data.vx / speed, data.vy / speed, speed, data.ownerId)
         : new Class(data.x, data.y, data.vx, data.vy, data.ownerId);
-        
+
       proj.netId = data.id;
       proj.collider = false; // Le client gère visuellement, l'hôte gère la collision réelle
       this.engine.add(proj);
@@ -142,9 +142,11 @@ export class NetworkUpdater {
       this.engine.add(new Explosion(x, y));
     });
 
-    this.socket.on("network_zone_change", async ({ zone, entryDir }) => {
+    this.socket.on("network_zone_change", async ({ zone, entryDir, spawnX, spawnY }) => {
       const zm = window.game.zoneManager;
-      if (zm?.currentZone !== zone) await zm.loadZone(zone, entryDir);
+      if (zm?.currentZone !== zone) {
+        await zm.loadZone(zone, entryDir, spawnX, spawnY);
+      }
     });
 
     // Synchronisation du QuestManager : L'hôte diffuse les changements d'état persistants
@@ -153,7 +155,7 @@ export class NetworkUpdater {
       if (!qm) return;
       const handlers = {
         PICK_UP_KEY: () => { qm.pickUpKey(true); this.engine.entities.find(e => e.hasTag("KEY"))?.kill(); },
-        OPEN_CHEST: () => { qm.openChest(true); const c = this.engine.entities.find(e => e.hasTag("CHEST")); if(c) c.opened = true; },
+        OPEN_CHEST: () => { qm.openChest(true); const c = this.engine.entities.find(e => e.hasTag("CHEST")); if (c) c.opened = true; },
         MOBLIN_KILL: () => qm.registerMoblinKill(true),
         BOSS_DEFEAT: () => qm.defeatBoss(true)
       };
@@ -195,14 +197,14 @@ export class NetworkUpdater {
     if (this.isHost) {
       const currentZone = window.game.zoneManager?.currentZone || null;
       const enemies = this.engine.entities.filter(e => e.hasTag("ENEMY") && e.enemyType !== "SCIE" && e.enemyType !== "MAGIC_PROJECTILE" && !e.toRemove);
-      
+
       const enemiesData = enemies.map((e) => {
         if (!e.netId) e.netId = "mob_" + Math.random().toString(36).slice(2, 7);
         const type = e.enemyType || "UNKNOWN";
-        const isA = (type === "CREUSE") ? (e.frame ?? 0).toString() 
-                  : (["BOSS", "MINIBOSS", "MALDREK"].includes(type) ? (["CHARGE_WINDUP", "CHARGE", "CAST"].includes(e.state)).toString() 
-                  : (e.state === "AIM" || e.state === "CHARGING").toString());
-        
+        const isA = (type === "CREUSE") ? (e.frame ?? 0).toString()
+          : (["BOSS", "MINIBOSS", "MALDREK"].includes(type) ? (["CHARGE_WINDUP", "CHARGE", "CAST"].includes(e.state)).toString()
+            : (e.state === "AIM" || e.state === "CHARGING").toString());
+
         return `${e.netId}|${Math.round(e.x)}|${Math.round(e.y)}|${e.facing}|${type}|${isA}|${e.painState ? "true" : "false"}|${e.hp ?? ""}`;
       });
       this.socket.emit("enemies_update", { zone: currentZone, enemies: enemiesData });
