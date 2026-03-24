@@ -58,12 +58,17 @@ export class NetworkUpdater {
     this.socket.on("network_enemies", async (data) => {
       if (this.isHost) return;
 
+      const zm = window.game.zoneManager;
+      // Ignorer pendant une transition de zone
+      if (zm?.transitioning) return;
+
       const enemiesData = Array.isArray(data) ? data : (data.enemies || []);
       const hostZone = data.zone || null;
 
-      const zm = window.game.zoneManager;
       if (hostZone && zm && zm.currentZone !== hostZone) return;
 
+      // Capturer la zone au début pour détecter un changement pendant les await
+      const zoneAtStart = zm?.currentZone;
       const currentIds = [];
 
       for (const dataString of enemiesData) {
@@ -71,7 +76,6 @@ export class NetworkUpdater {
         currentIds.push(netId);
 
         if (!this.remoteEnemies[netId]) {
-          let mob;
           const config = {
             OCTOROK: "../entities/Enemies/NetworkOctorok.js",
             MALDREK: "../entities/Enemies/NetworkMaldrek.js",
@@ -82,8 +86,10 @@ export class NetworkUpdater {
 
           if (config[type]) {
             const module = await import(config[type]);
+            // Après l'await, vérifier que la zone n'a pas changé
+            if (zm?.currentZone !== zoneAtStart || zm?.transitioning) return;
             const ClassName = Object.keys(module)[0];
-            mob = new module[ClassName](parseFloat(x), parseFloat(y));
+            const mob = new module[ClassName](parseFloat(x), parseFloat(y));
             mob.netId = netId;
             this.remoteEnemies[netId] = mob;
             this.engine.add(mob);
