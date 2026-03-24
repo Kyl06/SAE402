@@ -293,25 +293,17 @@ export class ZoneManager {
       return { x, y };
     };
 
-    const zone = this.currentZone || "unknown";
-    let spawnIdx = 0;
     for (let i = 0; i < (enemies.moblins || 0); i++) {
       const pos = getSafeSpawn();
-      const mob = new Moblin(pos.x, pos.y, 120);
-      mob.netId = `${zone}_mob_${spawnIdx++}`;
-      this.engine.add(mob);
+      this.engine.add(new Moblin(pos.x, pos.y, 120));
     }
     for (let i = 0; i < (enemies.octoroks || 0); i++) {
       const pos = getSafeSpawn();
-      const mob = new Octorok(pos.x, pos.y, 100);
-      mob.netId = `${zone}_mob_${spawnIdx++}`;
-      this.engine.add(mob);
+      this.engine.add(new Octorok(pos.x, pos.y, 100));
     }
     for (let i = 0; i < (enemies.creuses || 0); i++) {
       const pos = getSafeSpawn();
-      const mob = new Creuse(pos.x, pos.y);
-      mob.netId = `${zone}_mob_${spawnIdx++}`;
-      this.engine.add(mob);
+      this.engine.add(new Creuse(pos.x, pos.y));
     }
   }
 
@@ -374,18 +366,14 @@ export class ZoneManager {
       // Mini-boss (si pas encore vaincu)
       const ruinsQuest = qm.getQuest("ruins_boss");
       if (!ruinsQuest.bossDefeated) {
-        const mb = new MiniBoss(375, 50);
-        mb.netId = "ruins_miniboss";
-        this.engine.add(mb);
+        this.engine.add(new MiniBoss(375, 50));
       }
     }
 
     if (zoneId === "fortress_north" && isHost) {
       // Boss Maldrek (si pas encore vaincu)
       if (!qm.maldrekDefeated) {
-        const boss = new Maldrek(360, 200);
-        boss.netId = "fortress_maldrek";
-        this.engine.add(boss);
+        this.engine.add(new Maldrek(360, 200));
       }
 
     }
