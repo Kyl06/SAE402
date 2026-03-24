@@ -1,9 +1,4 @@
-/**
- * Puppet Réseau (Joueur Distant). 
- * Représente l'état répliqué d'un autre client. 
- * N'a pas d'autorité locale sur sa physique et ses collisions (Désactivées).
- */
-
+// Joueur distant : réplique l'état réseau sans logique locale
 import { Entity } from '../../engine/Entity.js';
 import { SpriteSheet } from '../../engine/SpriteSheet.js';
 import { Sword } from '../Weapons/Sword.js';
@@ -17,10 +12,10 @@ export class NetworkPlayer extends Entity {
         super(x, y, 16, 16);
         this.skinId = skinId || 'LINK';
         this.addTag("PLAYER");
-        this.facing   = DOWN;
-        this.currentAction = 'IDLE'; 
-        this.isWalking = false;      
-        this.collider  = false; // Le client distant ne doit pas bloquer ou heurter le monde localement.
+        this.facing = DOWN;
+        this.currentAction = 'IDLE';
+        this.isWalking = false;
+        this.collider = false;
         this.z = 20;
         this.actionAnimation = null;
 
@@ -39,10 +34,7 @@ export class NetworkPlayer extends Entity {
         this.swordSheet  = new SpriteSheet('SWORD', 3, 4, 16, 16);
     }
 
-    /**
-     * Désérialisation manuelle (Action|X|Y|VX|VY|Skin|Facing|Arrows|IsPain).
-     * @param {string} data - Paquet compact pipe-separated.
-     */
+    // Désérialise le paquet "ACTION|X|Y|VX|VY|SKIN|FACING|..."
     onNetworkUpdate(data) {
         const parts = data.split('|');
         const [action, x, y, vx, vy, skin, facing, arrows, isPain, swordLevel, bowLevel] = parts;
@@ -56,30 +48,27 @@ export class NetworkPlayer extends Entity {
 
         if (arrows !== undefined) this.arrows = parseInt(arrows);
         if (isPain !== undefined) this.isPainFlashing = (isPain === 'true');
-
         this.swordLevel = parseInt(swordLevel || 0);
         this.bowLevel = parseInt(bowLevel || 0);
 
-        // Hot-swap de texture si le joueur change de rôle/skin.
         if (skin && this.skinId !== skin) {
             this.skinId = skin;
             this._buildSheets();
         }
     }
 
-    /** Déclenchement d'actions atomiques transmises par broadcast réseau. */
+    // Réplique une action distante (épée/arc)
     triggerAction(actionType, facing) {
         this.facing = facing;
 
         if (actionType === 'SWORD') {
             const sword = new Sword(this.x, this.y, facing);
-            sword.collider = false; // L'hôte gère la collision, le client ne fait que l'affichage.
-            sword.owner    = this;
+            sword.collider = false;
+            sword.owner = this;
             window.game.engine.add(sword);
 
             this.currentAction = 'SWORD';
-            
-            // Réplication de la séquence d'attaque locale.
+
             this.actionAnimation = new SpriteSequence('SWORD_ACTION', [
                 { frame: 2, duration: 60, callback: () => { sword.updateFollow(this.x, this.y); sword.useFrame(0); } },
                 { frame: 3, duration: 60, callback: () => { sword.updateFollow(this.x, this.y); sword.useFrame(1); } },
@@ -94,9 +83,8 @@ export class NetworkPlayer extends Entity {
 
         if (actionType === 'ARROW') {
             const arrow = new Arrow(this.x, this.y, facing, this);
-            arrow.collider = false; 
+            arrow.collider = false;
             window.game.engine.add(arrow);
-
             this.currentAction = 'ARROW';
             setTimeout(() => { this.currentAction = 'IDLE'; }, 500);
         }
@@ -104,7 +92,6 @@ export class NetworkPlayer extends Entity {
 
     update(delta) {
         if (this.actionAnimation) this.actionAnimation.work(delta);
-
         if (this.isWalking) {
             this.animations[this.facing]?.update(delta);
         } else {
@@ -113,7 +100,6 @@ export class NetworkPlayer extends Entity {
     }
 
     draw(ctx) {
-        // Aliasing temporel pour le rendu d'invincibilité (Strobe effect).
         if (this.isPainFlashing && Math.floor(Date.now() / 80) % 2 === 0) return;
 
         const rowStart = { [DOWN]: 0, [UP]: 5, [LEFT]: 10, [RIGHT]: 15 }[this.facing] ?? 0;
@@ -126,9 +112,9 @@ export class NetworkPlayer extends Entity {
         } else if (this.isWalking) {
             frame = this.animations[this.facing]?.frame ?? rowStart;
         } else {
-            frame = rowStart; 
+            frame = rowStart;
         }
 
         this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, SCALE);
     }
-}
+}

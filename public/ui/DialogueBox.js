@@ -1,8 +1,4 @@
-/**
- * @file DialogueBox.js
- * @description Boite de dialogue retro style NES/Zelda pour les interactions avec les PNJ.
- * Affiche le texte en mode "machine a ecrire" et avance avec la touche E.
- */
+// Boite de dialogue retro avec texte machine a ecrire, avance avec E
 
 import { Entity } from '../engine/Entity.js';
 

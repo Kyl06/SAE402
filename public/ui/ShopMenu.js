@@ -1,8 +1,4 @@
-/**
- * @file ShopMenu.js
- * @description Menu d'achat du marchand retro style NES/Zelda.
- * Navigation avec fleches haut/bas, achat avec E, fermer avec Escape.
- */
+// Menu d'achat du marchand (fleches haut/bas, E acheter, Echap fermer)
 
 import { Entity } from '../engine/Entity.js';
 import { Assets } from '../engine/Assets.js';
@@ -38,7 +34,7 @@ export class ShopMenu extends Entity {
         this.feedbackText = '';
         this.feedbackTimer = 0;
         this.animTimer = 0;
-        // Empêcher l'achat instantané si la touche E est déjà enfoncée pour parler
+        // Eviter l'achat instantane si E est deja enfonce pour parler
         this.keyEWas = true;
         window.game.dialogueActive = true;
     }
@@ -90,7 +86,6 @@ export class ShopMenu extends Entity {
             if (item.id === 'heart' && (player.maxHp || 6) > 6) { this.showFeedback('Deja achete !'); return; }
         }
 
-        // En mode admin, autoriser l'achat sans décrémenter les émeraudes
         if (!player.adminMode && (player.emeralds || 0) < item.price) { this.showFeedback('Pas assez d\'emeraudes !'); return; }
 
         if (!player.adminMode) player.emeralds -= item.price;
@@ -99,10 +94,10 @@ export class ShopMenu extends Entity {
             case 'potion': player.potions++; this.showFeedback('Potion achetee !'); break;
             case 'sword': player.swordLevel = 1; this.showFeedback('Epee en fer equipee !'); break;
             case 'bow': player.bowLevel = 1; this.showFeedback('Arc long equipe !'); break;
-            case 'heart': 
-                player.maxHp = (player.maxHp || 6) + 2; 
-                player.hp = player.maxHp; 
-                this.showFeedback('Plus de coeurs !'); 
+            case 'heart':
+                player.maxHp = (player.maxHp || 6) + 2;
+                player.hp = player.maxHp;
+                this.showFeedback('Plus de coeurs !');
                 break;
             case 'arrows': player.arrows = (player.arrows || 0) + 5; this.showFeedback('+5 fleches !'); break;
         }
@@ -199,14 +194,12 @@ export class ShopMenu extends Entity {
                 if (item.id === 'heart' && player.maxHp > 6) alreadyBought = true;
             }
 
-            // Icon
             if (item.icon) {
                 const iconImg = Assets.get(item.icon);
                 if (iconImg) {
                     if (item.icon === 'ARROW') {
                         ctx.drawImage(iconImg, 0, 48, 16, 16, boxX + 38, y - 4, 20, 20);
                     } else if (item.icon === 'HEARTS') {
-                        // On prend le coeur plein de la spritesheet
                         ctx.drawImage(iconImg, 16, 0, 8, 8, boxX + 38, y - 4, 20, 20);
                     } else {
                         ctx.drawImage(iconImg, boxX + 38, y - 4, 20, 20);

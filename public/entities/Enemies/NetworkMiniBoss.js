@@ -1,54 +1,31 @@
+// Réplique réseau du MiniBoss
 import { Entity } from "../../engine/Entity.js";
 import { SpriteSheet } from "../../engine/SpriteSheet.js";
-import { SCALE } from "../../constants.js";
 
 export class NetworkMiniBoss extends Entity {
   constructor(x, y) {
     super(x, y, 48, 48);
-
     this.enemyType = "MINIBOSS";
     this.addTag("ENEMY");
     this.addTag("MINIBOSS");
     this.collider = true;
-
     this.spriteSheet = new SpriteSheet("CHOMP", 3, 3, 16, 16);
-
     this.facing = "DOWN";
     this.state = "IDLE";
-
     this.hp = 12;
     this.maxHp = 12;
     this.animTime = 0;
     this.flashTime = 0;
   }
 
-  updateFromNetwork(
-    targetX,
-    targetY,
-    facing,
-    isAiming = false,
-    isHurt = false,
-    hp = null,
-  ) {
+  updateFromNetwork(targetX, targetY, facing, isAiming = false, isHurt = false, hp = null) {
     this.targetX = parseFloat(targetX);
     this.targetY = parseFloat(targetY);
     this.facing = facing;
-
-    if (isAiming) {
-      this.state = "CHARGE";
-    } else {
-      this.state = "WALK";
-    }
-
-    if (!this.isHurt && isHurt) {
-      this.flashTime = 150;
-    }
+    this.state = isAiming ? "CHARGE" : "WALK";
+    if (!this.isHurt && isHurt) this.flashTime = 150;
     this.isHurt = isHurt;
-
-    // Synchroniser les PV reçus depuis l'hôte
-    if (hp !== null && !isNaN(hp)) {
-      this.hp = parseFloat(hp);
-    }
+    if (hp !== null && !isNaN(hp)) this.hp = parseFloat(hp);
   }
 
   update(delta) {
@@ -66,36 +43,22 @@ export class NetworkMiniBoss extends Entity {
   draw(ctx) {
     if (this.flashTime > 0 && Math.floor(this.flashTime / 50) % 2 === 0) return;
 
-    let col, row;
     const isMoving = Math.abs(this.velX) > 0.1 || Math.abs(this.velY) > 0.1;
     const downCycle = isMoving ? (Math.floor(Date.now() / 150) % 2) : 0;
     const sideCycle = isMoving ? (Math.floor(Date.now() / 150) % 3) : 0;
+    let col, row;
 
     switch (this.facing) {
-      case "LEFT":
-        col = sideCycle;
-        row = 1;
-        break;
-      case "RIGHT":
-        col = sideCycle;
-        row = 2;
-        break;
-      case "UP":
-        col = 2;
-        row = 0;
-        break;
-      case "DOWN":
-        col = downCycle;
-        row = 0;
-        break;
+      case "LEFT": col = sideCycle; row = 1; break;
+      case "RIGHT": col = sideCycle; row = 2; break;
+      case "UP": col = 2; row = 0; break;
+      default: col = downCycle; row = 0; break;
     }
 
-    const frame = row * 3 + col;
-    this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, 3);
+    this.spriteSheet.drawFrame(ctx, row * 3 + col, this.x, this.y, 3);
 
-    // Barre de vie au-dessus (synchronisée depuis l'hôte)
-    const barW = 48;
-    const barH = 4;
+    // Barre de vie
+    const barW = 48, barH = 4;
     const barX = this.x + (this.width - barW) / 2;
     const barY = this.y - 8;
     ctx.fillStyle = "#333";

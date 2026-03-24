@@ -1,3 +1,5 @@
+// Ennemi souterrain : sort du sol quand le joueur approche
+
 import { Entity } from "../../engine/Entity.js";
 import { SpriteSheet } from "../../engine/SpriteSheet.js";
 import { Explosion } from "../Effects/Explosion.js";
@@ -14,10 +16,9 @@ export class Creuse extends Entity {
     this.timer = 0;
     this.frame = 0;
 
-    this.aggroRange = 120; // Distance à laquelle il sort du sol
-    this.hp = 2; // Peut être tué quand il est sorti
+    this.aggroRange = 120;
+    this.hp = 2;
 
-    // Spritesheet: 4 colonnes, 1 ligne, sprite de 16x16
     this.spriteSheet = new SpriteSheet("CREUSE", 4, 1, 16, 16);
   }
 
@@ -50,7 +51,7 @@ export class Creuse extends Entity {
 
     switch (this.state) {
       case "HIDDEN":
-        this.collider = false; // Intouchable
+        this.collider = false;
         this.frame = 0;
         if (distToPlayer < this.aggroRange) {
           this.state = "EMERGING";
@@ -60,41 +61,37 @@ export class Creuse extends Entity {
       case "EMERGING":
         this.collider = false;
         this.timer += delta;
-        // Animation : 0 -> 1 -> 2 -> 3 (sur 400ms)
         if (this.timer > 100) this.frame = 1;
         if (this.timer > 200) this.frame = 2;
         if (this.timer > 300) {
           this.frame = 3;
           this.state = "ACTIVE";
-          this.collider = true; // Devient solide et dangereux
+          this.collider = true;
         }
         break;
       case "ACTIVE":
         this.frame = 3;
 
-        // Mouvement lent vers le joueur (chase)
         if (targetPlayer) {
           const dx = targetPlayer.x - this.x;
           const dy = targetPlayer.y - this.y;
           const mag = Math.hypot(dx, dy);
           if (mag > 0) {
-            this.velX = (dx / mag) * 40; // 40 pixels/sec
+            this.velX = (dx / mag) * 40;
             this.velY = (dy / mag) * 40;
           }
         }
 
         if (distToPlayer > this.aggroRange + 50) {
-          // S'éloigne beaucoup
           this.state = "HIDING";
           this.timer = 0;
         }
         break;
       case "HIDING":
-        this.velX = 0; // S'arrete
+        this.velX = 0;
         this.velY = 0;
         this.collider = false;
         this.timer += delta;
-        // Animation : 3 -> 2 -> 1 -> 0
         if (this.timer > 100) this.frame = 2;
         if (this.timer > 200) this.frame = 1;
         if (this.timer > 300) {
@@ -104,9 +101,6 @@ export class Creuse extends Entity {
         break;
     }
 
-    // On ne l'affiche pas du tout si frame == 0 dans HIDDEN pour faire un vrai effet de surprise
-    // Ou on peut laisser frame 0 s'il y a un trou visible sur l'image
-
     super.update(delta);
   }
 
@@ -115,7 +109,7 @@ export class Creuse extends Entity {
       direction = amount;
       amount = 1;
     }
-    // Ne prends des dégâts que s'il est sorti
+    // Vulnerable uniquement en etat ACTIVE
     if (this.state !== "ACTIVE" || this.toRemove || this.painState) return;
 
     this.hp -= (amount || 1);
@@ -148,16 +142,16 @@ export class Creuse extends Entity {
     const engine = this.engine || window.game.engine;
     if (!engine) return;
 
-    // Probabilités : 20% Rien, 60% Emeraude, 20% Coeur
+    // 20% rien, 60% emeraude, 20% coeur
     const rand = Math.random();
     let type = "";
 
     if (rand < 0.2) {
-      return; // Pas de chance !
+      return;
     } else if (rand < 0.8) {
       type = "EMERALD";
     } else {
-      // Un coeur doit tomber, mais on vérifie si quelqu'un en a besoin
+      // Coeur seulement si un joueur est blesse
       const players = engine.entities.filter((e) => e.hasTag("PLAYER"));
       const anyoneInjured = players.some((p) => p.hp < (p.maxHp || 6));
 
@@ -177,7 +171,6 @@ export class Creuse extends Entity {
         loot.netId = "item_" + Math.random().toString(36).slice(2, 9);
         engine.add(loot);
 
-        // Envoi au serveur pour que le P2 la voie aussi
         if (window.game.network && window.game.network.isHost) {
             window.game.network.socket.emit("item_spawn", {
                 id: loot.netId, x: loot.x, y: loot.y, type: type,
@@ -187,9 +180,8 @@ export class Creuse extends Entity {
   }
 
   draw(ctx) {
-    // Ne dessine pas si c'est caché et qu'on ne veut rien montrer
     if (this.state === "HIDDEN" && this.frame === 0) {
-      // Optionnel : ne pas la dessiner pour qu'il soit invisible
+      // Invisible quand cache
     }
 
     this.spriteSheet.drawFrame(ctx, this.frame, this.x, this.y, 2);

@@ -1,8 +1,4 @@
-/**
- * @file Octorok.js
- * @description Ennemi qui tire des projectiles. 
- * Possède une IA de patrouille et de tir à distance.
- */
+// Ennemi tireur de projectiles avec IA de patrouille
 
 import { Entity } from "../../engine/Entity.js";
 import { SpriteSheet } from "../../engine/SpriteSheet.js";
@@ -15,9 +11,9 @@ import { Emerald } from "../Items/Emerald.js";
 export class Octorok extends Entity {
     constructor(x, y, roamRadius = 100) {
         super(x, y, 28, 28);
-        
+
         this.netId = 'octo_' + Math.random().toString(36).slice(2, 11);
-        this.enemyType = 'OCTOROK'; 
+        this.enemyType = 'OCTOROK';
         this.hp = 4;
         this.speed = 35;
         this.chaseSpeed = 60;
@@ -51,10 +47,10 @@ export class Octorok extends Entity {
     }
 
     think() {
-        const players = window.game.engine.entities.filter((e) => 
+        const players = window.game.engine.entities.filter((e) =>
             e.hasTag("PLAYER") && !e.isDead
         );
-        
+
         let closest = null;
         let minDist = this.shootRange;
 
@@ -148,6 +144,7 @@ export class Octorok extends Entity {
         const distX = this.anchor.x - this.x;
         const distY = this.anchor.y - this.y;
 
+        // Retour vers l'ancre si trop eloigne
         if (Math.abs(distX) > this.roamRadius || Math.abs(distY) > this.roamRadius) {
             this.facing = Math.abs(distX) > Math.abs(distY)
                 ? (distX > 0 ? "RIGHT" : "LEFT")
@@ -164,16 +161,16 @@ export class Octorok extends Entity {
     shootLogic(delta) {
         if (this.target && !this.painState) {
             const dist = Math.hypot(this.target.x - this.x, this.target.y - this.y);
-            
+
             if (dist <= this.shootRange && Date.now() - this.lastShot >= this.shootCooldown) {
                 this.state = "AIM";
                 this.aimTime += delta;
                 this.velX = 0; this.velY = 0;
-                
+
                 const dx = this.target.x - this.x;
                 const dy = this.target.y - this.y;
                 this.facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "RIGHT" : "LEFT") : (dy > 0 ? "DOWN" : "UP");
-                
+
                 if (this.aimTime >= 600) {
                     this.fireProjectile();
                     this.lastShot = Date.now();
@@ -195,10 +192,10 @@ export class Octorok extends Entity {
         const dist = Math.hypot(dx, dy) || 1;
         const vx = (dx / dist) * 100;
         const vy = (dy / dist) * 100;
-        
+
         const projectile = new OctorokProjectile(this.x + (dx/dist)*20, this.y + (dy/dist)*20, vx, vy, this.netId);
         window.game.engine.add(projectile);
-        
+
         if (window.game.network?.socket) {
             window.game.network.socket.emit('projectile', {
                 x: projectile.x, y: projectile.y, vx, vy, id: projectile.netId, ownerId: this.netId
@@ -216,8 +213,8 @@ export class Octorok extends Entity {
         if (this.hp <= 0) return this.die();
 
         const force = 200;
-        this.painState = { 
-            msLeft: 120, 
+        this.painState = {
+            msLeft: 120,
             velX: direction === "LEFT" ? -force : (direction === "RIGHT" ? force : 0),
             velY: direction === "UP" ? -force : (direction === "DOWN" ? force : 0)
         };
@@ -231,29 +228,22 @@ export class Octorok extends Entity {
     }
 
     onCollision(other) {
-        // Redirection : le Player gère ses propres dégâts via son onCollision.
+        // Le Player gere ses propres degats via son onCollision
     }
 
-    /**
-     * Mort de l'Octorok
-     */
     die() {
         const engine = this.engine || window.game.engine;
         if (this.toRemove) return;
 
-        // 1. Créer l'explosion visuelle localement (pour l'Hôte)
         if (engine) {
             engine.add(new Explosion(this.x, this.y));
         }
 
-        // 2. Envoyer au réseau (pour le P2)
         if (window.game.network) {
             window.game.network.sendExplosion(this.x, this.y);
         }
 
-        // 3. Générer le loot aléatoire
         this.spawnLoot();
-
         this.toRemove = true;
     }
 
@@ -261,16 +251,16 @@ export class Octorok extends Entity {
         const engine = this.engine || window.game.engine;
         if (!engine) return;
 
-        // Probabilités : 10% Rien, 40% Emeraude, 50% Coeur
+        // 10% rien, 40% emeraude, 50% coeur
         const rand = Math.random();
         let type = '';
 
         if (rand < 0.1) {
-            return; // Pas de chance !
+            return;
         } else if (rand < 0.5) {
             type = 'EMERALD';
         } else {
-            // Un coeur doit tomber, mais on vérifie si quelqu'un en a besoin
+            // Coeur seulement si un joueur est blesse, sinon emeraude
             const players = engine.entities.filter(e => e.hasTag("PLAYER"));
             const anyoneInjured = players.some(p => p.hp < (p.maxHp || 6));
 

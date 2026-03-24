@@ -1,8 +1,4 @@
-/**
- * @file MiniBoss.js
- * @description Gardien Ancien des ruines. Mini-boss plus gros et resistant que les Moblins.
- * Dessin procedural (pas de sprite). Patterns : charge + coup rapide.
- */
+// Mini-boss des ruines : charge + coup rapide
 
 import { Entity } from "../../engine/Entity.js";
 import { Explosion } from "../Effects/Explosion.js";
@@ -34,12 +30,10 @@ export class MiniBoss extends Entity {
     this.target = null;
     this.painState = null;
 
-    // Charge attack
     this.chargeDir = { x: 0, y: 0 };
     this.chargeDuration = 0;
     this.chargeCooldown = 0;
 
-    // Animation
     this.animTime = 0;
     this.flashTime = 0;
   }
@@ -94,7 +88,6 @@ export class MiniBoss extends Entity {
           return;
         }
         this.chase();
-        // Tenter une charge si assez proche
         const dist = Math.hypot(this.target.x - this.x, this.target.y - this.y);
         if (dist < 120 && this.chargeCooldown <= 0) {
           this.startCharge();
@@ -150,7 +143,7 @@ export class MiniBoss extends Entity {
           ? "DOWN"
           : "UP";
     this.state = "CHARGE_WINDUP";
-    this.stateTimer = 600; // Temps de preparation
+    this.stateTimer = 600;
   }
 
   isBlocked(dirX, dirY) {
@@ -272,16 +265,9 @@ export class MiniBoss extends Entity {
 
   onCollision(other) {
     if (other.hasTag("PLAYER")) {
-      // Note : le Player gère ses propres dégâts via son onCollision.
-      // Cependant, le MiniBoss a un bonus de dégâts en CHARGE.
-      // Pour ne pas briser cela, on laisse le Player faire, mais on pourrait
-      // aussi passer le montant de dégâts ici si on voulait être précis.
-      // Dans ce projet, le Player.onCollision appelle takeDamage(1, dir).
-      // Si on veut 2 dégâts, on doit quand même appeler takeDamage ici
-      // mais direction sera calculée par le Player si on ne la passe pas (ou passée ici).
-
+      // Bonus de degats en CHARGE (2 au lieu de 1)
       if (this.state === "CHARGE") {
-        other.takeDamage?.(2); // On guarde l'appel pour le bonus de dégâts
+        other.takeDamage?.(2);
       }
     }
   }
@@ -293,7 +279,6 @@ export class MiniBoss extends Entity {
     const engine = window.game.engine;
     const network = window.game.network;
 
-    // Explosions visuelles (locales pour l'hôte, envoi au réseau pour P2)
     engine.add(new Explosion(this.x, this.y));
     engine.add(new Explosion(this.x + 20, this.y + 10));
     if (network) {
@@ -301,7 +286,7 @@ export class MiniBoss extends Entity {
       network.sendExplosion(this.x + 20, this.y + 10);
     }
 
-    // Loot genereux (Host génère et diffuse au P2)
+    // Loot genere par l'host
     if (network?.isHost || !network) {
       const isPickpocket = window.game.player && window.game.player.bowLevel > 0;
       const count = isPickpocket ? 10 : 5;
@@ -310,7 +295,6 @@ export class MiniBoss extends Entity {
         const em = new Emerald(this.x + (i - (count/2)) * 15, this.y + 20);
         em.netId = "it_" + Math.random().toString(36).slice(2, 7);
         engine.add(em);
-        // Envoyer l'émeraude au P2
         if (network?.socket) {
           network.socket.emit("item_spawn", {
             id: em.netId, x: em.x, y: em.y, type: "EMERALD",
@@ -319,18 +303,16 @@ export class MiniBoss extends Entity {
       }
     }
 
-    // Notifier le quest manager
     const qm = window.game.questManager;
     if (qm) {
       qm.defeatBoss();
     }
 
-    // Shake plus fort pour la mort du boss
     engine.shake(10, 300);
   }
 
   draw(ctx) {
-    // Ne pas dessiner si flash actif (clignotement)
+    // Clignotement de degats
     if (this.flashTime > 0 && Math.floor(this.flashTime / 50) % 2 === 0) return;
 
     let col, row;
@@ -360,14 +342,14 @@ export class MiniBoss extends Entity {
     const frame = row * 3 + col;
     this.spriteSheet.drawFrame(ctx, frame, this.x, this.y, 3);
 
-    // Indicateur de windup (tremble)
+    // Indicateur de windup
     if (this.state === "CHARGE_WINDUP") {
       const shake = Math.sin(this.animTime * 0.05) * 2;
       ctx.fillStyle = "#ff6600";
       ctx.fillRect(this.x + 2 + shake, this.y - 4, 18, 3);
     }
 
-    // Barre de vie au-dessus
+    // Barre de vie
     const barW = 48;
     const barH = 4;
     const barX = this.x + (this.width - barW) / 2;

@@ -1,8 +1,4 @@
-/**
- * @file NPC.js
- * @description Classe de base pour les PNJ (Personnages Non Joueurs).
- * Gere l'affichage, la detection de proximite et le declenchement des dialogues.
- */
+// PNJ : affichage, detection de proximite, declenchement de dialogues
 
 import { Entity } from '../../engine/Entity.js';
 import { Assets } from '../../engine/Assets.js';
@@ -11,24 +7,13 @@ import { Animator } from '../../engine/Animator.js';
 import { SCALE } from '../../constants.js';
 
 export class NPC extends Entity {
-    /**
-     * @param {number} x - Position X
-     * @param {number} y - Position Y
-     * @param {Object} config - Configuration du PNJ
-     * @param {string} config.name - Nom affiche dans la boite de dialogue
-     * @param {string[]} config.dialogues - Lignes de dialogue
-     * @param {string} [config.sprite] - Nom de l'asset sprite (ex: 'VENDEUR')
-     * @param {number} [config.spriteColumns] - Nombre de colonnes dans le sprite sheet
-     * @param {string} [config.color] - Couleur de la robe si pas de sprite
-     * @param {string} [config.skinColor] - Couleur de peau si pas de sprite
-     */
     constructor(x, y, config = {}) {
         super(x, y, 16, 16);
 
         this.npcName = config.name || 'PNJ';
         this.dialogues = config.dialogues || ['...'];
         this.postDefeatDialogues = config.postDefeatDialogues || null;
-        this.questDialogues = config.questDialogues || null; // { questId, active: [...], completed: [...] }
+        this.questDialogues = config.questDialogues || null;
         this.isShop = config.isShop || false;
         this.interactRange = config.interactRange || 50;
         this.z = config.z ?? 10;
@@ -36,11 +21,9 @@ export class NPC extends Entity {
         this.addTag('NPC');
         this.addTag('SOLID');
 
-        // Apparence
         this.color = config.color || '#8844aa';
         this.skinColor = config.skinColor || '#f0c8a0';
 
-        // Sprite (optionnel)
         this.spriteAsset = config.sprite || null;
         this.staticFrame = config.spriteFrame ?? null;
         this.invisibleBody = config.invisibleBody || false;
@@ -56,21 +39,17 @@ export class NPC extends Entity {
         }
         this.spriteScale = config.spriteScale ?? SCALE;
 
-        // Hauteur visuelle reelle du sprite (pour centrer la detection)
         this.spriteRealH = this.spriteAsset ? (config.spriteH || 16) * this.spriteScale : 16 * SCALE;
 
-        // Offset et taille optionnels de la hitbox
         this.hitboxOffsetX = config.hitboxOffsetX || 0;
         this.hitboxOffsetY = config.hitboxOffsetY || 0;
         this.hitboxW = config.hitboxW || this.width;
         this.hitboxH = config.hitboxH || this.height;
 
-        // Etat d'interaction
         this.playerInRange = false;
         this.isTalking = false;
         this.interactKeyWasDown = false;
 
-        // Indicateur "!" animation
         this.indicatorBounce = 0;
     }
 
@@ -83,9 +62,7 @@ export class NPC extends Entity {
         };
     }
 
-    /**
-     * Collision AABB simple - empeche le joueur de traverser le PNJ.
-     */
+    // Collision AABB : empeche le joueur de traverser le PNJ
     onCollision(other) {
         if (!other.collider || other.hasTag('NPC')) return;
         if (other.hasTag('PLAYER_WEAPON') || other.hasTag('ITEM')) return;
@@ -113,15 +90,13 @@ export class NPC extends Entity {
             return;
         }
 
-        // Animation sprite
         if (this.animator) {
             this.animator.update(delta);
         }
 
-        // Animation indicateur
         this.indicatorBounce += delta * 0.005;
 
-        // Detection de proximite (centree sur le milieu visuel du sprite, pas la hitbox)
+        // Detection centree sur le milieu visuel du sprite
         const cx = this.x + this.width / 2;
         const cy = this.y + this.spriteRealH / 2;
         const dx = cx - (player.x + player.width / 2);
@@ -129,7 +104,7 @@ export class NPC extends Entity {
         const dist = Math.sqrt(dx * dx + dy * dy);
         this.playerInRange = dist < this.interactRange;
 
-        // Detection appui touche E (front montant)
+        // Front montant touche E
         const keyDown = window.game.inputs.isHeld('KeyE');
         if (this.playerInRange && keyDown && !this.interactKeyWasDown && !this.isTalking) {
             if (!window.game.dialogueActive) {
@@ -139,16 +114,11 @@ export class NPC extends Entity {
         this.interactKeyWasDown = keyDown;
     }
 
-    /**
-     * Demarre le dialogue avec ce PNJ.
-     */
-    /**
-     * Retourne les lignes de dialogue en fonction de l'etat de la quete associee.
-     */
+    // Retourne les dialogues selon l'etat de la quete
     getCurrentDialogues() {
         const qm = window.game.questManager;
 
-        // Priorité maximale : Maldrek vaincu → dialogues de victoire
+        // Priorite : Maldrek vaincu → dialogues de victoire
         if (qm?.maldrekDefeated && this.postDefeatDialogues) {
             return this.postDefeatDialogues;
         }
@@ -180,12 +150,8 @@ export class NPC extends Entity {
         });
     }
 
-    /**
-     * Callback appele quand le dialogue est termine.
-     * Peut etre surcharge pour declencher des actions (quetes, achats, etc.)
-     */
+    // Callback fin de dialogue (ouvre le shop si marchand)
     onDialogueEnd() {
-        // Ouvrir le shop si c'est un marchand
         if (this.isShop && window.game.shopMenu) {
             window.game.shopMenu.open();
         }
@@ -193,64 +159,52 @@ export class NPC extends Entity {
 
     draw(ctx) {
         if (this.visible === false) return;
-        
+
         if (!this.invisibleBody) {
             if (this.spriteAsset && this.spriteSheet) {
-                // Dessin via sprite sheet
                 const frame = this.staticFrame !== null ? this.staticFrame : (this.animator ? this.animator.frame : 0);
                 const drawH = this.spriteSheet.spriteH * this.spriteScale;
                 const drawY = this.y + this.height * SCALE - drawH;
                 this.spriteSheet.drawFrame(ctx, frame, this.x, drawY, this.spriteScale);
             } else {
-                // Dessin procedural (PNJ sans sprite)
                 this.drawGenericNPC(ctx);
             }
         }
 
-        // Indicateur "!" quand le joueur est a portee
         if (this.playerInRange && !this.isTalking) {
             this.drawIndicator(ctx);
         }
     }
 
-    /**
-     * Dessine un PNJ generique avec des formes simples.
-     */
+    // PNJ generique dessine avec des formes simples
     drawGenericNPC(ctx) {
         const s = SCALE;
         const px = this.x;
         const py = this.y;
 
-        // Corps (robe)
         ctx.fillStyle = this.color;
         ctx.fillRect(px + 2 * s, py + 6 * s, 12 * s, 10 * s);
 
-        // Tete
         ctx.fillStyle = this.skinColor;
         ctx.fillRect(px + 4 * s, py + 1 * s, 8 * s, 7 * s);
 
-        // Yeux
         ctx.fillStyle = '#000';
         ctx.fillRect(px + 5 * s, py + 4 * s, 2 * s, 2 * s);
         ctx.fillRect(px + 9 * s, py + 4 * s, 2 * s, 2 * s);
     }
 
-    /**
-     * Dessine un indicateur [E] au-dessus du PNJ.
-     */
+    // Indicateur [E] au-dessus du PNJ
     drawIndicator(ctx) {
         const bounceY = Math.sin(this.indicatorBounce * 3) * 3;
         const cx = this.x + (this.spriteAsset ? (this.spriteSheet.spriteW * this.spriteScale) / 2 : this.width * SCALE / 2);
         const cy = this.y - 10 + bounceY;
 
-        // Fond
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
         ctx.fillRect(cx - 12, cy - 12, 24, 16);
         ctx.strokeStyle = '#ffcc00';
         ctx.lineWidth = 1;
         ctx.strokeRect(cx - 12, cy - 12, 24, 16);
 
-        // Texte
         ctx.fillStyle = '#ffcc00';
         ctx.font = 'bold 11px monospace';
         ctx.textAlign = 'center';

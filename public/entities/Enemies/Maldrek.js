@@ -1,8 +1,4 @@
-/**
- * @file Maldrek.js
- * @description Boss final. Humanoide sorcier, plus grand que les ennemis normaux.
- * Patterns : charge epee + projectiles magiques. 3 phases (accelere en perdant de la vie).
- */
+// Boss final : sorcier avec charge, projectiles magiques, 3 phases
 
 import { Entity } from "../../engine/Entity.js";
 import { Explosion } from "../Effects/Explosion.js";
@@ -33,18 +29,14 @@ export class Maldrek extends Entity {
     this.target = null;
     this.painState = null;
 
-    // Phase (1, 2, 3)
     this.phase = 1;
 
-    // Charge
     this.chargeDir = { x: 0, y: 0 };
     this.chargeDuration = 0;
     this.chargeCooldown = 0;
 
-    // Projectiles
     this.castCooldown = 0;
 
-    // Animation
     this.animTime = 0;
     this.flashTime = 0;
     this.z = 10;
@@ -57,7 +49,7 @@ export class Maldrek extends Entity {
     if (this.chargeCooldown > 0) this.chargeCooldown -= delta;
     if (this.castCooldown > 0) this.castCooldown -= delta;
 
-    // Mise a jour de la phase
+    // Phase evolue selon les HP restants
     const hpRatio = this.hp / this.maxHp;
     if (hpRatio <= 0.3) this.phase = 3;
     else if (hpRatio <= 0.6) this.phase = 2;
@@ -74,10 +66,10 @@ export class Maldrek extends Entity {
 
   getCollisionBox() {
     return {
-      x: this.x + 16, 
-      y: this.y + 16, 
-      w: 32,          
-      h: 48         
+      x: this.x + 16,
+      y: this.y + 16,
+      w: 32,
+      h: 48
     };
   }
 
@@ -125,13 +117,11 @@ export class Maldrek extends Entity {
 
         const dist = Math.hypot(this.target.x - this.x, this.target.y - this.y);
 
-        // Tenter une charge
         if (dist < 150 && this.chargeCooldown <= 0) {
           this.startCharge();
           return;
         }
 
-        // Lancer des projectiles
         if (dist > 80 && this.castCooldown <= 0) {
           this.startCast();
           return;
@@ -272,7 +262,7 @@ export class Maldrek extends Entity {
   fireProjectiles() {
     const cx = this.x + this.width / 2;
     const cy = this.y + this.height / 2;
-    const count = this.phase + 2; // 3 en phase 1, 4 en phase 2, 5 en phase 3
+    const count = this.phase + 2; // 3 en phase 1, 5 en phase 3
     const speed = 120 + this.phase * 30;
 
     for (let i = 0; i < count; i++) {
@@ -329,8 +319,7 @@ export class Maldrek extends Entity {
   }
 
   onCollision(other) {
-    // Redirection : on laisse le Player gérer ses propres dégâts via son onCollision.
-    // Cela garantit un recul correct calculé par le Player.
+    // Le Player gere ses propres degats via son onCollision
   }
 
   die() {
@@ -339,7 +328,7 @@ export class Maldrek extends Entity {
 
     const network = window.game.network;
 
-    // Explosions multiples (diffusées au P2)
+    // Explosions multiples diffusees au P2
     for (let i = 0; i < 6; i++) {
       setTimeout(() => {
         const ox = this.x + (Math.random() - 0.5) * 60;
@@ -349,7 +338,7 @@ export class Maldrek extends Entity {
       }, i * 200);
     }
 
-    // Loot (Host génère et diffuse au P2)
+    // Loot genere par l'host
     if (network?.isHost || !network) {
       const isPickpocket = window.game.player && window.game.player.bowLevel > 0;
       const count = isPickpocket ? 20 : 10;
@@ -365,13 +354,11 @@ export class Maldrek extends Entity {
       }
     }
 
-    // Notifier le QuestManager
     const qm = window.game.questManager;
     if (qm) {
       qm.defeatMaldrek();
     }
 
-    // Victoire !
     window.game.engine.shake(15, 500);
     setTimeout(() => {
       const db = window.game.dialogueBox;
@@ -398,7 +385,6 @@ export class Maldrek extends Entity {
     const isWindup = this.state === "CHARGE_WINDUP";
     const isCasting = this.state === "CAST";
 
-    // Sprite frame calculation (3 cols: pas gauche, pas droit, dégât)
     const rowOffset = { DOWN: 0, UP: 3, LEFT: 6, RIGHT: 9 }[this.facing];
     const isMoving = Math.abs(this.velX) > 0.1 || Math.abs(this.velY) > 0.1;
     const walkCycle = isMoving ? Math.floor(Date.now() / 150) % 2 : 0;
@@ -420,7 +406,7 @@ export class Maldrek extends Entity {
       ctx.fillRect(px + 8 + shake, py - 6, 48, 4);
     }
 
-    // Indicateur de phase
+    // Indicateur de phase (etoiles)
     if (this.phase > 1) {
       ctx.fillStyle = "#ffcc00";
       ctx.font = "bold 10px monospace";
@@ -444,7 +430,6 @@ export class Maldrek extends Entity {
     ctx.lineWidth = 1;
     ctx.strokeRect(barX, barY, barW, barH);
 
-    // Nom
     ctx.fillStyle = "#ff88cc";
     ctx.font = "bold 10px monospace";
     ctx.textAlign = "center";

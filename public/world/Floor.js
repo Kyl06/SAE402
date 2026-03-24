@@ -1,8 +1,4 @@
-/**
- * @file Floor.js
- * @description Gère les éléments du décor (sol, arbres, murs).
- * Détermine les zones marchables et les obstacles solides.
- */
+// Elements du decor (sol, arbres, murs) avec gestion des collisions
 
 import { Entity } from "../engine/Entity.js";
 import { Assets } from "../engine/Assets.js";
@@ -10,7 +6,6 @@ import { SCALE } from "../constants.js";
 
 export class Floor extends Entity {
   constructor(x, y, type = "GRASS", options = {}) {
-    // Définition de la taille source
     let srcSize = 16;
     if (["TREE", "ORANGE_TREE", "DOOR", "BUSH_BIG"].includes(type))
       srcSize = 32;
@@ -18,14 +13,11 @@ export class Floor extends Entity {
     if (["MAISON_ORANGE", "MAISON_BLEU", "MAISON_VIOLETTE"].includes(type))
       srcSize = 48;
 
-    // TAILLE RÉELLE DANS LE JEU (ex: 16 * SCALE)
-
     const realSize = srcSize * SCALE;
 
     super(x, y, realSize, realSize);
 
     this.type = type;
-    // On ajuste le Z pour les objets hauts et les objets de décor
     const decors = [
       "OWL",
       "EGGS",
@@ -48,8 +40,7 @@ export class Floor extends Entity {
           ? 5
           : 0;
 
-    // Système de collision : Solide par défaut sauf pour les sols
-
+    // Sols traversables (pas de collision)
     const walkables = [
       "GRASS",
       "SAND",
@@ -85,8 +76,8 @@ export class Floor extends Entity {
       "DES_45",
       "SOL_PUIT",
     ];
-    // Bordures CIM solides (murs, tombes, deco, piliers)
 
+    // Tuiles CIM solides
     const cimSolid = [
       "CIM_SOL_1",
       "CIM_TOMBE_HD",
@@ -129,10 +120,10 @@ export class Floor extends Entity {
       "CIM_DECO_7",
       "WATER",
     ];
-    // Tous les CIM_ sont traversables sauf ceux dans cimSolid
     const isCim = this.type.startsWith("CIM_");
     const isCimWalkable = isCim && !cimSolid.includes(this.type);
-    // MAR_ : sols traversables (marecage, herbe, terre, boue, pont, planches, chemin)
+
+    // Tuiles MAR traversables
     const marWalkable = [
       "MAR_PONT_2",
       "MAR_SOUCHE",
@@ -166,7 +157,6 @@ export class Floor extends Entity {
       this.addTag("SOLID");
     }
 
-    // Panneau interactif
     this.signText = options.signText || null;
     this.interactRange = 50;
     this.interactKeyWasDown = false;
@@ -183,7 +173,7 @@ export class Floor extends Entity {
       return { x: this.x, y: this.y, w: this.width, h: this.height / 2 };
     }
     if (this.type === "CORDE") {
-      // Seules les 2 cases du bas sont solides (a partir de y+64)
+      // Seules les 2 cases du bas sont solides
       return { x: this.x, y: this.y + 64, w: 32, h: 64 };
     }
     return { x: this.x, y: this.y, w: this.width, h: this.height };
@@ -193,7 +183,7 @@ export class Floor extends Entity {
     const qm = window.game.questManager;
     const hasAll = qm && qm.allFragmentsCollected();
 
-    // Si c'est une barrière, elle disparaît quand on a tous les fragments
+    // Barriere disparait quand on a tous les fragments
     if (this.type.startsWith("BAR_")) {
       if (hasAll) {
         this.visible = false;
@@ -206,13 +196,13 @@ export class Floor extends Entity {
       }
     }
 
-    // Le portail n'est affiché que si on a tous les cristaux
+    // Portail visible seulement avec tous les cristaux
     if (this.type === "PORTAIL") {
       this.visible = !!hasAll;
-      this.collider = false; 
+      this.collider = false;
     }
 
-    // Retirer la collision des murs derrière le portail quand il est ouvert
+    // Murs derriere le portail deviennent traversables quand ouvert
     if ((this.type === "DUNGEON_WALL_2" || this.type === "BRIQUE") && this.y <= 32 && this.x >= 320 && this.x <= 416) {
       if (hasAll) {
         this.collider = false;
@@ -254,7 +244,7 @@ export class Floor extends Entity {
     const img = Assets.get("TILESET");
     if (!img) return;
 
-    // Arrondir les positions pour éviter les lignes entre les tiles (sub-pixel seams)
+    // Arrondir pour eviter les lignes entre tiles (sub-pixel seams)
     const dx = Math.round(this.x);
     const dy = Math.round(this.y);
     const dw = Math.round(this.width);
@@ -316,7 +306,7 @@ export class Floor extends Entity {
       SHOP: { sx: 0, sy: 64, sw: 48, sh: 48 },
     };
 
-    // Tiles avec leur propre asset (pas dans le tileset)
+    // Tiles avec leur propre asset
     const standalone = {
       HERBESOL: "HERBESOL",
       HERBESOL2: "HERBESOL2",
@@ -336,7 +326,6 @@ export class Floor extends Entity {
       const sImg = Assets.get(standalone[this.type]);
       if (!sImg) return;
       if (this.type === "PORTAIL") {
-        // Portail : 64x32 source, dessine sur 4x2 tiles (128x64 px)
         ctx.drawImage(
           sImg,
           0,
@@ -386,7 +375,7 @@ export class Floor extends Entity {
       return;
     }
 
-    // Tiles depuis la spritesheet shop.png
+    // Tiles depuis shop.png
     if (this.type.startsWith("SHOP_")) {
       const shopImg = Assets.get("SHOP_SHEET");
       if (!shopImg) return;
@@ -402,7 +391,7 @@ export class Floor extends Entity {
       return;
     }
 
-    // Tiles depuis la spritesheet forteresse.png
+    // Tiles depuis forteresse.png
     if (this.type.startsWith("FORT_")) {
       const fortImg = Assets.get("FORTERESSE");
       if (!fortImg) return;
@@ -474,7 +463,7 @@ export class Floor extends Entity {
       return;
     }
 
-    // Tiles depuis la spritesheet marais.png
+    // Tiles depuis marais.png
     if (this.type.startsWith("MAR_")) {
       const marImg = Assets.get("MARAIS");
       if (!marImg) return;
@@ -570,12 +559,11 @@ export class Floor extends Entity {
       return;
     }
 
-    // Tiles depuis la spritesheet maisonTileset.png
+    // Tiles depuis maisonTileset.png
     if (this.type.startsWith("MAIS_")) {
       const maisImg = Assets.get("MAISON_TILESET");
       if (!maisImg) return;
       const maisMapping = {
-        // Row 0 (cols 0-6)
         MAIS_1: { sx: 0, sy: 0 },
         MAIS_2: { sx: 16, sy: 0 },
         MAIS_3: { sx: 32, sy: 0 },
@@ -583,7 +571,6 @@ export class Floor extends Entity {
         MAIS_5: { sx: 64, sy: 0 },
         MAIS_6: { sx: 80, sy: 0 },
         MAIS_7: { sx: 96, sy: 0 },
-        // Row 1 (cols 0-6)
         MAIS_13: { sx: 0, sy: 16 },
         MAIS_14: { sx: 16, sy: 16 },
         MAIS_15: { sx: 32, sy: 16 },
@@ -591,35 +578,30 @@ export class Floor extends Entity {
         MAIS_17: { sx: 64, sy: 16 },
         MAIS_18: { sx: 80, sy: 16 },
         MAIS_19: { sx: 96, sy: 16 },
-        // Row 2 (cols 0-5)
         MAIS_25: { sx: 0, sy: 32 },
         MAIS_26: { sx: 16, sy: 32 },
         MAIS_27: { sx: 32, sy: 32 },
         MAIS_28: { sx: 48, sy: 32 },
         MAIS_29: { sx: 64, sy: 32 },
         MAIS_30: { sx: 80, sy: 32 },
-        // Row 3 (cols 0-5)
         MAIS_37: { sx: 0, sy: 48 },
         MAIS_38: { sx: 16, sy: 48 },
         MAIS_39: { sx: 32, sy: 48 },
         MAIS_40: { sx: 48, sy: 48 },
         MAIS_41: { sx: 64, sy: 48 },
         MAIS_42: { sx: 80, sy: 48 },
-        // Row 4 (cols 0-5)
         MAIS_49: { sx: 0, sy: 64 },
         MAIS_SOL: { sx: 16, sy: 64 },
         MAIS_51: { sx: 32, sy: 64 },
         MAIS_52: { sx: 48, sy: 64 },
         MAIS_HautArmoire: { sx: 64, sy: 64 },
         MAIS_54: { sx: 80, sy: 64 },
-        // Row 5 (cols 0-5)
         MAIS_61: { sx: 0, sy: 80 },
         MAIS_62: { sx: 16, sy: 80 },
         MAIS_63: { sx: 32, sy: 80 },
         MAIS_64: { sx: 48, sy: 80 },
         MAIS_BasArmoire: { sx: 64, sy: 80 },
         MAIS_66: { sx: 80, sy: 80 },
-        // Row 6 (cols 0-5)
         MAIS_73: { sx: 0, sy: 96 },
         MAIS_74: { sx: 16, sy: 96 },
         MAIS_75: { sx: 32, sy: 96 },
@@ -634,12 +616,11 @@ export class Floor extends Entity {
       return;
     }
 
-    // Tiles depuis la spritesheet cimetiere.png
+    // Tiles depuis cimetiere.png
     if (this.type.startsWith("CIM_")) {
       const cimImg = Assets.get("CIMETIERE");
       if (!cimImg) return;
       const cimMapping = {
-        // Row 0
         CIM_TOMBE_HG: { sx: 0, sy: 0 },
         CIM_TOMBE_HD: { sx: 16, sy: 0 },
         CIM_SOL_1: { sx: 32, sy: 0 },
@@ -654,7 +635,6 @@ export class Floor extends Entity {
         CIM_PILIER_1: { sx: 176, sy: 0 },
         CIM_MUR_3: { sx: 192, sy: 0 },
         CIM_MUR_4: { sx: 208, sy: 0 },
-        // Row 1
         CIM_TOMBE_BG: { sx: 0, sy: 16 },
         CIM_TOMBE_BD: { sx: 16, sy: 16 },
         CIM_SOL_8: { sx: 32, sy: 16 },
@@ -669,7 +649,6 @@ export class Floor extends Entity {
         CIM_PILIER_2: { sx: 176, sy: 16 },
         CIM_MUR_7: { sx: 192, sy: 16 },
         CIM_MUR_8: { sx: 208, sy: 16 },
-        // Row 2
         CIM_DECO_1: { sx: 0, sy: 32 },
         CIM_DECO_2: { sx: 16, sy: 32 },
         CIM_DECO_3: { sx: 32, sy: 32 },
@@ -684,7 +663,6 @@ export class Floor extends Entity {
         CIM_PILIER_3: { sx: 176, sy: 32 },
         CIM_MUR_11: { sx: 192, sy: 32 },
         CIM_MUR_12: { sx: 208, sy: 32 },
-        // Row 3
         CIM_DECO_5: { sx: 0, sy: 48 },
         CIM_DECO_6: { sx: 16, sy: 48 },
         CIM_ROSE_1: { sx: 32, sy: 48 },
@@ -699,7 +677,6 @@ export class Floor extends Entity {
         CIM_PILIER_4: { sx: 176, sy: 48 },
         CIM_MUR_15: { sx: 192, sy: 48 },
         CIM_MUR_16: { sx: 208, sy: 48 },
-        // Row 4
         CIM_STRUCT_1: { sx: 0, sy: 64 },
         CIM_STRUCT_2: { sx: 16, sy: 64 },
         CIM_ROSE_8: { sx: 32, sy: 64 },
@@ -714,7 +691,6 @@ export class Floor extends Entity {
         CIM_PILIER_5: { sx: 176, sy: 64 },
         CIM_MUR_19: { sx: 192, sy: 64 },
         CIM_MUR_20: { sx: 208, sy: 64 },
-        // Row 5
         CIM_STRUCT_3: { sx: 0, sy: 80 },
         CIM_STRUCT_4: { sx: 16, sy: 80 },
         CIM_SOL_15: { sx: 32, sy: 80 },
@@ -729,7 +705,6 @@ export class Floor extends Entity {
         CIM_DECO_7: { sx: 176, sy: 80 },
         CIM_MUR_23: { sx: 192, sy: 80 },
         CIM_MUR_24: { sx: 208, sy: 80 },
-        // Row 6
         CIM_STRUCT_5: { sx: 0, sy: 96 },
         CIM_STRUCT_6: { sx: 16, sy: 96 },
         CIM_SOL_22: { sx: 32, sy: 96 },
@@ -762,12 +737,11 @@ export class Floor extends Entity {
       return;
     }
 
-    // Tiles depuis la spritesheet desert.png
+    // Tiles depuis desert.png
     if (this.type.startsWith("DES_")) {
       const desImg = Assets.get("DESERT");
       if (!desImg) return;
       const desMapping = {
-        // Ligne 0
         DES_1: { sx: 0, sy: 0 },
         DES_2: { sx: 16, sy: 0 },
         DES_3: { sx: 32, sy: 0 },
@@ -777,7 +751,6 @@ export class Floor extends Entity {
         DES_7: { sx: 96, sy: 0 },
         DES_8: { sx: 112, sy: 0 },
         DES_9: { sx: 128, sy: 0 },
-        // Ligne 1
         DES_10: { sx: 0, sy: 16 },
         DES_11: { sx: 16, sy: 16 },
         DES_12: { sx: 32, sy: 16 },
@@ -787,7 +760,6 @@ export class Floor extends Entity {
         DES_16: { sx: 96, sy: 16 },
         DES_17: { sx: 112, sy: 16 },
         DES_18: { sx: 128, sy: 16 },
-        // Ligne 2
         DES_19: { sx: 0, sy: 32 },
         DES_20: { sx: 16, sy: 32 },
         DES_21: { sx: 32, sy: 32 },
@@ -797,7 +769,6 @@ export class Floor extends Entity {
         DES_25: { sx: 96, sy: 32 },
         DES_26: { sx: 112, sy: 32 },
         DES_27: { sx: 128, sy: 32 },
-        // Ligne 3
         DES_28: { sx: 0, sy: 48 },
         DES_29: { sx: 16, sy: 48 },
         DES_30: { sx: 32, sy: 48 },
@@ -807,7 +778,6 @@ export class Floor extends Entity {
         DES_34: { sx: 96, sy: 48 },
         DES_35: { sx: 112, sy: 48 },
         DES_36: { sx: 128, sy: 48 },
-        // Ligne 4
         DES_37: { sx: 0, sy: 64 },
         DES_38: { sx: 16, sy: 64 },
         DES_39: { sx: 32, sy: 64 },
@@ -817,7 +787,6 @@ export class Floor extends Entity {
         DES_43: { sx: 96, sy: 64 },
         DES_44: { sx: 112, sy: 64 },
         DES_45: { sx: 128, sy: 64 },
-        // Ligne 5
         DES_46: { sx: 0, sy: 80 },
         DES_47: { sx: 16, sy: 80 },
         DES_48: { sx: 32, sy: 80 },
@@ -847,11 +816,9 @@ export class Floor extends Entity {
 
     const t = mapping[this.type];
     if (t) {
-      // On dessine à la taille calculée dans le constructeur
       ctx.drawImage(img, t.sx, t.sy, t.sw, t.sh, dx, dy, dw, dh);
     }
 
-    // Indicateur [E] si panneau et joueur a portee
     if (this.signText && this.playerInRange && !window.game.dialogueActive) {
       this.drawSignIndicator(ctx);
     }
@@ -877,7 +844,7 @@ export class Floor extends Entity {
     ctx.textAlign = "left";
   }
 
-  // Système de collision AABB simple
+  // Collision AABB
   onCollision(other) {
     if (
       !this.collider ||
@@ -899,7 +866,6 @@ export class Floor extends Entity {
     const overlapY = (box.h + otherBox.h) / 2 - Math.abs(dy);
 
     if (overlapX > 0 && overlapY > 0) {
-      // Message de blocage si barrière et joueur
       if (this.type.startsWith("BAR_") && other.hasTag("PLAYER")) {
         this.triggerBarrierDialogue();
       }
@@ -912,7 +878,7 @@ export class Floor extends Entity {
     }
   }
 
-  /** Affiche le dialogue de la barrière avec cooldown. */
+  // Dialogue barriere avec cooldown de 3s
   triggerBarrierDialogue() {
     if (window.game.dialogueActive) return;
     const now = Date.now();

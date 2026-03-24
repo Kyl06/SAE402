@@ -1,8 +1,4 @@
-/**
- * Entité Joueur (Héros). 
- * Gère la machine à états de mouvement, l'inventaire, la santé et les interactions physiques.
- */
-
+// Entité joueur : mouvement, inventaire, santé, stamina
 import { Entity } from "../../engine/Entity.js";
 import { PlayerActions } from "./PlayerActions.js";
 import { SpriteSheet } from "../../engine/SpriteSheet.js";
@@ -11,21 +7,20 @@ import { UP, DOWN, LEFT, RIGHT, TAG_PLAYER } from "../../constants.js";
 
 export class Player extends Entity {
     constructor(x, y, skinId) {
-        super(x, y, 32, 32); 
+        super(x, y, 32, 32);
 
-        this.hp = 6;                
+        this.hp = 6;
         this.maxHp = 6;
-        this.addTag(TAG_PLAYER);    
-        this.skinId = skinId;       
-        this.facing = DOWN;         
-        this.speed = 160;           
-        this.z = 20;                
+        this.addTag(TAG_PLAYER);
+        this.skinId = skinId;
+        this.facing = DOWN;
+        this.speed = 160;
+        this.z = 20;
 
-        this.visible = true;        
-        this.isDead = false;        
-        this.isPainFlashing = false; 
+        this.visible = true;
+        this.isDead = false;
+        this.isPainFlashing = false;
 
-        // Atlas 16x16 : Marche(0,1), Attaque(2,3), Dégât(4)
         this.spriteSheet = new SpriteSheet(this.skinId, 5, 4, 16, 16);
 
         this.animations = {
@@ -36,32 +31,30 @@ export class Player extends Entity {
         };
 
         this.actions = new PlayerActions(this);
-        this.actionAnimation = null; // Priorité sur le mouvement libre (Root Motion/Locked State)
+        this.actionAnimation = null;
 
         this.emeralds = 0;
-        this.arrows = 5;       
+        this.arrows = 5;
         this.potions = 0;
         this.hasShield = false;
-        this.swordLevel = 0;   
-        this.bowLevel = 0;     
+        this.swordLevel = 0;
+        this.bowLevel = 0;
         this.fragments = [false, false, false];
 
         this.stamina = 100;
         this.maxStamina = 100;
-        this.staminaDepleted = false;   
-        this.staminaRegenDelay = 0;     
+        this.staminaDepleted = false;
+        this.staminaRegenDelay = 0;
 
         this.adminMode = false;
         this._adminKeyWas = false;
         this._tpKeyWas = false;
     }
 
-    /** Résolution de collision AABB. */
     onCollision(other) {
         if (this.isDead || this.isPainFlashing) return;
 
         if (other.hasTag("ENEMY") || other.hasTag("MAGIC_PROJECTILE")) {
-            // Direction du vecteur de recul (Knockback) basé sur les centres respectifs.
             const dx = (this.x + this.width/2) - (other.x + other.width/2);
             const dy = (this.y + this.height/2) - (other.y + other.width/2);
             const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? RIGHT : LEFT) : (dy > 0 ? DOWN : UP);
@@ -69,16 +62,13 @@ export class Player extends Entity {
         }
     }
 
-    /**
-     * Traitement des dommages avec feedback sensoriel (Juice).
-     * Inclut : Screen Shake, Hitstop (frame freeze), Knockback (recul) et i-frames (clignotement).
-     */
+    // Dégâts avec screen shake, hitstop, knockback et i-frames
     takeDamage(amount, direction) {
         if (this.adminMode || this.hp <= 0 || this.isPainFlashing) return;
 
         if (this.hasShield && amount > 1) amount -= 1;
         this.hp -= amount;
-        
+
         window.game.engine.shake(8, 200);
         if (this.hp <= 0) return this.die();
 
@@ -92,22 +82,12 @@ export class Player extends Entity {
         const originalUpdate = this.update.bind(this);
         let hitStopTimer = 0;
 
-        // Injection d'un état temporaire (Override Update) pour le Hitstop/Knockback
+        // Override temporaire pour hitstop + knockback
         this.update = (delta) => {
-            if (hitStopTimer < hitStopDuration) {
-                hitStopTimer += delta;
-                return; 
-            }
-
+            if (hitStopTimer < hitStopDuration) { hitStopTimer += delta; return; }
             elapsed += delta;
-            this.visible = (Math.floor(elapsed / 50) % 2 === 0); // Aliasing temporel pour l'invincibilité
-
-            if (elapsed >= knockDuration) {
-                this.update = originalUpdate; 
-                this.visible = true; 
-                return;
-            }
-
+            this.visible = (Math.floor(elapsed / 50) % 2 === 0);
+            if (elapsed >= knockDuration) { this.update = originalUpdate; this.visible = true; return; }
             this.velX = (dirX * knockIntensity) / (knockDuration / 1000);
             this.velY = (dirY * knockIntensity) / (knockDuration / 1000);
             super.update(delta);
@@ -117,7 +97,7 @@ export class Player extends Entity {
             this.isPainFlashing = false;
             this.visible = true;
             if (this.update !== originalUpdate) this.update = originalUpdate;
-        }, 1200); 
+        }, 1200);
     }
 
     setSkin(skinId) {
@@ -135,20 +115,12 @@ export class Player extends Entity {
 
     update(delta) {
         if (this.isDead) return;
-
-        // Logs admin keys (F9/F10)
         this._checkAdminToggle();
         this._checkAdminTeleport();
-
         if (window.game.dialogueActive) { this.velX = 0; this.velY = 0; return; }
+        if (this.actionAnimation) { this.actionAnimation.work?.(delta); return; }
 
-        // Mouvement verrouillé si action (Attaque/Cast) en cours
-        if (this.actionAnimation) {
-            this.actionAnimation.work?.(delta);
-            return;
-        }
-
-        // Stamina Recovery Logic
+        // Régénération stamina
         if (this.staminaRegenDelay > 0) {
             this.staminaRegenDelay -= delta;
         } else {
@@ -158,7 +130,6 @@ export class Player extends Entity {
 
         this.handleMovement();
 
-        // Feed de l'Animator
         if (this.velX !== 0 || this.velY !== 0) {
             this.animations[this.facing].update(delta);
         } else {
@@ -169,7 +140,6 @@ export class Player extends Entity {
         window.game.zoneManager?.checkTransition(this);
     }
 
-    /** Capture des inputs et normalisation du vecteur de mouvement. */
     handleMovement() {
         const { inputs } = window.game;
         this.velX = 0; this.velY = 0;
@@ -181,18 +151,14 @@ export class Player extends Entity {
         if (inputs.isHeld("ArrowUp")) { this.velY = -spd; this.facing = UP; }
         else if (inputs.isHeld("ArrowDown")) { this.velY = spd; this.facing = DOWN; }
 
-        /** 
-         * Normalisation vectorielle ($1/\sqrt{2}$) pour éviter le "Speed Bug" en diagonale 
-         * (Théorème de Pythagore : le vecteur diagonale serait de ~1.41 s'il n'était pas bridé).
-         */
+        // Normalisation diagonale (1/√2)
         if (this.velX !== 0 && this.velY !== 0) {
-            this.velX *= 0.7071; 
+            this.velX *= 0.7071;
             this.velY *= 0.7071;
         }
 
         if (inputs.isHeld("KeyZ")) this.actions.actionSwingSword();
         if (inputs.isHeld("KeyX")) this.actions.actionShootArrow();
-
         if (inputs.isHeld("KeyP") && !this._potionKeyWas) this.usePotion();
         this._potionKeyWas = inputs.isHeld("KeyP");
     }
@@ -210,7 +176,7 @@ export class Player extends Entity {
         let frame = 0;
 
         if (this.isPainFlashing) {
-            frame = row + 4; 
+            frame = row + 4;
         } else if (this.actionAnimation) {
             frame = row + (this.actionAnimation.frameIdx ?? 2);
         } else {
@@ -249,4 +215,4 @@ export class Player extends Entity {
         }
         this._tpKeyWas = pressed;
     }
-}
+}

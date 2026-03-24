@@ -1,9 +1,4 @@
-/**
- * Hub de communication UDP-like (via Socket.io). 
- * Gère la réplication d'état entre l'Hôte (autorité monde) et le Client (miroir).
- * Utilise une sérialisation compacte en chaîne de caractères pour réduire la charge payload.
- */
-
+// Réplication réseau Host/Client via Socket.io
 import { NetworkPlayer } from "../entities/Player/NetworkPlayer.js";
 
 export class NetworkUpdater {
@@ -24,16 +19,13 @@ export class NetworkUpdater {
   setupListeners() {
     if (!this.socket) return;
 
-    // Synchronisation du skin dès la connexion (Role confirmation)
+    // Confirmation de rôle
     this.socket.on("init_player", ({ skin }) => {
       this.localPlayer?.setSkin?.(skin);
       window.dispatchEvent(new CustomEvent("network_ready"));
     });
 
-    /**
-     * Paquet Joueur : "ACTION|X|Y|VX|VY|SKIN|FACING|ARROWS|IS_PAIN"
-     * Sérialisation manuelle pour éviter l'overhead JSON sur le tick de mouvement.
-     */
+    // Sync joueur distant (sérialisation compacte "ACTION|X|Y|...")
     this.socket.on("network_update", ({ id, data }) => {
       if (id === this.socket.id) return;
       if (!this.remotePlayers[id]) {
@@ -50,11 +42,7 @@ export class NetworkUpdater {
       if (id !== this.socket.id) this.remotePlayers[id]?.triggerAction(action, facing);
     });
 
-    /**
-     * Synchronisation des ennemis.
-     * Note : On ignore les updates si l'hôte est dans une zone différente pour éviter
-     * le despawn brutal des mobs côté client lors d'un respawn/transition de l'hôte.
-     */
+    // Sync ennemis (ignoré si zone différente du host)
     this.socket.on("network_enemies", async (data) => {
       if (this.isHost) return;
 
@@ -80,11 +68,9 @@ export class NetworkUpdater {
           };
 
           if (config[type]) {
-            // Réserver le slot AVANT l'await pour éviter les doublons
-            this.remoteEnemies[netId] = "loading";
+            this.remoteEnemies[netId] = "loading"; // Réserve le slot avant l'await
             const module = await import(config[type]);
-            // Vérifier qu'on n'a pas été nettoyé pendant l'await (changement de zone)
-            if (this.remoteEnemies[netId] !== "loading") continue;
+            if (this.remoteEnemies[netId] !== "loading") continue; // Zone changée pendant l'await
             const ClassName = Object.keys(module)[0];
             const mob = new module[ClassName](parseFloat(x), parseFloat(y));
             mob.netId = netId;
@@ -98,7 +84,7 @@ export class NetworkUpdater {
         }
       }
 
-      // Garbage collection des entités mortes ou sorties de zone
+      // Suppression des ennemis absents du paquet
       for (const id in this.remoteEnemies) {
         if (!currentIds.includes(id)) {
           if (typeof this.remoteEnemies[id] === "object") {
@@ -109,7 +95,7 @@ export class NetworkUpdater {
       }
     });
 
-    // Gestion du Loot et des Projectiles (Spawning dynamique via imports asynchrones)
+    // Spawn items distants
     this.socket.on("network_item_spawn", async ({ id, x, y, type }) => {
       if (this.isHost) return;
       const path = type === "HEART" ? "../entities/Items/Heart.js" : "../entities/Items/Emerald.js";
@@ -124,6 +110,7 @@ export class NetworkUpdater {
       if (item) this.engine.remove(item);
     });
 
+    // Spawn projectiles distants
     this.socket.on("network_projectile_spawn", async (data) => {
       if (this.isHost) return;
       const isMagic = data.type === "MAGIC";
@@ -137,7 +124,7 @@ export class NetworkUpdater {
         : new Class(data.x, data.y, data.vx, data.vy, data.ownerId);
 
       proj.netId = data.id;
-      proj.collider = false; // Le client gère visuellement, l'hôte gère la collision réelle
+      proj.collider = false; // Visuel uniquement côté client
       this.engine.add(proj);
     });
 
@@ -147,6 +134,7 @@ export class NetworkUpdater {
       this.engine.add(new Explosion(x, y));
     });
 
+    // Changement de zone distant
     this.socket.on("network_zone_change", async ({ zone, entryDir, spawnX, spawnY }) => {
       const zm = window.game.zoneManager;
       if (zm?.currentZone !== zone) {
@@ -154,7 +142,7 @@ export class NetworkUpdater {
       }
     });
 
-    // Synchronisation du QuestManager : L'hôte diffuse les changements d'état persistants
+    // Sync quêtes
     this.socket.on("network_quest_update", ({ type, data }) => {
       const qm = window.game.questManager;
       if (!qm) return;
@@ -175,14 +163,12 @@ export class NetworkUpdater {
       }
     });
 
-    // Autorité Hôte : Reçoit les demandes de dégâts des clients et les valide localement
+    // Host valide les dégâts envoyés par le client
     this.socket.on("network_enemy_hit", ({ enemyNetId, damage, direction }) => {
       if (!this.isHost) return;
       this.engine.entities.find((e) => e.netId === enemyNetId)?.takeDamage?.(damage, direction);
     });
   }
-
-  // --- API d'envoi (Abstraction socket.emit) ---
 
   sendHit(enemyNetId, damage, direction) {
     this.socket?.emit("enemy_hit", { enemyNetId, damage, direction });
@@ -220,4 +206,3 @@ export class NetworkUpdater {
   sendExplosion(x, y) { if (this.isHost) this.socket?.emit("explosion", { x, y }); }
   sendItemPickup(itemId) { this.socket?.emit("item_collected", { id: itemId }); }
 }
-

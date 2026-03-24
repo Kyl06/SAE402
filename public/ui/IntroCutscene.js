@@ -1,7 +1,4 @@
-/**
- * @file IntroCutscene.js
- * @description Cinematique d'introduction : Maldrek vole la Relique Sacree du village.
- */
+// Cinematique d'introduction : Maldrek vole la Relique Sacree
 
 import { Entity } from '../engine/Entity.js';
 import { SCALE } from '../constants.js';
@@ -11,7 +8,7 @@ import { Assets } from '../engine/Assets.js';
 export class IntroCutscene extends Entity {
     constructor(onComplete) {
         super(0, 0, 800, 660);
-        this.z = 997; // Au-dessus du jeu, sous la DialogueBox
+        this.z = 997;
         this.collider = false;
         this.onComplete = onComplete;
 
@@ -20,7 +17,6 @@ export class IntroCutscene extends Entity {
         this.phaseTimer = 0;
         this.done = false;
 
-        // Positions
         this.relicX = 382;
         this.relicY = 240;
         this.relicAlpha = 1;
@@ -32,7 +28,6 @@ export class IntroCutscene extends Entity {
         this.hasRelic = false;
         this.maldrekSheet = new SpriteSheet('MALDEK', 3, 4, 32, 36);
 
-        // Villageois (positions autour de la relique)
         this.villagers = [
             { x: 320, y: 280, sheet: new SpriteSheet('VIEUXNPC', 1, 1, 63, 66), frame: 0, scale: 0.58 },
             { x: 450, y: 270, sheet: new SpriteSheet('PNJ1', 2, 1, 92, 105), frame: 0, scale: 0.4 },
@@ -43,37 +38,32 @@ export class IntroCutscene extends Entity {
             { x: 210, y: 280, sheet: new SpriteSheet('STEEVE', 1, 1, 63, 86), frame: 0, scale: 0.48 },
         ];
 
-        // Déplacer les villageois sur des cases marchables si nécessaire
+        // Placer les villageois sur des cases marchables
         this.villagers = this.villagers.map(v => {
             const pos = this._snapToWalkable(v.x, v.y);
             return { ...v, x: pos.x, y: pos.y };
         });
 
-        // Déplacer Maldrek aussi
         const maldrekPos = this._snapToWalkable(this.maldrekX, 160);
         this.maldrekX = maldrekPos.x;
 
         this.villagersScatter = false;
         this.scatterTime = 0;
 
-        // Overlay
         this.fadeAlpha = 1;
 
-        // Textes
         this.subtitleText = '';
         this.subtitleAlpha = 0;
 
-        // Flash d'eclat
         this.flashAlpha = 0;
 
-        // Relique animée (16 frames de 32x34, séparées de 1px → pas de 33px)
-        this.relicSheet = null; // chargé depuis Assets au premier draw
+        // Relique animee (16 frames de 32x34, separees de 1px)
+        this.relicSheet = null;
         this.relicFrameCount = 16;
         this.relicFrameW = 32;
         this.relicFrameH = 34;
         this.relicFrameGap = 1;
 
-        // Ecouteur pour passer la cinematique
         this._skipHandler = (e) => {
             if (e.code === 'Escape' || e.code === 'Space' || e.code === 'Enter') {
                 this.skip();
@@ -82,7 +72,7 @@ export class IntroCutscene extends Entity {
         window.addEventListener('keydown', this._skipHandler);
     }
 
-    // Cherche la position libre la plus proche (par pas de 16px, en spirale)
+    // Cherche la position libre la plus proche en spirale
     _snapToWalkable(x, y, w = 32, h = 32) {
         const isBlocked = (tx, ty) => {
             const entities = window.game?.engine?.entities || [];
@@ -103,7 +93,7 @@ export class IntroCutscene extends Entity {
                 if (!isBlocked(tx, ty)) return { x: tx, y: ty };
             }
         }
-        return { x, y }; // fallback : position originale
+        return { x, y };
     }
 
     skip() {
@@ -120,26 +110,25 @@ export class IntroCutscene extends Entity {
         this.phaseTimer += delta;
 
         switch (this.phase) {
-            case 0: // Fade in sur la scene
+            case 0:
                 this.fadeAlpha = Math.max(0, 1 - this.phaseTimer / 1000);
                 this.subtitleText = 'Village Koumbou - Avant l\'attaque...';
                 this.subtitleAlpha = Math.min(1, this.phaseTimer / 1000);
                 if (this.phaseTimer > 2000) this.nextPhase();
                 break;
 
-            case 1: // Scene calme, villageois autour de la relique
+            case 1:
                 this.subtitleText = 'La Relique Sacree protege le village depuis des siecles.';
                 this.subtitleAlpha = Math.min(1, this.phaseTimer / 500);
                 this.relicScale = 1 + Math.sin(this.time * 0.003) * 0.1;
                 if (this.phaseTimer > 3000) this.nextPhase();
                 break;
 
-            case 2: // Maldrek apparait (teleportation)
+            case 2:
                 this.subtitleText = '';
                 this.maldrekAlpha = Math.min(1, this.phaseTimer / 800);
                 this.maldrekX = 382;
                 this.maldrekY = 160;
-                // Tremblement
                 if (this.phaseTimer > 400) {
                     window.game.engine.shake(3, 100);
                 }
@@ -150,20 +139,19 @@ export class IntroCutscene extends Entity {
                 if (this.phaseTimer > 3500) this.nextPhase();
                 break;
 
-            case 3: // Vol de la relique - flash + relique disparait
+            case 3:
                 if (this.phaseTimer < 300) {
                     this.flashAlpha = 1 - this.phaseTimer / 300;
                     window.game.engine.shake(6, 200);
                 } else {
                     this.flashAlpha = 0;
                 }
-                // Maldrek avance vers la relique
                 if (!this.hasRelic && this.phaseTimer > 100) {
                     this.hasRelic = true;
                     this.villagersScatter = true;
                     this.scatterTime = 0;
 
-                    // Précalculer des destinations de fuite sur cases walkables
+                    // Precalculer des destinations de fuite sur cases walkables
                     this.villagers.forEach((v, i) => {
                         const angle = (i / this.villagers.length) * Math.PI * 2 + 0.5;
                         const targetX = v.x + Math.cos(angle) * 80;
@@ -182,7 +170,7 @@ export class IntroCutscene extends Entity {
                 if (this.phaseTimer > 3000) this.nextPhase();
                 break;
 
-            case 4: // Maldrek s'enfuit vers le nord
+            case 4:
                 this.subtitleText = '';
                 this.maldrekY -= delta * 0.12;
                 if (this.maldrekY < -80) {
@@ -191,13 +179,13 @@ export class IntroCutscene extends Entity {
                 if (this.phaseTimer > 2000) this.nextPhase();
                 break;
 
-            case 5: // Message final
+            case 5:
                 this.subtitleText = 'Le village a besoin d\'un heros...';
                 this.subtitleAlpha = Math.min(1, this.phaseTimer / 500);
                 if (this.phaseTimer > 2500) this.nextPhase();
                 break;
 
-            case 6: // Fade out
+            case 6:
                 this.fadeAlpha = Math.min(1, this.phaseTimer / 800);
                 this.subtitleAlpha = Math.max(0, 1 - this.phaseTimer / 400);
                 if (this.phaseTimer > 1000) {
@@ -215,15 +203,11 @@ export class IntroCutscene extends Entity {
     draw(ctx) {
         if (this.done) return;
 
-        // Le vrai village est deja dessine en dessous (map chargee)
-
-
         // Relique sacree (sprite anime)
         if (this.relicAlpha > 0) {
             ctx.save();
             ctx.globalAlpha = this.relicAlpha;
 
-            // Halo lumineux
             const haloSize = 20 * this.relicScale;
             const gradient = ctx.createRadialGradient(
                 this.relicX, this.relicY, 0,
@@ -234,7 +218,6 @@ export class IntroCutscene extends Entity {
             ctx.fillStyle = gradient;
             ctx.fillRect(this.relicX - haloSize, this.relicY - haloSize, haloSize * 2, haloSize * 2);
 
-            // Sprite animé (16 frames, 32x34, gap 1px → step de 33px)
             const rImg = Assets.get('RELIQUE');
             if (rImg) {
                 const frameIdx = Math.floor(this.time / 80) % this.relicFrameCount;
@@ -249,20 +232,17 @@ export class IntroCutscene extends Entity {
             ctx.restore();
         }
 
-
-        // Villageois
         this.villagers.forEach((v) => {
             let vx = v.x;
             let vy = v.y;
             if (this.villagersScatter && v.scatterTargetX !== undefined) {
-                const t = Math.min(this.scatterTime / 1000, 1); // 0→1 en 1s
+                const t = Math.min(this.scatterTime / 1000, 1);
                 vx = v.x + (v.scatterTargetX - v.x) * t;
                 vy = v.y + (v.scatterTargetY - v.y) * t;
             }
             this.drawVillager(ctx, vx, vy, v);
         });
 
-        // Maldrek
         if (this.maldrekAlpha > 0) {
             ctx.save();
             ctx.globalAlpha = this.maldrekAlpha;
@@ -285,18 +265,16 @@ export class IntroCutscene extends Entity {
             ctx.restore();
         }
 
-        // Flash
         if (this.flashAlpha > 0) {
             ctx.fillStyle = `rgba(255, 255, 200, ${this.flashAlpha})`;
             ctx.fillRect(0, 0, 800, 660);
         }
 
-        // Bande noire cinematique (haut et bas, au-dessus de la BottomBar)
+        // Bandes noires cinematiques
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, 800, 40);
         ctx.fillRect(0, 520, 800, 80);
 
-        // Sous-titre (dans la bande du bas)
         if (this.subtitleText && this.subtitleAlpha > 0) {
             ctx.save();
             ctx.globalAlpha = this.subtitleAlpha;
@@ -304,7 +282,6 @@ export class IntroCutscene extends Entity {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
-            // Fond du sous-titre
             const tw = ctx.measureText(this.subtitleText).width;
             ctx.fillStyle = 'rgba(0,0,0,0.85)';
             ctx.fillRect(400 - tw / 2 - 16, 538, tw + 32, 28);
@@ -314,7 +291,6 @@ export class IntroCutscene extends Entity {
             ctx.restore();
         }
 
-        // Indication skip
         const skipAlpha = 0.4 + Math.sin(this.time * 0.003) * 0.2;
         ctx.save();
         ctx.globalAlpha = skipAlpha;
@@ -324,7 +300,6 @@ export class IntroCutscene extends Entity {
         ctx.fillText('Echap pour passer', 790, 30);
         ctx.restore();
 
-        // Fade overlay
         if (this.fadeAlpha > 0) {
             ctx.fillStyle = `rgba(0, 0, 0, ${this.fadeAlpha})`;
             ctx.fillRect(0, 0, 800, 660);
@@ -347,13 +322,12 @@ export class IntroCutscene extends Entity {
                 ctx.fillRect(px, py, 3, 3);
             }
         }
-        // Phase 4 = fuite vers le nord → de dos (UP = frames 3,4)
-        // Autres phases → de face (DOWN = frame 0)
+        // Phase 4 = fuite vers le nord (de dos), sinon de face
         let frame;
         if (this.phase === 4) {
-            frame = 3 + (Math.floor(Date.now() / 150) % 2); // marche dos (3 ou 4)
+            frame = 3 + (Math.floor(Date.now() / 150) % 2);
         } else {
-            frame = 0; // face
+            frame = 0;
         }
         this.maldrekSheet.drawFrame(ctx, frame, x - 32, y - 36, 2);
     }

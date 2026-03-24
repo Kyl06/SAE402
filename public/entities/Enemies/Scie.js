@@ -1,11 +1,13 @@
+// Piege scie : va-et-vient horizontal, invincible
+
 import { Entity } from "../../engine/Entity.js";
 import { Assets } from "../../engine/Assets.js";
 
 export class Scie extends Entity {
   constructor(x, y, range = 64, speed = 100) {
     super(x, y, 32, 32);
-    this.addTag("ENEMY"); // Pour blesser le joueur au contact
-    this.addTag("NOCLIP"); // Permet de traverser les murs sans être repoussé
+    this.addTag("ENEMY");
+    this.addTag("NOCLIP"); // Traverse les murs
     this.enemyType = "SCIE";
 
     this.anchorX = x;
@@ -20,20 +22,17 @@ export class Scie extends Entity {
   }
 
   update(delta) {
-    // Mouvement de va-et-vient horizontal
     if (this.velX > 0 && this.x > this.anchorX + this.range) {
       this.velX = -Math.abs(this.velX);
     } else if (this.velX < 0 && this.x < this.anchorX - this.range) {
       this.velX = Math.abs(this.velX);
     }
 
-    // Rotation de la scie (2 tours par seconde)
     this.angle += (delta / 1000) * 360 * 2;
 
     super.update(delta);
   }
 
-  // Une scie est invincible et ne recule pas
   takeDamage() {}
   onCollision(other) {}
 

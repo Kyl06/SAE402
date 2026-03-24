@@ -1,6 +1,4 @@
-/**
- * @file BottomBar.js
- */
+// Barre de statut en bas : coeurs, stamina, emeraudes, fleches, inventaire
 
 import { Entity } from '../engine/Entity.js';
 import { Hearts } from './Hearts.js';
@@ -15,11 +13,9 @@ export class BottomBar extends Entity {
     }
 
     draw(ctx) {
-        // 1. Fond noir opaque
         ctx.fillStyle = "#000";
         ctx.fillRect(this.x, this.y, this.width, this.height);
 
-        // 2. Bordure blanche rétro
         ctx.strokeStyle = "#fff";
         ctx.lineWidth = 4;
         ctx.strokeRect(this.x, this.y, this.width, this.height);
@@ -27,46 +23,32 @@ export class BottomBar extends Entity {
         const player = window.game.player;
         if (!player) return;
 
-        // --- Ligne du haut : coeurs + stamina + emeraudes + fleches ---
         const startX = 20;
         const numHearts = Math.ceil(player.maxHp / 2);
         const heartsWidth = numHearts * (this.heartsUI.heartSize + 8);
-        
+
         this.heartsUI.draw(ctx, player.hp, startX, this.y + 8, player.maxHp);
-        
+
         const staminaX = Math.max(140, startX + heartsWidth + 10);
         this.drawStamina(ctx, player, staminaX, this.y + 18);
-        
+
         const emeraldsX = staminaX + 140;
         this.drawEmeralds(ctx, player, emeraldsX, this.y + 24);
-        
+
         const arrowsX = emeraldsX + 140;
         this.drawArrows(ctx, player, arrowsX, this.y + 24);
 
-        // --- Ligne du bas : inventaire ---
         const invY = this.y + 60;
         let cursorX = 20;
 
-        // Fragments de cristal
         cursorX = this.drawFragments(ctx, cursorX, invY);
-
-        // Relique (si Maldrek vaincu)
         cursorX = this.drawRelic(ctx, cursorX, invY);
-
-        // Separateur
         cursorX += 15;
-
-        // Potions
         cursorX = this.drawPotions(ctx, player, cursorX, invY);
-
-        // Equipement
         cursorX += 15;
         cursorX = this.drawEquipment(ctx, player, cursorX, invY);
 
-        // Zone courante (affichee a droite)
         this.drawZoneName(ctx, this.y + 24);
-
-        // Contrôles affichés à droite au-dessus de la zone
         this.drawControls(ctx, this.y + 39);
     }
 
@@ -83,58 +65,44 @@ export class BottomBar extends Entity {
         ctx.textBaseline = "top";
         ctx.textAlign = "left";
 
-        const canvasWidth = 800;
-        const verticalSpacing = 14; // Espacement entre les lignes
+        const verticalSpacing = 14;
+        const rightColumnX = 350;
 
-        // Position fixe pour la deuxième colonne (action de droite)
-        const rightColumnX = 350; // Position horizontale fixe pour la deuxième colonne
-
-        // Grouper les contrôles par 2 pour former les lignes
         const rows = [];
         for (let i = 0; i < controls.length; i += 2) {
             rows.push(controls.slice(i, i + 2));
         }
 
-        // Pour chaque ligne
         for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
             const row = rows[rowIndex];
             const rowY = y + rowIndex * verticalSpacing;
 
-            // Premier contrôle (toujours présent)
             const firstControl = row[0];
             const firstLabelText = `[${firstControl.label}]`;
             const firstActionText = ` ${firstControl.action}`;
 
-            // Position du premier contrôle (centré ou à gauche)
-            const firstX = 500; // Position fixe pour la première colonne
+            const firstX = 500;
 
-            // Dessiner le premier label en jaune
             ctx.fillStyle = "#ffdd00";
             ctx.fillText(firstLabelText, firstX, rowY);
 
-            // Position de la première action
             const firstLabelWidth = ctx.measureText(firstLabelText).width;
             const firstActionX = firstX + firstLabelWidth;
 
-            // Dessiner la première action en gris
             ctx.fillStyle = "#aaa";
             ctx.fillText(firstActionText, firstActionX, rowY);
 
-            // Deuxième contrôle (si présent)
             if (row.length > 1) {
                 const secondControl = row[1];
                 const secondLabelText = `[${secondControl.label}]`;
                 const secondActionText = ` ${secondControl.action}`;
 
-                // Dessiner le deuxième label en jaune à la position fixe
                 ctx.fillStyle = "#ffdd00";
                 ctx.fillText(secondLabelText, rightColumnX, rowY);
 
-                // Position de la deuxième action
                 const secondLabelWidth = ctx.measureText(secondLabelText).width;
                 const secondActionX = rightColumnX + secondLabelWidth;
 
-                // Dessiner la deuxième action en gris
                 ctx.fillStyle = "#aaa";
                 ctx.fillText(secondActionText, secondActionX, rowY);
             }
@@ -154,11 +122,9 @@ export class BottomBar extends Entity {
         ctx.textAlign = "left";
 
         for (const { label, action } of secondaryControls) {
-            // Label de la touche (blanc/jaune pour faire ressortir)
             ctx.fillStyle = "#ffdd00";
             ctx.fillText(`[${label}]`, x, y);
 
-            // Action (gris)
             ctx.fillStyle = "#aaa";
             ctx.fillText(` ${action}`, x + (label.length * 6) + 20, y);
 
@@ -171,15 +137,12 @@ export class BottomBar extends Entity {
         const barH = 8;
         const ratio = player.stamina / player.maxStamina;
 
-        // Fond
         ctx.fillStyle = '#333';
         ctx.fillRect(x, y, barW, barH);
 
-        // Barre
         ctx.fillStyle = player.staminaDepleted ? '#ff4444' : (ratio < 0.3 ? '#ffaa00' : '#44cc44');
         ctx.fillRect(x, y, barW * ratio, barH);
 
-        // Bordure
         ctx.strokeStyle = '#888';
         ctx.lineWidth = 1;
         ctx.strokeRect(x, y, barW, barH);
@@ -191,9 +154,8 @@ export class BottomBar extends Entity {
         if (emeraldImg) {
             ctx.drawImage(emeraldImg, x, y - iconSize / 2, iconSize, iconSize);
         }
-        // Si en mode admin, afficher une étiquette compréhensible
         if (player.adminMode) {
-            ctx.fillStyle = '#ffffffff'; // doré pour indiquer l'état spécial
+            ctx.fillStyle = '#ffffffff';
             ctx.font = "bold 14px monospace";
             ctx.textBaseline = "middle";
             ctx.textAlign = "left";
@@ -212,7 +174,6 @@ export class BottomBar extends Entity {
         const iconSize = 22;
         const arrowImg = Assets.get("ARROW");
         if (arrowImg) {
-            // Derniere frame 16x16 de arrow.png (4eme ligne)
             ctx.drawImage(arrowImg, 0, 48, 16, 16, x, y - iconSize / 2, iconSize, iconSize);
         }
         const count = player.arrows || 0;
@@ -248,7 +209,6 @@ export class BottomBar extends Entity {
         const qm = window.game.questManager;
         if (!qm || !qm.maldrekDefeated) return x;
 
-        // Draw 1px gap animated relic
         const rImg = Assets.get('RELIQUE');
         if (rImg) {
             const frameW = 32;
@@ -259,7 +219,6 @@ export class BottomBar extends Entity {
             const dw = 20;
             const dh = 20;
 
-            // Halo jaune derrière la relique
             ctx.save();
             ctx.shadowColor = '#ffdd44';
             ctx.shadowBlur = 10;
@@ -290,21 +249,18 @@ export class BottomBar extends Entity {
     }
 
     drawEquipment(ctx, player, x, y) {
-        // Epee
         if (player.swordLevel > 0) {
             const epeeImg = Assets.get("EPEE_FER");
             if (epeeImg) ctx.drawImage(epeeImg, x, y - 10, 20, 20);
             x += 26;
         }
 
-        // Arc
         if (player.bowLevel > 0) {
             const arcImg = Assets.get("ARC_LONG");
             if (arcImg) ctx.drawImage(arcImg, x, y - 10, 20, 20);
             x += 26;
         }
 
-        // Bouclier
         if (player.hasShield) {
             const bouclierImg = Assets.get("BOUCLIER");
             if (bouclierImg) ctx.drawImage(bouclierImg, x, y - 10, 20, 20);

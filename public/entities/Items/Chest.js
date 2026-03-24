@@ -1,22 +1,10 @@
-/**
- * @file Chest.js
- * @description Coffre interactif. S'ouvre avec la touche E si le joueur possede la cle.
- */
+// Coffre interactif, s'ouvre avec touche E (necessite parfois une cle)
 
 import { Entity } from '../../engine/Entity.js';
 import { Assets } from '../../engine/Assets.js';
 import { SCALE } from '../../constants.js';
 
 export class Chest extends Entity {
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {object} [config] - Configuration optionnelle
-     * @param {boolean} [config.requireKey] - Necessite une cle (defaut: true)
-     * @param {number} [config.emeralds] - Nombre d'emeraudes a donner
-     * @param {string[]} [config.messages] - Messages a afficher a l'ouverture
-     * @param {string} [config.saveId] - Identifiant pour sauvegarder l'etat ouvert
-     */
     constructor(x, y, config = {}) {
         super(x, y, 20, 16);
         this.z = 5;
@@ -43,7 +31,6 @@ export class Chest extends Entity {
             }
         }
 
-        // Taille d'affichage sur l'ecran
         this.drawSize = 32;
     }
 
@@ -81,7 +68,6 @@ export class Chest extends Entity {
         const dist = Math.sqrt(dx * dx + dy * dy);
         this.playerInRange = dist < this.interactRange;
 
-        // Interaction touche E
         const keyDown = window.game.inputs.isHeld('KeyE');
         if (this.playerInRange && keyDown && !this.keyWasDown) {
             this.tryOpen();
@@ -94,7 +80,6 @@ export class Chest extends Entity {
         if (!qm) return;
 
         if (this.requireKey) {
-            // Mode cle (comportement original)
             const quest = qm.getQuest('swamp_chest');
             if (!quest.hasKey) {
                 const db = window.game.dialogueBox;
@@ -115,10 +100,8 @@ export class Chest extends Entity {
                 }
             }
         } else {
-            // Mode sans cle
             this.opened = true;
 
-            // Donner les emeraudes
             if (this.emeralds > 0) {
                 const player = window.game.player;
                 if (player) {
@@ -126,13 +109,11 @@ export class Chest extends Entity {
                 }
             }
 
-            // Sauvegarder l'etat
             if (this.saveId) {
                 const quest = qm.getQuest(this.saveId);
                 quest.opened = true;
             }
 
-            // Afficher le message
             const db = window.game.dialogueBox;
             if (db) {
                 const msgs = this.customMessages || ["Le coffre s'ouvre !"];
@@ -145,14 +126,14 @@ export class Chest extends Entity {
         const image = Assets.get('COFFRE');
         if (!image) return;
 
-        // Image 1024x1024 avec 2 frames cote a cote (gauche = ferme, droite = ouvert)
+        // 2 frames cote a cote (gauche = ferme, droite = ouvert)
         const frameW = image.width / 2;
         const frameH = image.height;
         const sx = this.opened ? frameW : 0;
         const dw = this.drawSize;
-        const dh = this.drawSize * (frameH / frameW); // Respecter le ratio
+        const dh = this.drawSize * (frameH / frameW);
 
-        // Le coffre est ancre par le bas : le couvercle ouvert depasse vers le haut
+        // Ancre par le bas : le couvercle ouvert depasse vers le haut
         const dy = this.y + this.drawSize - dh;
 
         ctx.drawImage(
@@ -162,7 +143,6 @@ export class Chest extends Entity {
             dw, dh
         );
 
-        // Indicateur "?" si le joueur est proche et coffre ferme
         if (this.playerInRange && !this.opened) {
             const bounceY = Math.sin(this.indicatorBounce * 3) * 3;
             ctx.fillStyle = '#ffcc00';

@@ -1,7 +1,4 @@
-/**
- * @file MagicProjectile.js
- * @description Projectile magique tiré par Maldrek (Boss Final).
- */
+// Projectile magique tire par Maldrek
 
 import { Entity } from '../../engine/Entity.js';
 
@@ -11,12 +8,11 @@ export class MagicProjectile extends Entity {
         this.velX = dirX * speed;
         this.velY = dirY * speed;
 
-        // On s'assure qu'il n'a PAS le tag ENEMY pour éviter d'apparaître
-        // comme un Moblin chez P2 via enemies_update.
+        // Pas le tag ENEMY pour eviter d'etre traite comme un Moblin en reseau
         this.tags = this.tags.filter(t => t !== 'ENEMY');
         this.addTag('MAGIC_PROJECTILE');
-        
-        this.enemyType = 'MAGIC_PROJECTILE'; // Backup pour éviter fallback Moblin
+
+        this.enemyType = 'MAGIC_PROJECTILE';
         this.collider = true;
         this.z = 12;
         this.lifeTime = 3000;
@@ -33,7 +29,6 @@ export class MagicProjectile extends Entity {
 
     onCollision(other) {
         if (other.hasTag('PLAYER') && !other.isDead) {
-            // Le Player gère ses propres dégâts
             this.kill();
         }
         if (other.hasTag('SOLID') && !other.hasTag('ENEMY') && !other.hasTag('MAGIC_PROJECTILE')) {
@@ -43,12 +38,10 @@ export class MagicProjectile extends Entity {
 
     draw(ctx) {
         const pulse = Math.sin(this.time * 0.01) * 3 + 8;
-        // Boule magique violette
         ctx.fillStyle = '#aa44ff';
         ctx.beginPath();
         ctx.arc(this.x + 6, this.y + 6, pulse, 0, Math.PI * 2);
         ctx.fill();
-        // Coeur lumineux
         ctx.fillStyle = '#ff88ff';
         ctx.beginPath();
         ctx.arc(this.x + 6, this.y + 6, pulse * 0.5, 0, Math.PI * 2);

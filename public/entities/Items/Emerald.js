@@ -1,29 +1,22 @@
-/**
- * @file Emerald.js
- * @description Objet de monnaie (Émeraude) collectable.
- * Augmente le compteur d'émeraudes du joueur lors du ramassage.
- */
+// Emeraude collectable (monnaie du jeu)
 
 import { Entity } from "../../engine/Entity.js";
 import { Assets } from "../../engine/Assets.js";
 
 export class Emerald extends Entity {
-  /**
-   * @param {number} x, y - Position d'apparition
-   */
   constructor(x, y) {
     super(x, y, 24, 24);
     this.addTag("ITEM");
     this.sprite = Assets.get("EMERALD");
     this.z = 5;
-    this.netId = null; // Défini lors du spawn réseau
+    this.netId = null;
   }
 
   update(delta) {
     const players = window.game.engine.entities.filter(e => e.hasTag("PLAYER") && !e.isDead);
     let target = null;
-    let minDist = 120; // Rayon de magnétisme (pixels)
-    
+    let minDist = 120; // Rayon de magnetisme
+
     players.forEach(p => {
         const d = Math.hypot(p.x - this.x, p.y - this.y);
         if (d < minDist) {
@@ -36,8 +29,8 @@ export class Emerald extends Entity {
         const dx = target.x - this.x;
         const dy = target.y - this.y;
         const dist = Math.hypot(dx, dy) || 1;
-        
-        const speed = 150; // Vitesse de déplacement magnétique
+
+        const speed = 150;
         this.x += (dx / dist) * speed * (delta / 1000);
         this.y += (dy / dist) * speed * (delta / 1000);
     }
@@ -46,14 +39,14 @@ export class Emerald extends Entity {
   }
 
   onCollision(other) {
-    // Seul le joueur LOCAL peut ramasser l'émeraude (évite la double collecte avec le NetworkPlayer)
+    // Seul le joueur local peut ramasser (evite la double collecte reseau)
     if (other.hasTag("PLAYER") && other === window.game.player) {
       this.collect(other);
     }
   }
 
   collect(player) {
-    if (this.toRemove) return; // Évite la double collecte
+    if (this.toRemove) return;
     player = player || window.game.player;
     if (!player) return;
 
