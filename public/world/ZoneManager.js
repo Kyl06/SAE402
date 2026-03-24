@@ -458,8 +458,8 @@ export class ZoneManager {
     // Charger la zone (sans re-setter transitioning via loadZone)
     await this._doLoadZone(targetZone, entryDir);
 
-    // Notifier le reseau
-    if (window.game.network?.socket) {
+    // Notifier le reseau (seul le host notifie pour éviter le respawn des ennemis)
+    if (window.game.network?.isHost && window.game.network?.socket) {
       const player = window.game.player;
       window.game.network.socket.emit("zone_change", {
         zone: targetZone,
@@ -585,7 +585,7 @@ export class ZoneManager {
       player.velY = 0;
     }
 
-    if (window.game.network?.socket) {
+    if (window.game.network?.isHost && window.game.network?.socket) {
       window.game.network.socket.emit("zone_change", {
         zone: door.target,
         entryDir: "south",
