@@ -150,7 +150,7 @@ export class NetworkUpdater {
     this.socket.on("network_zone_change", async ({ zone, entryDir, spawnX, spawnY }) => {
       const zm = window.game.zoneManager;
       if (zm?.currentZone !== zone) {
-        await zm.loadZone(zone, entryDir, spawnX, spawnY, true);
+        await zm.loadZone(zone, entryDir, spawnX, spawnY);
       }
     });
 

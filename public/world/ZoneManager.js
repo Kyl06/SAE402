@@ -140,11 +140,11 @@ export class ZoneManager {
 
   // Charge une zone par son identifiant (appel public, ex: spawn initial).
 
-  async loadZone(zoneId, entryDir = null, spawnX = null, spawnY = null, fromNetwork = false) {
+  async loadZone(zoneId, entryDir = null, spawnX = null, spawnY = null) {
     if (this.transitioning) return;
     this.transitioning = true;
     try {
-      await this._doLoadZone(zoneId, entryDir, spawnX, spawnY, fromNetwork);
+      await this._doLoadZone(zoneId, entryDir, spawnX, spawnY);
     } finally {
       this.transitioning = false;
     }
@@ -152,7 +152,7 @@ export class ZoneManager {
 
   // Chargement interne (sans toucher a transitioning).
 
-  async _doLoadZone(zoneId, entryDir = null, spawnX = null, spawnY = null, fromNetwork = false) {
+  async _doLoadZone(zoneId, entryDir = null, spawnX = null, spawnY = null) {
     // 1. Nettoyer la zone actuelle
     this.clearZoneEntities();
 
@@ -166,9 +166,9 @@ export class ZoneManager {
     this.worldMap.bgColor = this.currentZoneData.bgColor || "#1a1a1a";
     this.worldMap.load(this.currentZoneData.mapData);
 
-    // 4. Spawner les ennemis (host uniquement, et seulement si c'est sa propre transition)
+    // 4. Spawner les ennemis (host uniquement)
     const isHost = window.game.network?.isHost;
-    if ((isHost && !fromNetwork) || !window.game.network) {
+    if (isHost || !window.game.network) {
       this.spawnEnemies(this.currentZoneData.enemies, entryDir);
     }
 
