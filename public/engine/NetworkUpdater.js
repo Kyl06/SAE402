@@ -71,7 +71,6 @@ export class NetworkUpdater {
         currentIds.push(netId);
 
         if (!this.remoteEnemies[netId]) {
-          let mob;
           const config = {
             OCTOROK: "../entities/Enemies/NetworkOctorok.js",
             MALDREK: "../entities/Enemies/NetworkMaldrek.js",
@@ -81,14 +80,18 @@ export class NetworkUpdater {
           };
 
           if (config[type]) {
+            // Réserver le slot AVANT l'await pour éviter les doublons
+            this.remoteEnemies[netId] = null;
             const module = await import(config[type]);
+            // Vérifier qu'on n'a pas été nettoyé pendant l'await (changement de zone)
+            if (!(netId in this.remoteEnemies)) continue;
             const ClassName = Object.keys(module)[0];
-            mob = new module[ClassName](parseFloat(x), parseFloat(y));
+            const mob = new module[ClassName](parseFloat(x), parseFloat(y));
             mob.netId = netId;
             this.remoteEnemies[netId] = mob;
             this.engine.add(mob);
           } else { continue; }
-        } else {
+        } else if (this.remoteEnemies[netId]) {
           const mob = this.remoteEnemies[netId];
           const isA = isAiming === "true" || (type === "CREUSE" ? parseInt(isAiming) : false);
           mob.updateFromNetwork(x, y, facing, isA, isHurt === "true", parseFloat(hp));
