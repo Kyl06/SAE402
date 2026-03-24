@@ -129,8 +129,40 @@ export class Player extends Entity {
         this.isDead = true;
         this.visible = false;
         this.collider = false;
+
+        // Notifier l'autre joueur
+        window.game.network?.socket?.emit("player_died");
+
+        // Si un coéquipier est en vie, afficher un message d'attente
+        const hasAlly = window.game.network && Object.keys(window.game.network.remotePlayers).length > 0;
+        if (hasAlly) {
+            const ui = document.getElementById("game-over-ui");
+            if (ui) {
+                ui.querySelector("h2").textContent = "K.O.";
+                ui.querySelector("p").textContent = "En attente que ton coéquipier retourne au village...";
+                const btn = ui.querySelector(".respawn-btn");
+                if (btn) btn.style.display = "none";
+                ui.style.display = "block";
+            }
+        } else {
+            const ui = document.getElementById("game-over-ui");
+            if (ui) ui.style.display = "block";
+        }
+    }
+
+    respawn() {
+        this.isDead = false;
+        this.visible = true;
+        this.collider = true;
+        this.hp = this.maxHp;
+        this.stamina = this.maxStamina;
+        this.staminaDepleted = false;
+        this.x = 400;
+        this.y = 300;
+        this.velX = 0;
+        this.velY = 0;
         const ui = document.getElementById("game-over-ui");
-        if (ui) ui.style.display = "block";
+        if (ui) ui.style.display = "none";
     }
 
     update(delta) {

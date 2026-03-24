@@ -211,6 +211,21 @@ export class ZoneManager {
       }
     }
 
+    // 7. Si retour au village et coéquipier mort, déclencher son respawn
+    if (zoneId === "village") {
+      const net = window.game.network;
+      if (net?.allyDead) {
+        for (const id in net.remotePlayers) {
+          if (net.remotePlayers[id].isDead) {
+            net.socket?.emit("player_respawn", id);
+            net.remotePlayers[id].isDead = false;
+            net.remotePlayers[id].visible = true;
+          }
+        }
+        net.allyDead = false;
+      }
+    }
+
     console.log(`[Zone] Chargee : ${this.currentZoneData.name} (${zoneId})`);
   }
 
@@ -470,8 +485,8 @@ export class ZoneManager {
     // Charger la zone (sans re-setter transitioning via loadZone)
     await this._doLoadZone(targetZone, entryDir);
 
-    // Notifier le reseau
-    if (window.game.network?.socket) {
+    // Notifier le reseau (seul le host déclenche les changements de zone)
+    if (window.game.network?.isHost && window.game.network?.socket) {
       const player = window.game.player;
       window.game.network.socket.emit("zone_change", {
         zone: targetZone,
@@ -597,7 +612,7 @@ export class ZoneManager {
       player.velY = 0;
     }
 
-    if (window.game.network?.socket) {
+    if (window.game.network?.isHost && window.game.network?.socket) {
       window.game.network.socket.emit("zone_change", {
         zone: door.target,
         entryDir: "south",

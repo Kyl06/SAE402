@@ -169,6 +169,28 @@ export class NetworkUpdater {
       handlers[type]?.();
     });
 
+    // Un coéquipier est mort
+    this.socket.on("network_player_died", (id) => {
+      const rp = this.remotePlayers[id];
+      if (rp) {
+        rp.isDead = true;
+        rp.visible = false;
+      }
+      this.allyDead = true;
+    });
+
+    // Respawn déclenché par le retour au village
+    this.socket.on("network_player_respawn", () => {
+      if (this.localPlayer?.isDead) {
+        this.localPlayer.respawn();
+        // Charger le village si on n'y est pas
+        const zm = window.game.zoneManager;
+        if (zm && zm.currentZone !== "village") {
+          zm.loadZone("village", null, 400, 300);
+        }
+      }
+    });
+
     this.socket.on("player_disconnected", (id) => {
       if (this.remotePlayers[id]) {
         this.engine.remove(this.remotePlayers[id]);
