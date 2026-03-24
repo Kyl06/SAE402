@@ -147,14 +147,6 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("network_quest_update", data);
   });
 
-  socket.on("player_died", () => {
-    socket.broadcast.emit("network_player_died", socket.id);
-  });
-
-  socket.on("player_respawn", (targetId) => {
-    io.to(targetId).emit("network_player_respawn");
-  });
-
   socket.on("disconnect", () => {
     if (roles.player1 === socket.id) roles.player1 = null;
     if (roles.player2 === socket.id) roles.player2 = null;
