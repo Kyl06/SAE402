@@ -156,7 +156,7 @@ io.on("connection", (socket) => {
 });
 
 // --- LANCEMENT DU SERVEUR ---
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3050;
 server.listen(PORT, () => {
   console.log(`--- SERVEUR ZELDA LANCÉ SUR http://localhost:${PORT} ---`);
   console.log(`(Appuyez sur Ctrl+C pour arrêter le serveur)`);
