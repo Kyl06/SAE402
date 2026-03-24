@@ -70,7 +70,7 @@ export class NetworkUpdater {
         const [netId, x, y, facing, type, isAiming, isHurt, hp] = dataString.split("|");
         currentIds.push(netId);
 
-        if (!this.remoteEnemies[netId]) {
+        if (!(netId in this.remoteEnemies)) {
           const config = {
             OCTOROK: "../entities/Enemies/NetworkOctorok.js",
             MALDREK: "../entities/Enemies/NetworkMaldrek.js",
@@ -81,17 +81,17 @@ export class NetworkUpdater {
 
           if (config[type]) {
             // Réserver le slot AVANT l'await pour éviter les doublons
-            this.remoteEnemies[netId] = null;
+            this.remoteEnemies[netId] = "loading";
             const module = await import(config[type]);
             // Vérifier qu'on n'a pas été nettoyé pendant l'await (changement de zone)
-            if (!(netId in this.remoteEnemies)) continue;
+            if (this.remoteEnemies[netId] !== "loading") continue;
             const ClassName = Object.keys(module)[0];
             const mob = new module[ClassName](parseFloat(x), parseFloat(y));
             mob.netId = netId;
             this.remoteEnemies[netId] = mob;
             this.engine.add(mob);
           } else { continue; }
-        } else if (this.remoteEnemies[netId]) {
+        } else if (typeof this.remoteEnemies[netId] === "object") {
           const mob = this.remoteEnemies[netId];
           const isA = isAiming === "true" || (type === "CREUSE" ? parseInt(isAiming) : false);
           mob.updateFromNetwork(x, y, facing, isA, isHurt === "true", parseFloat(hp));
@@ -101,7 +101,9 @@ export class NetworkUpdater {
       // Garbage collection des entités mortes ou sorties de zone
       for (const id in this.remoteEnemies) {
         if (!currentIds.includes(id)) {
-          this.engine.remove(this.remoteEnemies[id]);
+          if (typeof this.remoteEnemies[id] === "object") {
+            this.engine.remove(this.remoteEnemies[id]);
+          }
           delete this.remoteEnemies[id];
         }
       }
@@ -148,7 +150,7 @@ export class NetworkUpdater {
     this.socket.on("network_zone_change", async ({ zone, entryDir, spawnX, spawnY }) => {
       const zm = window.game.zoneManager;
       if (zm?.currentZone !== zone) {
-        await zm.loadZone(zone, entryDir, spawnX, spawnY);
+        await zm.loadZone(zone, entryDir, spawnX, spawnY, true);
       }
     });
 

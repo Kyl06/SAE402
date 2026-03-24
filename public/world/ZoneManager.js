@@ -140,11 +140,11 @@ export class ZoneManager {
 
   // Charge une zone par son identifiant (appel public, ex: spawn initial).
 
-  async loadZone(zoneId, entryDir = null, spawnX = null, spawnY = null) {
+  async loadZone(zoneId, entryDir = null, spawnX = null, spawnY = null, fromNetwork = false) {
     if (this.transitioning) return;
     this.transitioning = true;
     try {
-      await this._doLoadZone(zoneId, entryDir, spawnX, spawnY);
+      await this._doLoadZone(zoneId, entryDir, spawnX, spawnY, fromNetwork);
     } finally {
       this.transitioning = false;
     }
@@ -152,7 +152,7 @@ export class ZoneManager {
 
   // Chargement interne (sans toucher a transitioning).
 
-  async _doLoadZone(zoneId, entryDir = null, spawnX = null, spawnY = null) {
+  async _doLoadZone(zoneId, entryDir = null, spawnX = null, spawnY = null, fromNetwork = false) {
     // 1. Nettoyer la zone actuelle
     this.clearZoneEntities();
 
@@ -166,9 +166,9 @@ export class ZoneManager {
     this.worldMap.bgColor = this.currentZoneData.bgColor || "#1a1a1a";
     this.worldMap.load(this.currentZoneData.mapData);
 
-    // 4. Spawner les ennemis (host uniquement)
+    // 4. Spawner les ennemis (host uniquement, et seulement si c'est sa propre transition)
     const isHost = window.game.network?.isHost;
-    if (isHost || !window.game.network) {
+    if ((isHost && !fromNetwork) || !window.game.network) {
       this.spawnEnemies(this.currentZoneData.enemies, entryDir);
     }
 
@@ -458,8 +458,8 @@ export class ZoneManager {
     // Charger la zone (sans re-setter transitioning via loadZone)
     await this._doLoadZone(targetZone, entryDir);
 
-    // Notifier le reseau (seul le host notifie pour éviter le respawn des ennemis)
-    if (window.game.network?.isHost && window.game.network?.socket) {
+    // Notifier le reseau
+    if (window.game.network?.socket) {
       const player = window.game.player;
       window.game.network.socket.emit("zone_change", {
         zone: targetZone,
@@ -585,7 +585,7 @@ export class ZoneManager {
       player.velY = 0;
     }
 
-    if (window.game.network?.isHost && window.game.network?.socket) {
+    if (window.game.network?.socket) {
       window.game.network.socket.emit("zone_change", {
         zone: door.target,
         entryDir: "south",
